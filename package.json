@@ -6,12 +6,15 @@
   "scripts": {
     "xc": "tsc",
     "xrun": "node ./dist/index.js",
-    "lint-fix": "echo eslint --fix './src/**/*.{js,ts}' && prettier --write './src/**/*.{js,ts}'"
+    "lint-fix": "eslint --fix './src/**/*.{js,ts}' && prettier --write './src/**/*.{js,ts}'"
   },
   "author": "",
   "license": "ISC",
   "devDependencies": {
     "@types/node": "^18.17.3",
+    "@typescript-eslint/eslint-plugin": "^6.2.1",
+    "@typescript-eslint/parser": "^6.2.1",
+    "eslint": "^8.46.0",
     "prettier": "^3.0.1",
     "typescript": "^5.1.6"
   }
