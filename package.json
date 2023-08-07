@@ -4,19 +4,28 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "xc": "tsc",
-    "xrun": "node ./dist/index.js",
+    "build-dev": "rimraf dist && webpack --config webpack/webpack.dev.js --watch",
+    "build-prod": "rimraf dist && webpack --config webpack/webpack.prod.js",
+    "clean": "rimraf dist",
     "lint-fix": "eslint --fix './src/**/*.{js,ts}' && prettier --write './src/**/*.{js,ts}'"
   },
   "author": "",
   "license": "ISC",
   "devDependencies": {
+    "@types/chrome": "^0.0.243",
     "@types/node": "^18.17.3",
     "@typescript-eslint/eslint-plugin": "^6.2.1",
     "@typescript-eslint/parser": "^6.2.1",
+    "copy-webpack-plugin": "^11.0.0",
     "eslint": "^8.46.0",
     "eslint-config-prettier": "^9.0.0",
     "prettier": "^3.0.1",
-    "typescript": "^5.1.6"
+    "rimraf": "^5.0.1",
+    "terser-webpack-plugin": "^5.3.9",
+    "ts-loader": "^9.4.4",
+    "typescript": "^5.1.6",
+    "webpack": "^5.88.2",
+    "webpack-cli": "^5.1.4",
+    "webpack-merge": "^5.9.0"
   }
 }

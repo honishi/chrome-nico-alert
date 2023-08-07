@@ -1,0 +1,38 @@
+{
+  "name": "nico-alert",
+  "version": "0.1.0",
+  "manifest_version": 3,
+  "description": "",
+  "icons": {
+    "48": "./icons/icon48.png",
+    "128": "./icons/icon128.png"
+  },
+  "permissions": [
+    "storage"
+  ],
+  "host_permissions": [
+    "https://live.nicovideo.jp/watch/*"
+  ],
+  "content_scripts": [
+    {
+      "js": [
+        "./content.js"
+      ],
+      "css": [
+        "./css/main.css"
+      ],
+      "matches": [
+        "https://live.nicovideo.jp/watch/*"
+      ]
+    }
+  ],
+  "background": {
+    "service_worker": "./background.js"
+  },
+  "options_ui": {
+    "page": "./html/option.html"
+  },
+  "action": {
+    "default_popup": "./html/popup.html"
+  }
+}
