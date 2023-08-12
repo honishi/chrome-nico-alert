@@ -34,15 +34,21 @@ if (gridContainer != null) {
       img.src = program.screenshotThumbnail.liveScreenshotThumbnailUrl;
       link.appendChild(img);
 
-      const br1 = document.createElement("br");
-      const span = document.createElement("span");
-      span.textContent = program.title;
-      const br2 = document.createElement("br");
+      const titleSpan = document.createElement("span");
+      titleSpan.textContent = program.title;
+
+      const userDiv = document.createElement("div");
+      userDiv.className = "user-div";
+      const userIconImg = document.createElement("img");
+      const userNameSpan = document.createElement("span");
+      userIconImg.src = program.programProvider.iconSmall;
+      userNameSpan.textContent = program.programProvider.name;
+      userDiv.appendChild(userIconImg);
+      userDiv.appendChild(userNameSpan);
 
       item.appendChild(link);
-      item.appendChild(br1);
-      item.appendChild(span);
-      item.appendChild(br2);
+      item.appendChild(titleSpan);
+      item.appendChild(userDiv);
       return item;
     })
     .forEach((element) => {

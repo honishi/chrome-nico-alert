@@ -11,31 +11,89 @@
             font-size: 12px;
             padding: 10px;
             width: 760px;
-            margin: 0;
+        }
+
+        .title-container {
+            margin-bottom: 8px;
         }
 
         .container-title {
             font-family: 'M PLUS Rounded 1c', sans-serif;
-            font-weight: bold;
+            font-weight: 900;
             font-size: 16px;
         }
 
         .grid-container {
             display: grid;
             grid-template-columns: repeat(4, 1fr);
-            gap: 5px;
+            gap: 16px 8px;
             align-items: start;
+            margin: 0px　0px 16px 0px;
         }
 
-        .grid-item img {
+        .grid-item {
+            display: flex;
+            flex-direction: column;
+            border-radius: 8px; /* 角を丸くする */
+            box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.2); /* 影をつける */
+            background-color: #ffffff; /* 背景色を白に設定 */
+            /*padding: 10px; !* 内部の余白を設定 *!*/
+            transition: box-shadow 0.3s ease; /* トランジション効果 */
+        }
+
+        .grid-item:hover {
+            box-shadow: 0px 6px 8px rgba(0, 0, 0, 0.4); /* ホバー時の影を大きく */
+        }
+
+        .grid-item > a > img {
             width: 100%;
             height: auto;
             object-fit: cover;
+            border-radius: 8px 8px 0 0; /* 左上と右上の角を丸くする */
+            margin-bottom: 8px;
         }
+
+        .grid-item > span {
+            padding: 0 8px;
+            height: 32px; /* 2行分の高さに設定 */
+            line-height: 16px; /* 1行分の高さに設定 */
+            /*font-weight: bold;*/
+            overflow: hidden; /* 余分なテキストを隠す */
+            display: -webkit-box;
+            -webkit-line-clamp: 2; /* 最大2行まで表示 */
+            -webkit-box-orient: vertical; /* 縦方向にクランプ */
+            text-overflow: ellipsis; /* 省略記号を表示 */
+            margin-bottom: 8px;
+        }
+
+        .user-div {
+            display: flex;
+            align-items: center;
+            padding: 0 8px;
+            margin-bottom: 8px;
+        }
+
+        .user-div > img {
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            flex-shrink: 0;
+            margin-right: 8px;
+        }
+
+        .user-div > span {
+            /*height: 30px; !* imgと同じ高さに設定 *!*/
+            /*line-height: 30px; !* imgと同じ高さに設定 *!*/
+            text-align: left;
+            font-size: 10px;
+        }
+
     </style>
 </head>
 <body>
-<span class="container-title">フォロー中の番組</span>
+<div class="title-container">
+    <span class="container-title">⚫️ フォロー中の番組</span>
+</div>
 <div class="grid-container" id="main"></div>
 </body>
 </html>

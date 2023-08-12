@@ -16,6 +16,11 @@ export class NicoApiImpl implements NicoApi {
           liveScreenshotThumbnailUrl: program.screenshotThumbnail.liveScreenshotThumbnailUrl,
         },
         watchPageUrl: program.watchPageUrl,
+        programProvider: {
+          name: program.programProvider.name,
+          icon: program.programProvider.icon,
+          iconSmall: program.programProvider.iconSmall,
+        },
       };
     });
   }
