@@ -3,10 +3,39 @@
 <head>
     <meta charset="UTF-8">
     <script src="../popup.js"></script>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=M+PLUS+Rounded+1c&display=swap">
     <title>Popup</title>
+    <style>
+        body {
+            font-family: sans-serif;
+            font-size: 12px;
+            padding: 10px;
+            width: 760px;
+            margin: 0;
+        }
+
+        .container-title {
+            font-family: 'M PLUS Rounded 1c', sans-serif;
+            font-weight: bold;
+            font-size: 16px;
+        }
+
+        .grid-container {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 5px;
+            align-items: start;
+        }
+
+        .grid-item img {
+            width: 100%;
+            height: auto;
+            object-fit: cover;
+        }
+    </style>
 </head>
-<body style="min-width: 458px;">
-popup
-<div id="main"></div>
+<body>
+<span class="container-title">フォロー中の番組</span>
+<div class="grid-container" id="main"></div>
 </body>
 </html>
