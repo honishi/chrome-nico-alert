@@ -54,4 +54,5 @@ if (gridContainer != null) {
     .forEach((element) => {
       gridContainer.appendChild(element);
     });
+  await chrome.action.setBadgeText({ text: programs.length.toString() });
 }
