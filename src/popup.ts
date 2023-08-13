@@ -1,5 +1,7 @@
 import { Niconama } from "./domain/usecase/niconama";
 import { NicoApiImpl } from "./infra/api_client/nicoapi";
+import { BrowserApiImpl } from "./infra/browser/browser-api";
+import { Browser } from "./domain/usecase/browser";
 
 function addEventListeners() {
   document.addEventListener("DOMContentLoaded", () => {
@@ -11,8 +13,7 @@ addEventListeners();
 
 console.log("popup.ts");
 
-const nicoapi = new NicoApiImpl();
-const niconama = new Niconama(nicoapi);
+const niconama = new Niconama(new NicoApiImpl());
 const programs = await niconama.getOnAirPrograms();
 console.log(programs);
 
@@ -54,5 +55,7 @@ if (gridContainer != null) {
     .forEach((element) => {
       gridContainer.appendChild(element);
     });
-  await chrome.action.setBadgeText({ text: programs.length.toString() });
+
+  const browser = new Browser(new BrowserApiImpl());
+  await browser.setBadgeNumber(programs.length);
 }
