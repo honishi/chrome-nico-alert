@@ -15,10 +15,13 @@ function listenOnMessage(message: any, sender: any, sendResponse: any) {
 chrome.runtime.onInstalled.addListener(listenOnInstalled);
 chrome.runtime.onMessage.addListener(listenOnMessage);
 
-setInterval(async () => {
+async function updateBadge() {
   const niconama = new Niconama(new NicoApiImpl());
   const programs = await niconama.getOnAirPrograms();
 
   const browser = new Browser(new BrowserApiImpl());
   await browser.setBadgeNumber(programs.length);
-}, 30 * 1000);
+}
+
+await updateBadge();
+setInterval(updateBadge, 30 * 1000);
