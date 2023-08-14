@@ -28,13 +28,14 @@ export class Background {
 
     const programs = await this.currentProgramResolver();
     await this.browser.setBadgeNumber(programs.length);
-    await this.checkAndPlaySounds(programs);
+    await this.checkPrograms(programs);
 
     console.log("Background checkPrograms: end", new Date());
   }
 
-  private async checkAndPlaySounds(programs: Program[]): Promise<void> {
+  private async checkPrograms(programs: Program[]): Promise<void> {
     console.log("Background checkAndPlaySounds: start", new Date());
+    await this.browser.showNotification("checkPrograms");
     await this.browser.playSound();
     console.log("Background checkAndPlaySounds: end", new Date());
   }

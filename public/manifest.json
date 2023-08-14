@@ -9,7 +9,8 @@
   },
   "permissions": [
     "storage",
-    "offscreen"
+    "offscreen",
+    "notifications"
   ],
   "host_permissions": [
     "https://live.nicovideo.jp/watch/*"

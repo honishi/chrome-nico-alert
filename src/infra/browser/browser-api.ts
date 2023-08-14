@@ -52,4 +52,14 @@ export class BrowserApiImpl implements BrowserApi {
       console.log("Offscreen document created");
     }
   }
+
+  public async showNotification(message: string): Promise<void> {
+    chrome.notifications.create({
+      type: "basic",
+      // iconUrl: chrome.runtime.getURL("images/icon.png"),
+      iconUrl: chrome.runtime.getURL("icons/icon128.png"),
+      title: "Notification",
+      message: message,
+    });
+  }
 }
