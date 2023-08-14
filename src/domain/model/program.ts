@@ -1,4 +1,5 @@
 export type Program = {
+  id: string;
   title: string;
   screenshotThumbnail: ScreenshotThumbnail;
   watchPageUrl: string;

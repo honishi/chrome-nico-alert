@@ -6,6 +6,9 @@ export class Background {
   private browser: Browser;
   private currentProgramResolver?: () => Promise<Program[]>;
 
+  private lastProgramCheckTime?: Date;
+  private notifiedPrograms: Program[] = [];
+
   constructor(browser: Browser) {
     this.browser = browser;
   }
@@ -35,8 +38,26 @@ export class Background {
 
   private async checkPrograms(programs: Program[]): Promise<void> {
     console.log("Background checkAndPlaySounds: start", new Date());
-    await this.browser.showNotification("checkPrograms");
-    await this.browser.playSound();
+    if (this.lastProgramCheckTime === undefined) {
+      this.lastProgramCheckTime = new Date();
+      this.notifiedPrograms = programs;
+      return;
+    }
+
+    const promises = programs.map(async (program) => {
+      const isNotified = this.notifiedPrograms.some((notifiedProgram) => {
+        return notifiedProgram.id === program.id;
+      });
+      if (isNotified) {
+        return;
+      }
+      await this.browser.showNotification(`${program.title} / ${program.programProvider.name}`);
+      await this.browser.playSound();
+      this.notifiedPrograms.push(program);
+    });
+    await Promise.all(promises);
+
+    this.lastProgramCheckTime = new Date();
     console.log("Background checkAndPlaySounds: end", new Date());
   }
 }

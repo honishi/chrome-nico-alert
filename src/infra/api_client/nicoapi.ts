@@ -11,6 +11,7 @@ export class NicoApiImpl implements NicoApi {
     // console.log(json);
     return json.data.programs.map((program: any) => {
       return {
+        id: program.id,
         title: program.title,
         screenshotThumbnail: {
           liveScreenshotThumbnailUrl: program.screenshotThumbnail.liveScreenshotThumbnailUrl,
