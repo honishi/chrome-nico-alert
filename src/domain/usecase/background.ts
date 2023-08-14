@@ -51,7 +51,11 @@ export class Background {
       if (isNotified) {
         return;
       }
-      await this.browser.showNotification(`${program.title} / ${program.programProvider.name}`);
+      await this.browser.showNotification(
+        program.programProvider.name,
+        program.title,
+        program.socialGroup.thumbnailUrl,
+      );
       await this.browser.playSound();
       this.notifiedPrograms.push(program);
     });

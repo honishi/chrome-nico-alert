@@ -53,12 +53,11 @@ export class BrowserApiImpl implements BrowserApi {
     }
   }
 
-  public async showNotification(message: string): Promise<void> {
+  public async showNotification(title: string, message: string, iconUrl: string): Promise<void> {
     chrome.notifications.create({
       type: "basic",
-      // iconUrl: chrome.runtime.getURL("images/icon.png"),
-      iconUrl: chrome.runtime.getURL("icons/icon128.png"),
-      title: "Notification",
+      iconUrl: iconUrl,
+      title: title,
       message: message,
     });
   }

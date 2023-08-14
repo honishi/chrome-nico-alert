@@ -16,7 +16,7 @@ export class Browser {
     await this.browserApi.playSound(SoundType.NEW_LIVE_MAIN);
   }
 
-  public async showNotification(message: string): Promise<void> {
-    await this.browserApi.showNotification(message);
+  public async showNotification(title: string, message: string, iconUrl: string): Promise<void> {
+    await this.browserApi.showNotification(title, message, iconUrl);
   }
 }

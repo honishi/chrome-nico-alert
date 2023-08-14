@@ -13,7 +13,8 @@
     "notifications"
   ],
   "host_permissions": [
-    "https://live.nicovideo.jp/watch/*"
+    "https://live.nicovideo.jp/watch/*",
+    "https://secure-dcdn.cdn.nimg.jp/*"
   ],
   "content_scripts": [
     {
