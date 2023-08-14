@@ -46,9 +46,10 @@
         }
 
         .grid-item > a > img {
-            width: 100%;
-            height: auto;
-            object-fit: cover;
+            width: 100%; /* 幅を親要素に合わせる */
+            height: 100px; /* 固定の高さを指定 */
+            object-fit: cover; /* アスペクト比を保持しながら、コンテナに画像をフィットさせる */
+            overflow: hidden; /* 画像がコンテナを超える部分を隠す */
             border-radius: 8px 8px 0 0; /* 左上と右上の角を丸くする */
             margin-bottom: 8px;
         }

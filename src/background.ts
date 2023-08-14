@@ -16,12 +16,14 @@ chrome.runtime.onInstalled.addListener(listenOnInstalled);
 chrome.runtime.onMessage.addListener(listenOnMessage);
 
 async function updateBadge() {
+  console.log("updateBadge: start", new Date());
   const niconama = new Niconama(new NicoApiImpl());
   const programs = await niconama.getOnAirPrograms();
 
   const browser = new Browser(new BrowserApiImpl());
   await browser.setBadgeNumber(programs.length);
+  console.log("updateBadge: end", new Date());
 }
 
 await updateBadge();
-setInterval(updateBadge, 30 * 1000);
+setInterval(updateBadge, 60 * 1000);

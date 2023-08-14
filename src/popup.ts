@@ -32,11 +32,12 @@ if (gridContainer != null) {
       };
 
       const img = document.createElement("img");
-      img.src = program.screenshotThumbnail.liveScreenshotThumbnailUrl;
+      img.src =
+        program.screenshotThumbnail.liveScreenshotThumbnailUrl ?? program.socialGroup.thumbnailUrl;
       link.appendChild(img);
 
       const titleSpan = document.createElement("span");
-      titleSpan.textContent = program.title;
+      titleSpan.textContent = [program.isFollowerOnly ? "【限】" : "", program.title].join(" ");
 
       const userDiv = document.createElement("div");
       userDiv.className = "user-div";

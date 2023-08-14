@@ -3,6 +3,8 @@ export type Program = {
   screenshotThumbnail: ScreenshotThumbnail;
   watchPageUrl: string;
   programProvider: ProgramProvider;
+  socialGroup: SocialGroup;
+  isFollowerOnly: boolean;
 };
 
 type ScreenshotThumbnail = {
@@ -13,4 +15,8 @@ type ProgramProvider = {
   name: string;
   icon: string;
   iconSmall: string;
+};
+
+type SocialGroup = {
+  thumbnailUrl: string;
 };

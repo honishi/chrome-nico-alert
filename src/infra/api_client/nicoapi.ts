@@ -21,6 +21,10 @@ export class NicoApiImpl implements NicoApi {
           icon: program.programProvider.icon,
           iconSmall: program.programProvider.iconSmall,
         },
+        socialGroup: {
+          thumbnailUrl: program.socialGroup.thumbnailUrl,
+        },
+        isFollowerOnly: program.isFollowerOnly,
       };
     });
   }
