@@ -35,6 +35,7 @@ export class Background {
 
   private async checkAndPlaySounds(programs: Program[]): Promise<void> {
     console.log("Background checkAndPlaySounds: start", new Date());
+    await this.browser.playSound();
     console.log("Background checkAndPlaySounds: end", new Date());
   }
 }
