@@ -1,22 +1,27 @@
 import { Program } from "../model/program";
 import { Browser } from "./browser";
+import { inject, injectable } from "tsyringe";
+import { Niconama } from "./niconama";
+import { InjectTokens } from "../../di/injections";
 
 const RUN_INTERVAL = 1000 * 60; // 1 minute
-export class Background {
-  private browser: Browser;
-  private currentProgramResolver?: () => Promise<Program[]>;
 
+export interface Background {
+  run(): Promise<void>;
+}
+
+@injectable()
+export class BackgroundImpl implements Background {
   private lastProgramCheckTime?: Date;
   private notifiedPrograms: Program[] = [];
 
-  constructor(browser: Browser) {
-    this.browser = browser;
-  }
+  constructor(
+    @inject(InjectTokens.Niconama) private niconama: Niconama,
+    @inject(InjectTokens.Browser) private browser: Browser,
+  ) {}
 
-  public async run(currentProgramsResolver: () => Promise<Program[]>): Promise<void> {
+  public async run(): Promise<void> {
     console.log("Background run: start");
-    this.currentProgramResolver = currentProgramsResolver;
-
     await this.requestPrograms();
     setInterval(this.requestPrograms.bind(this), RUN_INTERVAL);
     console.log("Background run: end");
@@ -24,12 +29,8 @@ export class Background {
 
   private async requestPrograms(): Promise<void> {
     console.log("Background checkPrograms: start", new Date());
-    if (this.currentProgramResolver === undefined) {
-      console.log("Background checkPrograms: currentProgramResolver is undefined");
-      return;
-    }
 
-    const programs = await this.currentProgramResolver();
+    const programs = await this.niconama.getOnAirPrograms();
     await this.browser.setBadgeNumber(programs.length);
     await this.checkPrograms(programs);
 

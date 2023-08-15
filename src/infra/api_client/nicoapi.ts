@@ -1,4 +1,4 @@
-import { NicoApi } from "../../domain/usecase/nicoapi";
+import { NicoApi } from "../../domain/infra-interface/nicoapi";
 import { Program } from "../../domain/model/program";
 
 const FOLLOW_PROGRAMS_API =

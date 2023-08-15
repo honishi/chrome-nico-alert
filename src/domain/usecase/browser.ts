@@ -1,12 +1,17 @@
-import { BrowserApi } from "./browser-api";
+import { BrowserApi } from "../infra-interface/browser-api";
 import { SoundType } from "../model/sound-type";
+import { inject, injectable } from "tsyringe";
+import { InjectTokens } from "../../di/injections";
 
-export class Browser {
-  private browserApi: BrowserApi;
+export interface Browser {
+  setBadgeNumber(number: number): Promise<void>;
+  playSound(): Promise<void>;
+  showNotification(title: string, message: string, iconUrl: string): Promise<void>;
+}
 
-  constructor(browserApi: BrowserApi) {
-    this.browserApi = browserApi;
-  }
+@injectable()
+export class BrowserImpl implements Browser {
+  constructor(@inject(InjectTokens.BrowserApi) private browserApi: BrowserApi) {}
 
   public async setBadgeNumber(number: number): Promise<void> {
     await this.browserApi.setBadgeNumber(number);

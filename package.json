@@ -13,6 +13,7 @@
   "license": "ISC",
   "dependencies": {
     "node-fetch": "^3.3.2",
+    "reflect-metadata": "^0.1.13",
     "tsyringe": "^4.8.0"
   },
   "devDependencies": {

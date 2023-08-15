@@ -1,9 +1,12 @@
 import InstalledDetails = chrome.runtime.InstalledDetails;
-import { Niconama } from "./domain/usecase/niconama";
-import { NicoApiImpl } from "./infra/api_client/nicoapi";
+import "reflect-metadata";
+import { InjectTokens } from "./di/injections";
+import { Background, BackgroundImpl } from "./domain/usecase/background";
+import { container } from "tsyringe";
+import { BrowserImpl } from "./domain/usecase/browser";
 import { BrowserApiImpl } from "./infra/browser/browser-api";
-import { Background } from "./domain/usecase/background";
-import { Browser } from "./domain/usecase/browser";
+import { NiconamaImpl } from "./domain/usecase/niconama";
+import { NicoApiImpl } from "./infra/api_client/nicoapi";
 
 function listenOnInstalled(details: InstalledDetails) {
   console.log(details);
@@ -16,10 +19,15 @@ function listenOnMessage(message: any, sender: any, sendResponse: any) {
 chrome.runtime.onInstalled.addListener(listenOnInstalled);
 chrome.runtime.onMessage.addListener(listenOnMessage);
 
-const browser = new Browser(new BrowserApiImpl());
+function configureContainer() {
+  container.register(InjectTokens.Background, { useClass: BackgroundImpl });
+  container.register(InjectTokens.Browser, { useClass: BrowserImpl });
+  container.register(InjectTokens.BrowserApi, { useClass: BrowserApiImpl });
+  container.register(InjectTokens.Niconama, { useClass: NiconamaImpl });
+  container.register(InjectTokens.NicoApi, { useClass: NicoApiImpl });
+}
 
-const background = new Background(browser);
-await background.run(async () => {
-  const niconama = new Niconama(new NicoApiImpl());
-  return await niconama.getOnAirPrograms();
-});
+configureContainer();
+
+const background = container.resolve<Background>(InjectTokens.Background);
+await background.run();
