@@ -13,6 +13,7 @@ type ScreenshotThumbnail = {
 };
 
 type ProgramProvider = {
+  id: string;
   name: string;
   icon: string;
   iconSmall: string;

@@ -18,6 +18,7 @@ export class NicoApiImpl implements NicoApi {
         },
         watchPageUrl: program.watchPageUrl,
         programProvider: {
+          id: program.programProvider.id,
           name: program.programProvider.name,
           icon: program.programProvider.icon,
           iconSmall: program.programProvider.iconSmall,

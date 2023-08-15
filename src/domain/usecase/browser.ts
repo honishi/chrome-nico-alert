@@ -5,23 +5,33 @@ import { InjectTokens } from "../../di/injections";
 
 export interface Browser {
   setBadgeNumber(number: number): Promise<void>;
-  playSound(): Promise<void>;
+  playSound(sound: SoundType): Promise<void>;
   showNotification(title: string, message: string, iconUrl: string): Promise<void>;
+  getAutoOpenUserIds(): Promise<string[]>;
+  openTab(url: string): Promise<void>;
 }
 
 @injectable()
 export class BrowserImpl implements Browser {
   constructor(@inject(InjectTokens.BrowserApi) private browserApi: BrowserApi) {}
 
-  public async setBadgeNumber(number: number): Promise<void> {
+  async setBadgeNumber(number: number): Promise<void> {
     await this.browserApi.setBadgeNumber(number);
   }
 
-  public async playSound(): Promise<void> {
-    await this.browserApi.playSound(SoundType.NEW_LIVE_MAIN);
+  async playSound(sound: SoundType): Promise<void> {
+    await this.browserApi.playSound(sound);
   }
 
-  public async showNotification(title: string, message: string, iconUrl: string): Promise<void> {
+  async showNotification(title: string, message: string, iconUrl: string): Promise<void> {
     await this.browserApi.showNotification(title, message, iconUrl);
+  }
+
+  async getAutoOpenUserIds(): Promise<string[]> {
+    return await this.browserApi.getAutoOpenUserIds();
+  }
+
+  async openTab(url: string): Promise<void> {
+    await this.browserApi.openTab(url);
   }
 }

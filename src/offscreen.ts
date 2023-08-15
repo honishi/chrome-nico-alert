@@ -7,13 +7,13 @@ chrome.runtime.onMessage.addListener(async (msg) => {
   let source = "";
   switch (chromeMessage) {
     case ChromeMessage.PLAY_DEFAULT_SOUND:
-      source = "../sounds/sound.mp3";
+      source = "../sounds/new_live_sub.mp3";
       break;
     case ChromeMessage.PLAY_NEW_LIVE_SOUND_MAIN:
-      source = "../sounds/sound.mp3";
+      source = "../sounds/new_live_main.mp3";
       break;
     case ChromeMessage.PLAY_NEW_LIVE_SOUND_SUB:
-      source = "../sounds/sound.mp3";
+      source = "../sounds/new_live_sub.mp3";
       break;
   }
   await playAudio(source);
