@@ -64,6 +64,7 @@ export class BrowserApiImpl implements BrowserApi {
 
   async getAutoOpenUserIds(): Promise<string[]> {
     return [
+      "122712824", //大ちゃんマン(大司教)
       "14162285", // みなみの魔王2nd
       "26503722", // ジンギスカン
       "16408042", // 歌下手お兄さん
