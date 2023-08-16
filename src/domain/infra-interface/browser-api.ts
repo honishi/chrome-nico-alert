@@ -6,4 +6,5 @@ export interface BrowserApi {
   showNotification(title: string, message: string, iconUrl: string): Promise<void>;
   getAutoOpenUserIds(): Promise<string[]>;
   openTab(url: string): Promise<void>;
+  getTabUrls(): Promise<string[]>;
 }

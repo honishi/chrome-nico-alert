@@ -102,4 +102,9 @@ export class BrowserApiImpl implements BrowserApi {
   async openTab(url: string): Promise<void> {
     await chrome.tabs.create({ url: url });
   }
+
+  async getTabUrls(): Promise<string[]> {
+    const tabs = await chrome.tabs.query({});
+    return tabs.map((tab) => tab.url).filter((url): url is string => url !== undefined);
+  }
 }

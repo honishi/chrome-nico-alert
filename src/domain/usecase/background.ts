@@ -67,12 +67,15 @@ export class BackgroundImpl implements Background {
 
   private async autoOpenProgramIfNeeded(program: Program): Promise<boolean> {
     const autoOpenUserIds = await this.browser.getAutoOpenUserIds();
-    const shouldOpen = autoOpenUserIds.includes(program.programProvider.id);
-    // TODO: check existing tabs
+    const isTargetUser = autoOpenUserIds.includes(program.programProvider.id);
+    const isAlreadyOpened = (await this.browser.getTabProgramIds()).includes(program.id);
+    const shouldOpen = isTargetUser && !isAlreadyOpened;
     if (shouldOpen) {
       await this.browser.openTab(program.watchPageUrl);
     }
-    console.log("Background autoOpenProgramIfNeeded", program.programProvider.id, shouldOpen);
+    console.log(
+      `Background autoOpenProgramIfNeeded: userId:(${program.programProvider.id}) programId:(${program.id}) isTargetUser:(${isTargetUser}) isAlreadyOpened:(${isAlreadyOpened}) shouldOpen:(${shouldOpen})`,
+    );
     return shouldOpen;
   }
 }
