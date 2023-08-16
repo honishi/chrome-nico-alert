@@ -5,7 +5,7 @@ import { Niconama } from "./niconama";
 import { InjectTokens } from "../../di/injections";
 import { SoundType } from "../model/sound-type";
 
-const RUN_INTERVAL = 1000 * 60; // 1 minute
+const RUN_INTERVAL = 1000 * 30; // 30 seconds
 
 export interface Background {
   run(): Promise<void>;
