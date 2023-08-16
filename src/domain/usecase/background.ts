@@ -46,12 +46,10 @@ export class BackgroundImpl implements Background {
       return;
     }
 
-    const promises = programs.map(async (program) => {
-      const isProcessed = this.processedPrograms.some((_program) => {
-        return _program.id === program.id;
-      });
+    for (const program of programs) {
+      const isProcessed = this.processedPrograms.map((p) => p.id).includes(program.id);
       if (isProcessed) {
-        return;
+        continue;
       }
       await this.browser.showNotification(
         program.programProvider.name,
@@ -61,8 +59,7 @@ export class BackgroundImpl implements Background {
       const opened = await this.autoOpenProgramIfNeeded(program);
       await this.browser.playSound(opened ? SoundType.NEW_LIVE_MAIN : SoundType.NEW_LIVE_SUB);
       this.processedPrograms.push(program);
-    });
-    await Promise.all(promises);
+    }
 
     this.lastProgramCheckTime = new Date();
     console.log("Background checkAndPlaySounds: end", new Date());
@@ -71,6 +68,7 @@ export class BackgroundImpl implements Background {
   private async autoOpenProgramIfNeeded(program: Program): Promise<boolean> {
     const autoOpenUserIds = await this.browser.getAutoOpenUserIds();
     const shouldOpen = autoOpenUserIds.includes(program.programProvider.id);
+    // TODO: check existing tabs
     if (shouldOpen) {
       await this.browser.openTab(program.watchPageUrl);
     }
