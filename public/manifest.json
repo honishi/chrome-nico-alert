@@ -25,7 +25,8 @@
         "./css/main.css"
       ],
       "matches": [
-        "https://live.nicovideo.jp/watch/*"
+        "https://live.nicovideo.jp/watch/*",
+        "https://www.nicovideo.jp/my/follow*"
       ]
     }
   ],

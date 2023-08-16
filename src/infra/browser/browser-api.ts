@@ -1,4 +1,3 @@
-import Reason = chrome.offscreen.Reason;
 import { SoundType } from "../../domain/model/sound-type";
 import { ChromeMessage } from "../chrome_message/message";
 import { BrowserApi } from "../../domain/infra-interface/browser-api";
@@ -43,7 +42,7 @@ export class BrowserApiImpl implements BrowserApi {
     try {
       await chrome.offscreen.createDocument({
         url: url,
-        reasons: [Reason.AUDIO_PLAYBACK],
+        reasons: [chrome.offscreen.Reason.AUDIO_PLAYBACK],
         justification: "audio playback",
       });
     } catch (e) {
