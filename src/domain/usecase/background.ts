@@ -59,8 +59,8 @@ export class BackgroundImpl implements Background {
         await this.delay(DELAY_AFTER_OPEN);
       }
       await this.browser.showNotification(
-        program.programProvider.name,
-        program.title,
+        `${program.programProvider.name}さんが放送開始`,
+        `「${program.title}」\n(${program.socialGroup.name})`,
         program.programProvider.icon,
       );
       const opened = await this.autoOpenProgramIfNeeded(program);

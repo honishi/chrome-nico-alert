@@ -24,6 +24,7 @@ export class NicoApiImpl implements NicoApi {
           iconSmall: program.programProvider.iconSmall,
         },
         socialGroup: {
+          name: program.socialGroup.name,
           thumbnailUrl: program.socialGroup.thumbnailUrl,
         },
         isFollowerOnly: program.isFollowerOnly,
