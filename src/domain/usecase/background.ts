@@ -6,6 +6,7 @@ import { InjectTokens } from "../../di/injections";
 import { SoundType } from "../model/sound-type";
 
 const RUN_INTERVAL = 1000 * 30; // 30 seconds
+const DELAY_AFTER_OPEN = 1000 * 5; // 5 seconds
 
 export interface Background {
   run(): Promise<void>;
@@ -46,10 +47,16 @@ export class BackgroundImpl implements Background {
       return;
     }
 
+    let detectedNewProgram = false;
     for (const program of programs) {
       const isProcessed = this.processedPrograms.map((p) => p.id).includes(program.id);
       if (isProcessed) {
         continue;
+      }
+      console.log(program.programProvider.name, program.title, program.socialGroup.thumbnailUrl);
+      if (detectedNewProgram) {
+        console.log(`Background checkAndPlaySounds: wait ${DELAY_AFTER_OPEN} ms`);
+        await this.delay(DELAY_AFTER_OPEN);
       }
       await this.browser.showNotification(
         program.programProvider.name,
@@ -59,6 +66,7 @@ export class BackgroundImpl implements Background {
       const opened = await this.autoOpenProgramIfNeeded(program);
       await this.browser.playSound(opened ? SoundType.NEW_LIVE_MAIN : SoundType.NEW_LIVE_SUB);
       this.processedPrograms.push(program);
+      detectedNewProgram = true;
     }
 
     this.lastProgramCheckTime = new Date();
@@ -77,5 +85,9 @@ export class BackgroundImpl implements Background {
       `Background autoOpenProgramIfNeeded: userId:(${program.programProvider.id}) programId:(${program.id}) isTargetUser:(${isTargetUser}) isAlreadyOpened:(${isAlreadyOpened}) shouldOpen:(${shouldOpen})`,
     );
     return shouldOpen;
+  }
+
+  private delay(ms: number): Promise<void> {
+    return new Promise((resolve) => setTimeout(resolve, ms));
   }
 }
