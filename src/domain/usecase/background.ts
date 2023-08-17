@@ -53,7 +53,7 @@ export class BackgroundImpl implements Background {
       if (isProcessed) {
         continue;
       }
-      console.log(program.programProvider.name, program.title, program.socialGroup.thumbnailUrl);
+      console.log(program.programProvider.name, program.title, program.programProvider.icon);
       if (detectedNewProgram) {
         console.log(`Background checkAndPlaySounds: wait ${DELAY_AFTER_OPEN} ms`);
         await this.delay(DELAY_AFTER_OPEN);
@@ -61,7 +61,7 @@ export class BackgroundImpl implements Background {
       await this.browser.showNotification(
         program.programProvider.name,
         program.title,
-        program.socialGroup.thumbnailUrl,
+        program.programProvider.icon,
       );
       const opened = await this.autoOpenProgramIfNeeded(program);
       await this.browser.playSound(opened ? SoundType.NEW_LIVE_MAIN : SoundType.NEW_LIVE_SUB);
