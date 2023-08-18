@@ -39,33 +39,31 @@
         .grid-item {
             display: flex;
             flex-direction: column;
-            border-radius: 8px; /* 角を丸くする */
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2); /* 影をつける */
-            background-color: #ffffff; /* 背景色を白に設定 */
-            /*padding: 10px; !* 内部の余白を設定 *!*/
-            transition: box-shadow 0.3s ease; /* トランジション効果 */
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
+            background-color: #ffffff;
         }
 
         .grid-item {
-            transition: all 0.1s ease; /* グラデーション効果の追加 */
+            transition: all 0.1s ease;
         }
 
         .grid-item:hover {
-            box-shadow: 0 6px 8px rgba(0, 0, 0, 0.4); /* ホバー時の影を大きく */
-            transform: scale(1.03); /* サイズを3%大きくする */
+            box-shadow: 0 6px 8px rgba(0, 0, 0, 0.4);
+            transform: scale(1.03);
         }
 
         .grid-item > a {
-            text-decoration: none; /* 下線を削除 */
-            color: inherit; /* 色を親要素と同じに設定 */
+            text-decoration: none;
+            color: inherit;
         }
 
         .grid-item > a > img {
-            width: 100%; /* 幅を親要素に合わせる */
-            height: 100px; /* 固定の高さを指定 */
-            object-fit: cover; /* アスペクト比を保持しながら、コンテナに画像をフィットさせる */
-            overflow: hidden; /* 画像がコンテナを超える部分を隠す */
-            border-radius: 8px 8px 0 0; /* 左上と右上の角を丸くする */
+            width: 100%;
+            height: 80px;
+            object-fit: cover;
+            overflow: hidden;
+            border-radius: 8px 8px 0 0;
             margin-bottom: 8px;
         }
 
@@ -73,7 +71,6 @@
             padding: 0 8px;
             height: 32px; /* 2行分の高さに設定 */
             line-height: 16px; /* 1行分の高さに設定 */
-            /*font-weight: bold;*/
             overflow: hidden; /* 余分なテキストを隠す */
             display: -webkit-box;
             -webkit-line-clamp: 2; /* 最大2行まで表示 */
@@ -98,12 +95,9 @@
         }
 
         .user-div > span {
-            /*height: 30px; !* imgと同じ高さに設定 *!*/
-            /*line-height: 30px; !* imgと同じ高さに設定 *!*/
             text-align: left;
             font-size: 10px;
         }
-
     </style>
 </head>
 <body>
