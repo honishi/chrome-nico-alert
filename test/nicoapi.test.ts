@@ -5,8 +5,24 @@ import { InjectTokens } from "../src/di/injections";
 import { NicoApi } from "../src/domain/infra-interface/nicoapi";
 import * as fs from "fs";
 
-test("test", async () => {
+beforeAll(() => {
   container.register(InjectTokens.NicoApi, { useClass: NicoApiImpl });
+});
+
+test("Parse programs_onair.json", async () => {
   const nicoapi = container.resolve<NicoApi>(InjectTokens.NicoApi);
-  const data = fs.readFileSync("test/html/ranking.html", "utf8");
+  const json = fs.readFileSync("test/json/programs_onair.json", "utf8");
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const programs = (nicoapi as any).extractOnAirProgramsFromJson(json);
+  // console.log(programs);
+  expect(programs.length).toBeGreaterThan(0);
+});
+
+test("Parse ranking.html", async () => {
+  const nicoapi = container.resolve<NicoApi>(InjectTokens.NicoApi);
+  const html = fs.readFileSync("test/html/ranking.html", "utf8");
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const programs = (nicoapi as any).extractUserProgramRankingFromHtml(html);
+  // console.log(programs);
+  expect(programs.length).toBeGreaterThan(0);
 });

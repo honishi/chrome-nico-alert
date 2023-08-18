@@ -13,6 +13,10 @@
             width: 760px;
         }
 
+        .section {
+            margin-bottom: 32px;
+        }
+
         .title-container {
             margin-bottom: 16px;
         }
@@ -102,9 +106,17 @@
     </style>
 </head>
 <body>
-<div class="title-container">
-    <span class="container-title">⚫️ フォロー中の番組 ⚫</span>
+<div class="section">
+    <div class="title-container">
+        <span class="container-title">⚫️ フォロー中の番組 ⚫</span>
+    </div>
+    <div class="grid-container" id="following"></div>
 </div>
-<div class="grid-container" id="main"></div>
+<div class="section">
+    <div class="title-container">
+        <span class="container-title">⚫️ ランキング ⚫</span>
+    </div>
+    <div class="grid-container" id="ranking"></div>
+</div>
 </body>
 </html>

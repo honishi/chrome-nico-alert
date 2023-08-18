@@ -5,13 +5,18 @@ import { InjectTokens } from "../../di/injections";
 
 export interface Niconama {
   getOnAirPrograms(): Promise<Program[]>;
+  getRankingPrograms(): Promise<Program[]>;
 }
 
 @injectable()
 export class NiconamaImpl implements Niconama {
   constructor(@inject(InjectTokens.NicoApi) private nicoapi: NicoApi) {}
 
-  public async getOnAirPrograms(): Promise<Program[]> {
+  async getOnAirPrograms(): Promise<Program[]> {
     return await this.nicoapi.getOnAirPrograms();
+  }
+
+  async getRankingPrograms(): Promise<Program[]> {
+    return await this.nicoapi.getRankingPrograms();
   }
 }
