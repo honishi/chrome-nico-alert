@@ -35,6 +35,7 @@ async function renderPage() {
           console.log("onclick");
           await chrome.tabs.create({ active: true, url: program.watchPageUrl });
         };
+        item.appendChild(link);
 
         const img = document.createElement("img");
         img.src =
@@ -44,6 +45,7 @@ async function renderPage() {
 
         const titleSpan = document.createElement("span");
         titleSpan.textContent = [program.isFollowerOnly ? "【限】" : "", program.title].join(" ");
+        link.appendChild(titleSpan);
 
         const userDiv = document.createElement("div");
         userDiv.className = "user-div";
@@ -53,10 +55,8 @@ async function renderPage() {
         userNameSpan.textContent = program.programProvider.name;
         userDiv.appendChild(userIconImg);
         userDiv.appendChild(userNameSpan);
+        link.appendChild(userDiv);
 
-        item.appendChild(link);
-        item.appendChild(titleSpan);
-        item.appendChild(userDiv);
         return item;
       })
       .forEach((element) => {

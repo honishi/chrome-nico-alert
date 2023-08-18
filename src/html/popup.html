@@ -28,21 +28,26 @@
             grid-template-columns: repeat(4, 1fr);
             gap: 16px 8px;
             align-items: start;
-            margin: 0px　0px 16px 0px;
+            margin-bottom: 16px;
         }
 
         .grid-item {
             display: flex;
             flex-direction: column;
             border-radius: 8px; /* 角を丸くする */
-            box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.2); /* 影をつける */
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2); /* 影をつける */
             background-color: #ffffff; /* 背景色を白に設定 */
             /*padding: 10px; !* 内部の余白を設定 *!*/
             transition: box-shadow 0.3s ease; /* トランジション効果 */
         }
 
         .grid-item:hover {
-            box-shadow: 0px 6px 8px rgba(0, 0, 0, 0.4); /* ホバー時の影を大きく */
+            box-shadow: 0 6px 8px rgba(0, 0, 0, 0.4); /* ホバー時の影を大きく */
+        }
+
+        .grid-item > a {
+            text-decoration: none; /* 下線を削除 */
+            color: inherit; /* 色を親要素と同じに設定 */
         }
 
         .grid-item > a > img {
@@ -54,7 +59,7 @@
             margin-bottom: 8px;
         }
 
-        .grid-item > span {
+        .grid-item > a > span {
             padding: 0 8px;
             height: 32px; /* 2行分の高さに設定 */
             line-height: 16px; /* 1行分の高さに設定 */

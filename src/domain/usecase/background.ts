@@ -59,7 +59,7 @@ export class BackgroundImpl implements Background {
         await this.delay(DELAY_AFTER_OPEN);
       }
       await this.browser.showNotification(
-        `${program.programProvider.name} さんが放送を開始`,
+        `${program.programProvider.name}が放送開始`,
         `「${program.title}」\n${program.socialGroup.name}`,
         program.programProvider.icon,
       );
