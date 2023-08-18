@@ -37,14 +37,12 @@
         }
 
         .grid-item {
+            position: relative; /* 子要素の絶対位置指定の基準となる */
             display: flex;
             flex-direction: column;
             border-radius: 8px;
             box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
             background-color: #ffffff;
-        }
-
-        .grid-item {
             transition: all 0.1s ease;
         }
 
@@ -97,6 +95,22 @@
         .user-div > span {
             text-align: left;
             font-size: 10px;
+        }
+
+        .rank-number {
+            position: absolute;
+            top: 2px; /* 配置位置の調整 */
+            left: 2px;
+            background-color: #ffffff; /* 背景色（白） */
+            width: 24px; /* 丸の幅 */
+            height: 24px; /* 丸の高さ */
+            border-radius: 50%; /* 丸い形状を作成 */
+            display: flex; /* 数字を中央に配置するためのフレックスボックス */
+            align-items: center; /* 垂直方向の中央揃え */
+            justify-content: center; /* 水平方向の中央揃え */
+            font-size: 14px; /* フォントサイズ */
+            font-weight: bold; /* 太字 */
+            z-index: 2;
         }
     </style>
 </head>
