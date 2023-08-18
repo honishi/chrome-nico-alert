@@ -41,8 +41,13 @@
             transition: box-shadow 0.3s ease; /* トランジション効果 */
         }
 
+        .grid-item {
+            transition: all 0.1s ease; /* グラデーション効果の追加 */
+        }
+
         .grid-item:hover {
             box-shadow: 0 6px 8px rgba(0, 0, 0, 0.4); /* ホバー時の影を大きく */
+            transform: scale(1.03); /* サイズを3%大きくする */
         }
 
         .grid-item > a {
