@@ -25,24 +25,28 @@ async function renderPage() {
   // console.log(followingPrograms);
   const followingContainer = document.getElementById("following");
   if (followingContainer != null) {
-    followingPrograms.map(toGridItem).forEach((element) => {
-      followingContainer.appendChild(element);
-    });
+    followingPrograms
+      .map((p) => toGridItem(p))
+      .forEach((element) => {
+        followingContainer.appendChild(element);
+      });
   }
 
   const rankingContainer = document.getElementById("ranking");
   const rankingPrograms = await niconama.getRankingPrograms();
   if (rankingContainer != null) {
-    rankingPrograms.map(toGridItem).forEach((element) => {
-      rankingContainer.appendChild(element);
-    });
+    rankingPrograms
+      .map((p, index) => toGridItem(p, index + 1))
+      .forEach((element) => {
+        rankingContainer.appendChild(element);
+      });
   }
 
   const browser = container.resolve<Browser>(InjectTokens.Browser);
   await browser.setBadgeNumber(followingPrograms.length);
 }
 
-function toGridItem(program: Program): HTMLElement {
+function toGridItem(program: Program, rank?: number): HTMLElement {
   const item = document.createElement("div");
   item.className = "grid-item";
 
@@ -72,6 +76,13 @@ function toGridItem(program: Program): HTMLElement {
   userDiv.appendChild(userIconImg);
   userDiv.appendChild(userNameSpan);
   link.appendChild(userDiv);
+
+  if (rank != null) {
+    const rankingSpan = document.createElement("span");
+    rankingSpan.className = "rank-number";
+    rankingSpan.textContent = rank.toString();
+    item.appendChild(rankingSpan);
+  }
 
   return item;
 }
