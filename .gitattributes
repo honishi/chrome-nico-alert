@@ -1,0 +1,3 @@
+test/html/*.html linguist-vendored
+test/json/*.json linguist-vendored
+docs/* linguist-documentation
