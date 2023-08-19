@@ -88,8 +88,9 @@ function toGridItem(program: Program, rank?: number): HTMLElement {
   link.appendChild(userDiv);
 
   if (rank != null) {
+    const topRankClassName = rank > 5 ? null : `top-rank-${rank}`;
     const rankingSpan = document.createElement("span");
-    rankingSpan.className = "rank-number";
+    rankingSpan.className = ["rank-number", topRankClassName].join(" ");
     rankingSpan.textContent = rank.toString();
     item.appendChild(rankingSpan);
   }
