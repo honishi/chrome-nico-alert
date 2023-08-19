@@ -8,17 +8,6 @@ import { BrowserApiImpl } from "./infra/browser/browser-api";
 import { NiconamaImpl } from "./domain/usecase/niconama";
 import { NicoApiImpl } from "./infra/api_client/nicoapi";
 
-function listenOnInstalled(details: InstalledDetails) {
-  console.log(details);
-}
-
-function listenOnMessage(message: any, sender: any, sendResponse: any) {
-  console.log(message);
-}
-
-chrome.runtime.onInstalled.addListener(listenOnInstalled);
-chrome.runtime.onMessage.addListener(listenOnMessage);
-
 function configureContainer() {
   container.register(InjectTokens.Background, { useClass: BackgroundImpl });
   container.register(InjectTokens.Browser, { useClass: BrowserImpl });
@@ -27,7 +16,14 @@ function configureContainer() {
   container.register(InjectTokens.NicoApi, { useClass: NicoApiImpl });
 }
 
-configureContainer();
+function configureChromeNotifications(background: Background) {
+  chrome.notifications.onClicked.addListener(async (notificationId) => {
+    console.log(`notification clicked: ${notificationId}`);
+    await background.openNotification(notificationId);
+  });
+}
 
+configureContainer();
 const background = container.resolve<Background>(InjectTokens.Background);
+configureChromeNotifications(background);
 await background.run();

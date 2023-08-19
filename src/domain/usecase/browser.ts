@@ -6,7 +6,12 @@ import { InjectTokens } from "../../di/injections";
 export interface Browser {
   setBadgeNumber(number: number): Promise<void>;
   playSound(sound: SoundType): Promise<void>;
-  showNotification(title: string, message: string, iconUrl: string): Promise<void>;
+  showNotification(
+    title: string,
+    message: string,
+    iconUrl: string,
+    onCreated: (notificationId: string) => void,
+  ): void;
   getAutoOpenUserIds(): Promise<string[]>;
   openTab(url: string): Promise<void>;
   getTabProgramIds(): Promise<string[]>;
@@ -24,8 +29,13 @@ export class BrowserImpl implements Browser {
     await this.browserApi.playSound(sound);
   }
 
-  async showNotification(title: string, message: string, iconUrl: string): Promise<void> {
-    await this.browserApi.showNotification(title, message, iconUrl);
+  showNotification(
+    title: string,
+    message: string,
+    iconUrl: string,
+    onCreated: (notificationId: string) => void,
+  ): void {
+    this.browserApi.showNotification(title, message, iconUrl, onCreated);
   }
 
   async getAutoOpenUserIds(): Promise<string[]> {

@@ -52,13 +52,21 @@ export class BrowserApiImpl implements BrowserApi {
     }
   }
 
-  public async showNotification(title: string, message: string, iconUrl: string): Promise<void> {
-    chrome.notifications.create({
-      type: "basic",
-      iconUrl: iconUrl,
-      title: title,
-      message: message,
-    });
+  public showNotification(
+    title: string,
+    message: string,
+    iconUrl: string,
+    onCreated: (notificationId: string) => void,
+  ): void {
+    chrome.notifications.create(
+      {
+        type: "basic",
+        iconUrl: iconUrl,
+        title: title,
+        message: message,
+      },
+      onCreated,
+    );
   }
 
   async getAutoOpenUserIds(): Promise<string[]> {

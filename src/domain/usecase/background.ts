@@ -10,12 +10,14 @@ const DELAY_AFTER_OPEN = 1000 * 5; // 5 seconds
 
 export interface Background {
   run(): Promise<void>;
+  openNotification(notificationId: string): Promise<void>;
 }
 
 @injectable()
 export class BackgroundImpl implements Background {
   private lastProgramCheckTime?: Date;
   private processedPrograms: Program[] = [];
+  private notifiedPrograms: { [key: string]: string } = {}; // key: notificationId, value: watchPageUrl
 
   constructor(
     @inject(InjectTokens.Niconama) private niconama: Niconama,
@@ -27,6 +29,17 @@ export class BackgroundImpl implements Background {
     await this.requestPrograms();
     setInterval(this.requestPrograms.bind(this), RUN_INTERVAL);
     console.log("Background run: end");
+  }
+
+  async openNotification(notificationId: string): Promise<void> {
+    const url = this.notifiedPrograms[notificationId];
+    if (url === undefined) {
+      console.log(
+        `Background openNotification: url is undefined. notificationId=${notificationId}`,
+      );
+      return;
+    }
+    await this.browser.openTab(url);
   }
 
   private async requestPrograms(): Promise<void> {
@@ -58,10 +71,14 @@ export class BackgroundImpl implements Background {
         console.log(`Background checkAndPlaySounds: wait ${DELAY_AFTER_OPEN} ms`);
         await this.delay(DELAY_AFTER_OPEN);
       }
-      await this.browser.showNotification(
+      this.browser.showNotification(
         `${program.programProvider.name}が放送開始`,
         `「${program.title}」\n${program.socialGroup.name}`,
         program.programProvider.icon,
+        (notificationId) => {
+          console.log(`Background checkAndPlaySounds: notificationId: ${notificationId}`);
+          this.notifiedPrograms[notificationId] = program.watchPageUrl;
+        },
       );
       const opened = await this.autoOpenProgramIfNeeded(program);
       await this.browser.playSound(opened ? SoundType.NEW_LIVE_MAIN : SoundType.NEW_LIVE_SUB);
