@@ -21,9 +21,10 @@ console.log("popup.ts");
 async function renderPage() {
   const niconama = container.resolve<Niconama>(InjectTokens.Niconama);
 
-  const followingPrograms = await niconama.getOnAirPrograms();
-  const rankingPrograms = await niconama.getRankingPrograms();
-  // console.log(followingPrograms);
+  const [followingPrograms, rankingPrograms] = await Promise.all([
+    niconama.getOnAirPrograms(),
+    niconama.getRankingPrograms(),
+  ]);
 
   const followingContainer = document.getElementById("following");
   if (followingContainer != null) {
