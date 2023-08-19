@@ -22,18 +22,19 @@ async function renderPage() {
   const niconama = container.resolve<Niconama>(InjectTokens.Niconama);
 
   const followingPrograms = await niconama.getOnAirPrograms();
+  const rankingPrograms = await niconama.getRankingPrograms();
   // console.log(followingPrograms);
+
   const followingContainer = document.getElementById("following");
   if (followingContainer != null) {
     followingPrograms
-      .map((p) => toGridItem(p))
+      .map((p) => toGridItem(p, rankOf(p, rankingPrograms)))
       .forEach((element) => {
         followingContainer.appendChild(element);
       });
   }
 
   const rankingContainer = document.getElementById("ranking");
-  const rankingPrograms = await niconama.getRankingPrograms();
   if (rankingContainer != null) {
     rankingPrograms
       .map((p, index) => toGridItem(p, index + 1))
@@ -44,6 +45,15 @@ async function renderPage() {
 
   const browser = container.resolve<Browser>(InjectTokens.Browser);
   await browser.setBadgeNumber(followingPrograms.length);
+}
+
+function rankOf(program: Program, rankingPrograms: Program[]): number | undefined {
+  const rankingProgramIds = rankingPrograms.map((p) => p.id);
+  const index = rankingProgramIds.indexOf(program.id);
+  if (index === -1) {
+    return undefined;
+  }
+  return index + 1;
 }
 
 function toGridItem(program: Program, rank?: number): HTMLElement {

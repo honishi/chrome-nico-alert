@@ -32,9 +32,21 @@ module.exports = {
   plugins: [
     new CopyPlugin({
       patterns: [
-        { from: path.join(rootDir, "public"), to: path.join(rootDir, "dist") },
-        { from: path.join(srcDir, "css"), to: path.join(rootDir, "dist", "css") },
-        { from: path.join(srcDir, "html"), to: path.join(rootDir, "dist", "html") },
+        {
+          from: path.join(rootDir, "public"),
+          to: path.join(rootDir, "dist"),
+          globOptions: { ignore: ["**/.DS_Store"] },
+        },
+        {
+          from: path.join(srcDir, "css"),
+          to: path.join(rootDir, "dist", "css"),
+          globOptions: { ignore: ["**/.DS_Store"] },
+        },
+        {
+          from: path.join(srcDir, "html"),
+          to: path.join(rootDir, "dist", "html"),
+          globOptions: { ignore: ["**/.DS_Store"] },
+        },
       ],
     }),
   ],
