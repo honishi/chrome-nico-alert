@@ -9,7 +9,8 @@ export interface BrowserApi {
     iconUrl: string,
     onCreated: (notificationId: string) => void,
   ): void;
-  getAutoOpenUserIds(): Promise<string[]>;
+  isAutoOpenUser(userId: string): Promise<boolean>;
+  setAutoOpenUser(userId: string, enabled: boolean): Promise<void>;
   openTab(url: string): Promise<void>;
   getTabUrls(): Promise<string[]>;
 }

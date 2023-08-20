@@ -12,7 +12,8 @@ export interface Browser {
     iconUrl: string,
     onCreated: (notificationId: string) => void,
   ): void;
-  getAutoOpenUserIds(): Promise<string[]>;
+  isAutoOpenUser(userId: string): Promise<boolean>;
+  setAutoOpenUser(userId: string, enabled: boolean): Promise<void>;
   openTab(url: string): Promise<void>;
   getTabProgramIds(): Promise<string[]>;
 }
@@ -38,8 +39,12 @@ export class BrowserImpl implements Browser {
     this.browserApi.showNotification(title, message, iconUrl, onCreated);
   }
 
-  async getAutoOpenUserIds(): Promise<string[]> {
-    return await this.browserApi.getAutoOpenUserIds();
+  async isAutoOpenUser(userId: string): Promise<boolean> {
+    return await this.browserApi.isAutoOpenUser(userId);
+  }
+
+  async setAutoOpenUser(userId: string, enabled: boolean): Promise<void> {
+    await this.browserApi.setAutoOpenUser(userId, enabled);
   }
 
   async openTab(url: string): Promise<void> {

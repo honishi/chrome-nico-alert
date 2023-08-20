@@ -10,13 +10,23 @@ import { NicoApiImpl } from "./infra/api_client/nicoapi";
 
 async function listenLoadEvent() {
   // console.log("load");
-  await fixPage();
+  await fixMyFollowPage();
 }
 
-async function fixPage() {
-  // console.log("fix");
+let fixing = false;
+
+async function fixMyFollowPage() {
+  console.log("fix target", window.location.href);
+  if (!window.location.toString().startsWith("https://www.nicovideo.jp/my/follow")) {
+    console.log("not target");
+    return;
+  }
+  if (fixing) {
+    return;
+  }
+  fixing = true;
+
   const content = container.resolve<Content>(InjectTokens.Content);
-  const autoOpenUserIds = await content.getAutoOpenUserIds();
 
   const buttonTag = "auto-open";
   const userItems = document.getElementsByClassName("UserItem");
@@ -37,15 +47,23 @@ async function fixPage() {
     const userId = extractUserIdFromUrl(userItemLink.href);
 
     const button = document.createElement("button");
-    const onOff = autoOpenUserIds.includes(userId) ? "On" : "Off";
+    const isOn = await content.isAutoOpenUser(userId);
+    const onOff = isOn ? "🔵On" : "⚪️Off";
     button.innerHTML = `Auto Open ${onOff} (${userId})`;
+    button.style.marginBottom = "10px";
     button.dataset.tag = buttonTag;
-    button.onclick = () => {
-      console.log("clicked");
+    button.onclick = async () => {
+      const isOn = await content.isAutoOpenUser(userId);
+      const target = !isOn;
+      await content.setAutoOpenUser(userId, target);
+      const onOff = target ? "🔵On" : "⚪️Off";
+      button.innerHTML = `Auto Open ${onOff} (${userId})`;
     };
 
     userItem.appendChild(button);
   }
+
+  fixing = false;
 }
 
 function extractUserIdFromUrl(url: string): string {

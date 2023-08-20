@@ -2,6 +2,8 @@ import { SoundType } from "../../domain/model/sound-type";
 import { ChromeMessage } from "../chrome_message/message";
 import { BrowserApi } from "../../domain/infra-interface/browser-api";
 
+const AUTO_OPEN_USERS_KEY = "autoOpenUsers";
+
 const OFFSCREEN_HTML = "html/offscreen.html";
 
 export class BrowserApiImpl implements BrowserApi {
@@ -69,41 +71,27 @@ export class BrowserApiImpl implements BrowserApi {
     );
   }
 
-  async getAutoOpenUserIds(): Promise<string[]> {
-    return [
-      "122712824", //大ちゃんマン(大司教)
-      "14162285", // みなみの魔王2nd
-      "26503722", // ジンギスカン
-      "16408042", // 歌下手お兄さん
-      "94985107", // ふわん
-      "6947682", // 安田くん
-      "128879388", // えなこ2
-      "128277277", // くさぴーーーーーーーーーーーーー
-      "117775278", // 世界のももこ
-      "22791190", // @こはちゃん。
-      "31486519", // ゆばニャン
-      "17602354", // まろん
-      "387778", // むらまこ
-      "118046334", // おどろき
-      "58852571", // あおこ
-      "88807981", // あああ
-      "115823553", // ユキちゃん
-      "117159293", // 藤澤タック
-      "98454847", // (じゃない方の)ひろゆき
-      "97492560", // 浅井にしの
-      "13686098", // 我©️
-      "96254336", // クロサワ・ザラ
-      "45894055", // イノシシ
-      "58366769", // もっちゃん
-      "116171071", // 田中アオ
-      "77683676", // ぼっとん
-      "11908507", // 向日葵(ひまわり)2nd
-      "93234861", // うんさい
-      "92216320", // きょろちゃん
-      "38762035", // トロ
-      "1333269", // 名川ちゃん
-      "36867326", // 七原くん (ななはら)
-    ];
+  async isAutoOpenUser(userId: string): Promise<boolean> {
+    const result = await chrome.storage.local.get([AUTO_OPEN_USERS_KEY]);
+    const autoOpenUsers = (result[AUTO_OPEN_USERS_KEY] as { [key: string]: string }[]) ?? [];
+    const autoOpenUserIds = autoOpenUsers.map((user) => user.userId);
+    return autoOpenUserIds.includes(userId);
+  }
+
+  async setAutoOpenUser(userId: string, enabled: boolean): Promise<void> {
+    const result = await chrome.storage.local.get([AUTO_OPEN_USERS_KEY]);
+    const autoOpenUsers = (result[AUTO_OPEN_USERS_KEY] as { [key: string]: string }[]) ?? [];
+    const autoOpenUserIds = autoOpenUsers.map((user) => user.userId);
+    const targetEnabled = enabled;
+    const currentEnabled = autoOpenUserIds.includes(userId);
+    if (targetEnabled === currentEnabled) {
+      // already set
+      return;
+    }
+    const users = targetEnabled
+      ? [...autoOpenUsers, { userId: userId }]
+      : autoOpenUsers.filter((user) => user.userId !== userId);
+    await chrome.storage.local.set({ [AUTO_OPEN_USERS_KEY]: users });
   }
 
   async openTab(url: string): Promise<void> {
