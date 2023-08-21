@@ -47,23 +47,24 @@ async function fixMyFollowPage() {
     const userId = extractUserIdFromUrl(userItemLink.href);
 
     const button = document.createElement("button");
-    const isOn = await content.isAutoOpenUser(userId);
-    const onOff = isOn ? "🔵On" : "⚪️Off";
-    button.innerHTML = `Auto Open ${onOff} (${userId})`;
-    button.style.marginBottom = "10px";
     button.dataset.tag = buttonTag;
+    button.className = "auto-open-button";
+    updateButtonInnerHtml(button, await content.isAutoOpenUser(userId));
     button.onclick = async () => {
-      const isOn = await content.isAutoOpenUser(userId);
-      const target = !isOn;
+      const target = !(await content.isAutoOpenUser(userId));
       await content.setAutoOpenUser(userId, target);
-      const onOff = target ? "🔵On" : "⚪️Off";
-      button.innerHTML = `Auto Open ${onOff} (${userId})`;
+      updateButtonInnerHtml(button, target);
     };
 
     userItem.appendChild(button);
   }
 
   fixing = false;
+}
+
+function updateButtonInnerHtml(button: HTMLButtonElement, isOn: boolean) {
+  const onOff = isOn ? "ON✨" : "OFF";
+  button.innerHTML = `自動入場 ${onOff}`;
 }
 
 function extractUserIdFromUrl(url: string): string {
