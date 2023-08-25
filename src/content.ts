@@ -1,12 +1,11 @@
 import "reflect-metadata";
 import { container } from "tsyringe";
 import { InjectTokens } from "./di/injections";
-import { BrowserImpl } from "./domain/usecase/browser";
 import { BrowserApiImpl } from "./infra/browser/browser-api";
 import { Content, ContentImpl } from "./domain/usecase/content";
 import { BackgroundImpl } from "./domain/usecase/background";
-import { NiconamaImpl } from "./domain/usecase/niconama";
-import { NicoApiImpl } from "./infra/api_client/nicoapi";
+import { NiconamaApiImpl } from "./infra/api_client/nicoapi";
+import { PopupImpl } from "./domain/usecase/popup";
 
 async function listenLoadEvent() {
   // console.log("load");
@@ -77,12 +76,11 @@ function extractUserIdFromUrl(url: string): string {
 }
 
 function configureContainer() {
-  container.register(InjectTokens.Content, { useClass: ContentImpl });
   container.register(InjectTokens.Background, { useClass: BackgroundImpl });
-  container.register(InjectTokens.Browser, { useClass: BrowserImpl });
   container.register(InjectTokens.BrowserApi, { useClass: BrowserApiImpl });
-  container.register(InjectTokens.Niconama, { useClass: NiconamaImpl });
-  container.register(InjectTokens.NicoApi, { useClass: NicoApiImpl });
+  container.register(InjectTokens.Content, { useClass: ContentImpl });
+  container.register(InjectTokens.NiconamaApi, { useClass: NiconamaApiImpl });
+  container.register(InjectTokens.Popup, { useClass: PopupImpl });
 }
 
 configureContainer();

@@ -1,6 +1,6 @@
 import { Program } from "../model/program";
 
-export interface NicoApi {
+export interface NiconamaApi {
   getOnAirPrograms(): Promise<Program[]>;
   getRankingPrograms(): Promise<Program[]>;
 }

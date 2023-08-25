@@ -1,6 +1,6 @@
 import { inject, injectable } from "tsyringe";
 import { InjectTokens } from "../../di/injections";
-import { Browser } from "./browser";
+import { BrowserApi } from "../infra-interface/browser-api";
 
 export interface Content {
   isAutoOpenUser(userId: string): Promise<boolean>;
@@ -9,13 +9,13 @@ export interface Content {
 
 @injectable()
 export class ContentImpl implements Content {
-  constructor(@inject(InjectTokens.Browser) private browser: Browser) {}
+  constructor(@inject(InjectTokens.BrowserApi) private browserApi: BrowserApi) {}
 
   async isAutoOpenUser(userId: string): Promise<boolean> {
-    return await this.browser.isAutoOpenUser(userId);
+    return await this.browserApi.isAutoOpenUser(userId);
   }
 
   async setAutoOpenUser(userId: string, enabled: boolean): Promise<void> {
-    await this.browser.setAutoOpenUser(userId, enabled);
+    await this.browserApi.setAutoOpenUser(userId, enabled);
   }
 }

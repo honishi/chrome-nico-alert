@@ -1,12 +1,12 @@
 import "reflect-metadata";
-import { Niconama, NiconamaImpl } from "./domain/usecase/niconama";
-import { Browser, BrowserImpl } from "./domain/usecase/browser";
 import { container } from "tsyringe";
 import { InjectTokens } from "./di/injections";
+import { Program } from "./domain/model/program";
+import { Popup, PopupImpl } from "./domain/usecase/popup";
 import { BackgroundImpl } from "./domain/usecase/background";
 import { BrowserApiImpl } from "./infra/browser/browser-api";
-import { NicoApiImpl } from "./infra/api_client/nicoapi";
-import { Program } from "./domain/model/program";
+import { ContentImpl } from "./domain/usecase/content";
+import { NiconamaApiImpl } from "./infra/api_client/nicoapi";
 
 function addEventListeners() {
   document.addEventListener("DOMContentLoaded", () => {
@@ -19,12 +19,9 @@ addEventListeners();
 console.log("popup.ts");
 
 async function renderPage() {
-  const niconama = container.resolve<Niconama>(InjectTokens.Niconama);
+  const popup = container.resolve<Popup>(InjectTokens.Popup);
 
-  const [followingPrograms, rankingPrograms] = await Promise.all([
-    niconama.getOnAirPrograms(),
-    niconama.getRankingPrograms(),
-  ]);
+  const [followingPrograms, rankingPrograms] = await popup.getPrograms();
 
   const followingContainer = document.getElementById("following");
   if (followingContainer != null) {
@@ -44,8 +41,7 @@ async function renderPage() {
       });
   }
 
-  const browser = container.resolve<Browser>(InjectTokens.Browser);
-  await browser.setBadgeNumber(followingPrograms.length);
+  await popup.setBadgeNumber(followingPrograms.length);
 }
 
 function rankOf(program: Program, rankingPrograms: Program[]): number | undefined {
@@ -101,10 +97,10 @@ function toGridItem(program: Program, rank?: number): HTMLElement {
 
 function configureContainer() {
   container.register(InjectTokens.Background, { useClass: BackgroundImpl });
-  container.register(InjectTokens.Browser, { useClass: BrowserImpl });
   container.register(InjectTokens.BrowserApi, { useClass: BrowserApiImpl });
-  container.register(InjectTokens.Niconama, { useClass: NiconamaImpl });
-  container.register(InjectTokens.NicoApi, { useClass: NicoApiImpl });
+  container.register(InjectTokens.Content, { useClass: ContentImpl });
+  container.register(InjectTokens.NiconamaApi, { useClass: NiconamaApiImpl });
+  container.register(InjectTokens.Popup, { useClass: PopupImpl });
 }
 
 configureContainer();

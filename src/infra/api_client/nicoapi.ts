@@ -1,4 +1,4 @@
-import { NicoApi } from "../../domain/infra-interface/nicoapi";
+import { NiconamaApi } from "../../domain/infra-interface/niconama-api";
 import { Program } from "../../domain/model/program";
 import { decode } from "html-entities";
 
@@ -6,7 +6,7 @@ const FOLLOW_PROGRAMS_API_URL =
   "https://live.nicovideo.jp/front/api/pages/follow/v1/programs?status=onair&offset=0";
 const RANKING_HTML_PAGE_URL = "https://live.nicovideo.jp/ranking";
 
-export class NicoApiImpl implements NicoApi {
+export class NiconamaApiImpl implements NiconamaApi {
   async getOnAirPrograms(): Promise<Program[]> {
     const response = await fetch(FOLLOW_PROGRAMS_API_URL);
     const json = await response.text();
