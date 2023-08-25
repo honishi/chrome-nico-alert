@@ -2,11 +2,8 @@ import "reflect-metadata";
 import { container } from "tsyringe";
 import { InjectTokens } from "./di/injections";
 import { Program } from "./domain/model/program";
-import { Popup, PopupImpl } from "./domain/usecase/popup";
-import { BackgroundImpl } from "./domain/usecase/background";
-import { BrowserApiImpl } from "./infra/browser/browser-api";
-import { ContentImpl } from "./domain/usecase/content";
-import { NiconamaApiImpl } from "./infra/api_client/nicoapi";
+import { Popup } from "./domain/usecase/popup";
+import { configureDefaultContainer } from "./di/register";
 
 function addEventListeners() {
   document.addEventListener("DOMContentLoaded", () => {
@@ -95,14 +92,6 @@ function toGridItem(program: Program, rank?: number): HTMLElement {
   return item;
 }
 
-function configureContainer() {
-  container.register(InjectTokens.Background, { useClass: BackgroundImpl });
-  container.register(InjectTokens.BrowserApi, { useClass: BrowserApiImpl });
-  container.register(InjectTokens.Content, { useClass: ContentImpl });
-  container.register(InjectTokens.NiconamaApi, { useClass: NiconamaApiImpl });
-  container.register(InjectTokens.Popup, { useClass: PopupImpl });
-}
-
-configureContainer();
+configureDefaultContainer();
 
 await renderPage();
