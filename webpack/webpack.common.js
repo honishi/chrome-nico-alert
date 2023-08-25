@@ -38,12 +38,12 @@ module.exports = {
           globOptions: { ignore: ["**/.DS_Store"] },
         },
         {
-          from: path.join(srcDir, "css"),
+          from: path.join(srcDir, "view", "css"),
           to: path.join(rootDir, "dist", "css"),
           globOptions: { ignore: ["**/.DS_Store"] },
         },
         {
-          from: path.join(srcDir, "html"),
+          from: path.join(srcDir, "view", "html"),
           to: path.join(rootDir, "dist", "html"),
           globOptions: { ignore: ["**/.DS_Store"] },
         },
