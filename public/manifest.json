@@ -22,7 +22,7 @@
         "./content.js"
       ],
       "css": [
-        "./css/main.css"
+        "./css/content.css"
       ],
       "matches": [
         "https://live.nicovideo.jp/watch/*",
