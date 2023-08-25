@@ -1,0 +1,38 @@
+name: Build Dist
+
+on:
+  push:
+    branches:
+      - main
+      # - update
+    tags:
+      - "*.*.*"
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Set Env Vars
+        run: |
+          echo "DIST_ZIP_FILE=dist-${{ github.ref_name }}-`echo ${{ github.sha }} | cut -c1-7`.zip" >> $GITHUB_ENV
+      - name: Checkout
+        uses: actions/checkout@v3
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version-file: '.node-version'
+      - name: Install packages
+        run: npm install
+      - name: Build for Production
+        run: |
+          npm run build-prod
+          zip -r ${{ env.DIST_ZIP_FILE }} dist
+          ls -la
+      - name: Release Build
+        uses: softprops/action-gh-release@v1
+        if: startsWith(github.ref, 'refs/tags/')
+        with:
+          files: ${{ env.DIST_ZIP_FILE }}
+          token: ${{ secrets.CUSTOM_GITHUB_TOKEN }}
