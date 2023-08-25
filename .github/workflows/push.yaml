@@ -48,4 +48,3 @@ jobs:
         if: startsWith(github.ref, 'refs/tags/')
         with:
           files: ${{ env.DIST_ZIP_FILE }}
-          token: ${{ secrets.CUSTOM_GITHUB_TOKEN }}
