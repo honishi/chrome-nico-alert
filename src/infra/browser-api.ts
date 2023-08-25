@@ -1,6 +1,6 @@
-import { SoundType } from "../../domain/model/sound-type";
-import { ChromeMessage } from "../chrome_message/message";
-import { BrowserApi } from "../../domain/infra-interface/browser-api";
+import { SoundType } from "../domain/model/sound-type";
+import { ChromeMessage } from "./chrome_message/message";
+import { BrowserApi } from "../domain/infra-interface/browser-api";
 
 const AUTO_OPEN_USERS_KEY = "autoOpenUsers";
 

@@ -1,8 +1,8 @@
 import { container } from "tsyringe";
 import { BackgroundImpl } from "../domain/usecase/background";
-import { BrowserApiImpl } from "../infra/browser/browser-api";
+import { BrowserApiImpl } from "../infra/browser-api";
 import { ContentImpl } from "../domain/usecase/content";
-import { NiconamaApiImpl } from "../infra/api_client/nicoapi";
+import { NiconamaApiImpl } from "../infra/niconama-api";
 import { PopupImpl } from "../domain/usecase/popup";
 import { InjectTokens } from "./inject-tokens";
 

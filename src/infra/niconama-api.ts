@@ -1,5 +1,5 @@
-import { NiconamaApi } from "../../domain/infra-interface/niconama-api";
-import { Program } from "../../domain/model/program";
+import { NiconamaApi } from "../domain/infra-interface/niconama-api";
+import { Program } from "../domain/model/program";
 import { decode } from "html-entities";
 
 const FOLLOW_PROGRAMS_API_URL =
