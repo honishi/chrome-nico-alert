@@ -9,10 +9,23 @@ on:
       - "*.*.*"
 
 jobs:
-  build:
-
+  test:
     runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version-file: '.node-version'
+      - name: Install packages
+        run: npm install
+      - name: Run tests
+        run: npm test
 
+  build:
+    runs-on: ubuntu-latest
+    needs: test
     steps:
       - name: Set Env Vars
         run: |
