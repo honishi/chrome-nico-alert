@@ -18,7 +18,7 @@ export class PopupImpl implements Popup {
 
   async getPrograms(): Promise<[Program[], Program[]]> {
     return await Promise.all([
-      this.niconamaApi.getOnAirPrograms(),
+      this.niconamaApi.getFollowingPrograms(),
       this.niconamaApi.getRankingPrograms(),
     ]);
   }

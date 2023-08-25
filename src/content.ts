@@ -5,7 +5,6 @@ import { Content } from "./domain/usecase/content";
 import { configureDefaultContainer } from "./di/register";
 
 async function listenLoadEvent() {
-  // console.log("load");
   await fixMyFollowPage();
 }
 

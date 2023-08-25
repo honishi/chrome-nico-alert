@@ -6,7 +6,7 @@ import { configureDefaultContainer } from "./di/register";
 
 function configureChromeNotifications(background: Background) {
   chrome.notifications.onClicked.addListener(async (notificationId) => {
-    console.log(`notification clicked: ${notificationId}`);
+    // console.log(`notification clicked: ${notificationId}`);
     await background.openNotification(notificationId);
   });
 }

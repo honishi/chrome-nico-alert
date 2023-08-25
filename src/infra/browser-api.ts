@@ -35,7 +35,6 @@ export class BrowserApiImpl implements BrowserApi {
     }
   }
 
-  // Create the offscreen document if it doesn't already exist
   private async createOffscreen(): Promise<void> {
     if (await chrome.offscreen.hasDocument()) {
       return;

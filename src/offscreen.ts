@@ -1,6 +1,5 @@
 import { ChromeMessage } from "./infra/chrome_message/message";
 
-// Listen for messages from the extension
 chrome.runtime.onMessage.addListener(async (msg) => {
   // console.log(`Received message from the extension: ${JSON.stringify(msg)}`);
   const chromeMessage = msg as ChromeMessage;
@@ -19,7 +18,6 @@ chrome.runtime.onMessage.addListener(async (msg) => {
   await playAudio(source);
 });
 
-// Play sound with access to DOM APIs
 async function playAudio(source: string, volume: number = 1) {
   const audio = new Audio(source);
   audio.volume = volume;

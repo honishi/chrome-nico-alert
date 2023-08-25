@@ -45,7 +45,7 @@ export class BackgroundImpl implements Background {
   private async requestPrograms(): Promise<void> {
     console.log("Background checkPrograms: start", new Date());
 
-    const programs = await this.niconamaApi.getOnAirPrograms();
+    const programs = await this.niconamaApi.getFollowingPrograms();
     await this.browserApi.setBadgeNumber(programs.length);
     await this.checkPrograms(programs);
 

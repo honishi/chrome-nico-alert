@@ -7,11 +7,11 @@ const FOLLOW_PROGRAMS_API_URL =
 const RANKING_HTML_PAGE_URL = "https://live.nicovideo.jp/ranking";
 
 export class NiconamaApiImpl implements NiconamaApi {
-  async getOnAirPrograms(): Promise<Program[]> {
+  async getFollowingPrograms(): Promise<Program[]> {
     const response = await fetch(FOLLOW_PROGRAMS_API_URL);
     const json = await response.text();
     // console.log(json);
-    return this.extractOnAirProgramsFromJson(json);
+    return this.extractFollowingProgramsFromJson(json);
   }
 
   async getRankingPrograms(): Promise<Program[]> {
@@ -21,7 +21,7 @@ export class NiconamaApiImpl implements NiconamaApi {
     return this.extractUserProgramRankingFromHtml(html);
   }
 
-  private extractOnAirProgramsFromJson(json: string): Program[] {
+  private extractFollowingProgramsFromJson(json: string): Program[] {
     const parsedJson = JSON.parse(json);
     return parsedJson.data.programs.map(this.toDomainProgram);
   }
