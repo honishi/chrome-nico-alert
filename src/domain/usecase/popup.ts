@@ -1,6 +1,6 @@
 import { Program } from "../model/program";
 import { inject, injectable } from "tsyringe";
-import { InjectTokens } from "../../di/injections";
+import { InjectTokens } from "../../di/inject-tokens";
 import { NiconamaApi } from "../infra-interface/niconama-api";
 import { BrowserApi } from "../infra-interface/browser-api";
 

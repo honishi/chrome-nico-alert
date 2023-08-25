@@ -1,7 +1,7 @@
 import "reflect-metadata";
 import { NiconamaApiImpl } from "../src/infra/api_client/nicoapi";
 import { container } from "tsyringe";
-import { InjectTokens } from "../src/di/injections";
+import { InjectTokens } from "../src/di/inject-tokens";
 import { NiconamaApi } from "../src/domain/infra-interface/niconama-api";
 import * as fs from "fs";
 

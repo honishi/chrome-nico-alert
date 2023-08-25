@@ -1,6 +1,6 @@
 import "reflect-metadata";
 import { container } from "tsyringe";
-import { InjectTokens } from "./di/injections";
+import { InjectTokens } from "./di/inject-tokens";
 import { Program } from "./domain/model/program";
 import { Popup } from "./domain/usecase/popup";
 import { configureDefaultContainer } from "./di/register";

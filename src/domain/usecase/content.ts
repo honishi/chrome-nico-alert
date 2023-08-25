@@ -1,5 +1,5 @@
 import { inject, injectable } from "tsyringe";
-import { InjectTokens } from "../../di/injections";
+import { InjectTokens } from "../../di/inject-tokens";
 import { BrowserApi } from "../infra-interface/browser-api";
 
 export interface Content {

@@ -1,6 +1,6 @@
 import { Program } from "../model/program";
 import { inject, injectable } from "tsyringe";
-import { InjectTokens } from "../../di/injections";
+import { InjectTokens } from "../../di/inject-tokens";
 import { SoundType } from "../model/sound-type";
 import { BrowserApi } from "../infra-interface/browser-api";
 import { NiconamaApi } from "../infra-interface/niconama-api";

@@ -4,7 +4,7 @@ import { BrowserApiImpl } from "../infra/browser/browser-api";
 import { ContentImpl } from "../domain/usecase/content";
 import { NiconamaApiImpl } from "../infra/api_client/nicoapi";
 import { PopupImpl } from "../domain/usecase/popup";
-import { InjectTokens } from "./injections";
+import { InjectTokens } from "./inject-tokens";
 
 export function configureDefaultContainer() {
   container.register(InjectTokens.Background, { useClass: BackgroundImpl });

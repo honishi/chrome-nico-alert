@@ -1,5 +1,5 @@
 import "reflect-metadata";
-import { InjectTokens } from "./di/injections";
+import { InjectTokens } from "./di/inject-tokens";
 import { Background } from "./domain/usecase/background";
 import { container } from "tsyringe";
 import { configureDefaultContainer } from "./di/register";
