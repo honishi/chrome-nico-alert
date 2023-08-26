@@ -2,7 +2,6 @@
   "name": "nico-alert",
   "version": "0.1.0",
   "description": "",
-  "main": "index.js",
   "scripts": {
     "build-dev": "rimraf dist && webpack --config webpack/webpack.dev.js --watch",
     "build-prod": "rimraf dist && webpack --config webpack/webpack.prod.js",
