@@ -8,11 +8,11 @@ async function listenLoadEvent() {
   // console.log("listenLoadEvent");
   const userPageMain = document.getElementsByClassName("UserPage-main")[0];
   console.log(userPageMain);
-  if (userPageMain === null) {
+  if (userPageMain === null || !(userPageMain instanceof Node)) {
     console.log("userPageMain is null");
     return;
   }
-  const observer = new MutationObserver(async (mutations) => {
+  const observer = new MutationObserver(async () => {
     // console.log("MutationObserver", mutations);
     await fixMyFollowPage();
   });
