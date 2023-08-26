@@ -57,6 +57,7 @@ export class NiconamaApiImpl implements NiconamaApi {
         thumbnailUrl: responseProgram.socialGroup.thumbnailUrl,
       },
       isFollowerOnly: responseProgram.isFollowerOnly,
+      beginAt: new Date(responseProgram.beginAt),
     };
   }
 }

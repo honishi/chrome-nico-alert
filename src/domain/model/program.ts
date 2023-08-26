@@ -6,6 +6,7 @@ export type Program = {
   programProvider: ProgramProvider;
   socialGroup: SocialGroup;
   isFollowerOnly: boolean;
+  beginAt: Date;
 };
 
 type ScreenshotThumbnail = {
