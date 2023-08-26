@@ -66,11 +66,17 @@ export class BackgroundImpl implements Background {
       if (isProcessed) {
         continue;
       }
-      console.log(program.programProvider.name, program.title, program.programProvider.icon);
+      console.log(
+        program.programProvider.name,
+        program.title,
+        program.programProvider.icon,
+        program.screenshotThumbnail.liveScreenshotThumbnailUrl,
+      );
       if (detectedNewProgram) {
         console.log(`Background checkAndPlaySounds: wait ${DELAY_AFTER_OPEN} ms`);
         await this.delay(DELAY_AFTER_OPEN);
       }
+      // await this.browserApi.openTab(program.screenshotThumbnail.liveScreenshotThumbnailUrl);
       this.browserApi.showNotification(
         `${program.programProvider.name}が放送開始`,
         `「${program.title}」\n${program.socialGroup.name}`,
