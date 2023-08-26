@@ -1,27 +1,34 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
+  <head>
+    <meta charset="UTF-8" />
     <script src="../popup.js"></script>
-    <link rel="stylesheet" href="../css/popup.css">
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=M+PLUS+Rounded+1c&display=swap">
+    <link rel="stylesheet" href="../css/popup.css" />
+    <link
+      rel="stylesheet"
+      href="https://fonts.googleapis.com/css2?family=M+PLUS+Rounded+1c&display=swap"
+    />
     <title>Popup</title>
-</head>
-<body>
-<div class="setting-container">
-    <a href="https://www.nicovideo.jp/my/follow" target="_blank">Follow</a>
-</div>
-<div class="section">
-    <div class="title-container">
-        <span class="container-title">⚫️ フォロー中の番組 ⚫</span>
+  </head>
+  <body>
+    <div class="setting-container">
+      <div class="menu-container">
+        <span class="menu-item">
+          ⚙️ <a href="https://www.nicovideo.jp/my/follow" target="_blank">自動入場管理</a>
+        </span>
+      </div>
     </div>
-    <div class="grid-container" id="following"></div>
-</div>
-<div class="section">
-    <div class="title-container">
-        <span class="container-title">⚫️ ランキング ⚫</span>
+    <div class="section-container">
+      <div class="section-title-container">
+        <span class="section-title">⚫️ フォロー中の番組 ⚫</span>
+      </div>
+      <div class="grid-container" id="following"></div>
     </div>
-    <div class="grid-container" id="ranking"></div>
-</div>
-</body>
+    <div class="section-container">
+      <div class="section-title-container">
+        <span class="section-title">⚫️ ランキング ⚫</span>
+      </div>
+      <div class="grid-container" id="ranking"></div>
+    </div>
+  </body>
 </html>
