@@ -4,30 +4,27 @@ import { InjectTokens } from "./di/inject-tokens";
 import { Content } from "./domain/usecase/content";
 import { configureDefaultContainer } from "./di/register";
 
+const MY_FOLLOW_PAGE_URL = "https://www.nicovideo.jp/my/follow";
+
+function isMyFollowPage(): boolean {
+  return window.location.href.startsWith(MY_FOLLOW_PAGE_URL);
+}
+
 async function listenLoadEvent() {
-  // console.log("listenLoadEvent");
-  const userPageMain = document.getElementsByClassName("UserPage-main")[0];
-  console.log(userPageMain);
-  if (userPageMain === null || !(userPageMain instanceof Node)) {
-    console.log("userPageMain is null");
+  console.log("listenLoadEvent");
+  if (!isMyFollowPage()) {
+    // console.log("not target");
     return;
   }
-  const observer = new MutationObserver(async () => {
-    // console.log("MutationObserver", mutations);
-    await fixMyFollowPage();
-  });
-  observer.observe(userPageMain, {
-    childList: true,
-    subtree: true,
-  });
   await fixMyFollowPage();
+  window.addEventListener("scroll", fixMyFollowPage);
 }
 
 let fixing = false;
 
 async function fixMyFollowPage() {
   // console.log("fix target", window.location.href);
-  if (!window.location.toString().startsWith("https://www.nicovideo.jp/my/follow")) {
+  if (!isMyFollowPage()) {
     // console.log("not target");
     return;
   }
