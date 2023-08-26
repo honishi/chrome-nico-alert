@@ -5,15 +5,30 @@ import { Content } from "./domain/usecase/content";
 import { configureDefaultContainer } from "./di/register";
 
 async function listenLoadEvent() {
+  // console.log("listenLoadEvent");
+  const userPageMain = document.getElementsByClassName("UserPage-main")[0];
+  console.log(userPageMain);
+  if (userPageMain === null) {
+    console.log("userPageMain is null");
+    return;
+  }
+  const observer = new MutationObserver(async (mutations) => {
+    // console.log("MutationObserver", mutations);
+    await fixMyFollowPage();
+  });
+  observer.observe(userPageMain, {
+    childList: true,
+    subtree: true,
+  });
   await fixMyFollowPage();
 }
 
 let fixing = false;
 
 async function fixMyFollowPage() {
-  console.log("fix target", window.location.href);
+  // console.log("fix target", window.location.href);
   if (!window.location.toString().startsWith("https://www.nicovideo.jp/my/follow")) {
-    console.log("not target");
+    // console.log("not target");
     return;
   }
   if (fixing) {
@@ -33,28 +48,34 @@ async function fixMyFollowPage() {
     if (isExisting) {
       continue;
     }
-
     const userItemLink = userItem.getElementsByClassName("UserItem-link")[0] as HTMLAnchorElement;
     if (userItemLink === undefined) {
       // console.log("userItemLink is undefined");
       continue;
     }
-    const userId = extractUserIdFromUrl(userItemLink.href);
-
-    const button = document.createElement("button");
-    button.dataset.tag = buttonTag;
-    button.className = "auto-open-button";
-    updateButtonInnerHtml(button, await content.isAutoOpenUser(userId));
-    button.onclick = async () => {
-      const target = !(await content.isAutoOpenUser(userId));
-      await content.setAutoOpenUser(userId, target);
-      updateButtonInnerHtml(button, target);
-    };
-
-    userItem.appendChild(button);
+    const userId = content.extractUserIdFromUrl(userItemLink.href);
+    const autoOpenSettingButton = await createAutoOpenSettingButton(buttonTag, userId, content);
+    userItem.appendChild(autoOpenSettingButton);
   }
 
   fixing = false;
+}
+
+async function createAutoOpenSettingButton(
+  buttonTag: string,
+  userId: string,
+  content: Content,
+): Promise<HTMLButtonElement> {
+  const button = document.createElement("button");
+  button.dataset.tag = buttonTag;
+  button.className = "auto-open-button";
+  updateButtonInnerHtml(button, await content.isAutoOpenUser(userId));
+  button.onclick = async () => {
+    const target = !(await content.isAutoOpenUser(userId));
+    await content.setAutoOpenUser(userId, target);
+    updateButtonInnerHtml(button, target);
+  };
+  return button;
 }
 
 function updateButtonInnerHtml(button: HTMLButtonElement, isOn: boolean) {
@@ -62,16 +83,6 @@ function updateButtonInnerHtml(button: HTMLButtonElement, isOn: boolean) {
   button.innerHTML = `自動入場 ${onOff}`;
 }
 
-function extractUserIdFromUrl(url: string): string {
-  // https://www.nicovideo.jp/user/116137793?ref=pc_mypage_follow_following
-  const match = url.match(/.*\/user\/(\d+).*/);
-  if (match === null) {
-    return "";
-  }
-  return match[1];
-}
-
 configureDefaultContainer();
 
 window.addEventListener("load", listenLoadEvent);
-window.addEventListener("scroll", listenLoadEvent);
