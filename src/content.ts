@@ -76,7 +76,7 @@ async function createAutoOpenSettingButton(
 }
 
 function updateButtonInnerHtml(button: HTMLButtonElement, isOn: boolean) {
-  const onOff = isOn ? "ON✨" : "OFF";
+  const onOff = isOn ? "ON ✅" : "OFF";
   button.innerHTML = `自動入場 ${onOff}`;
 }
 

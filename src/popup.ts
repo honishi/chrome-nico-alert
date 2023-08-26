@@ -27,6 +27,7 @@ async function renderPage() {
       .forEach((element) => {
         followingContainer.appendChild(element);
       });
+    setElementVisibility("following-no-programs", followingPrograms.length === 0);
   }
 
   const rankingContainer = document.getElementById("ranking");
@@ -39,6 +40,14 @@ async function renderPage() {
   }
 
   await popup.setBadgeNumber(followingPrograms.length);
+}
+
+function setElementVisibility(id: string, visible: boolean) {
+  const element = document.getElementById(id);
+  if (element === null) {
+    return;
+  }
+  element.style.display = visible ? "block" : "none";
 }
 
 function rankOf(program: Program, rankingPrograms: Program[]): number | undefined {
