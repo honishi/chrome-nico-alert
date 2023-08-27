@@ -1,6 +1,6 @@
 # chrome-nico-alert
 
-<img src="./docs/images/screenshot.png" width="500px" alt="screenshot">
+<img src="./docs/images/screenshot.png" alt="screenshot">
 
 An alternative Chrome Extension implementation for Niconama Live Alert.
 
