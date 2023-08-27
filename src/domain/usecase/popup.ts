@@ -32,7 +32,7 @@ export class PopupImpl implements Popup {
     const begin = program.beginAt.getTime();
     const now = new Date().getTime();
     const elapsed = now - begin;
-    const isTooEarly = elapsed < 1000 * 60 * 3; // 3 minutes
+    const isTooEarly = elapsed < 1000 * 60 * 2; // 2 minutes
     return isTooEarly
       ? {
           ...program,
