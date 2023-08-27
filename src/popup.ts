@@ -5,16 +5,6 @@ import { Program } from "./domain/model/program";
 import { Popup } from "./domain/usecase/popup";
 import { configureDefaultContainer } from "./di/register";
 
-function addEventListeners() {
-  document.addEventListener("DOMContentLoaded", () => {
-    console.log("addEventListener");
-  });
-}
-
-addEventListeners();
-
-console.log("popup.ts");
-
 async function renderPage() {
   const popup = container.resolve<Popup>(InjectTokens.Popup);
 
