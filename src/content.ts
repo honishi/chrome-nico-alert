@@ -16,8 +16,20 @@ async function listenLoadEvent() {
     // console.log("not target");
     return;
   }
+  const userPageMain = document.getElementsByClassName("UserPage-main")[0];
+  if (userPageMain === null || !(userPageMain instanceof Node)) {
+    console.log("userPageMain is null");
+    return;
+  }
+  const observer = new MutationObserver(async () => {
+    // console.log("MutationObserver", mutations);
+    await fixMyFollowPage();
+  });
+  observer.observe(userPageMain, {
+    childList: true,
+    subtree: true,
+  });
   await fixMyFollowPage();
-  window.addEventListener("scroll", fixMyFollowPage);
 }
 
 let fixing = false;
