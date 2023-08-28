@@ -92,5 +92,4 @@ function toGridItem(program: Program, rank?: number): HTMLElement {
 }
 
 configureDefaultContainer();
-
 await renderPage();

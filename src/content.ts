@@ -93,5 +93,4 @@ function updateButtonInnerHtml(button: HTMLButtonElement, isOn: boolean) {
 }
 
 configureDefaultContainer();
-
 window.addEventListener("load", listenLoadEvent);
