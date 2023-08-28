@@ -7,6 +7,10 @@ const AUTO_OPEN_USERS_KEY = "autoOpenUsers";
 const OFFSCREEN_HTML = "html/offscreen.html";
 
 export class BrowserApiImpl implements BrowserApi {
+  async startSendingKeepAliveFromOffscreen(): Promise<void> {
+    await this.createOffscreen();
+  }
+
   async setBadgeNumber(number: number): Promise<void> {
     await chrome.action.setBadgeText({ text: number.toString() });
   }
@@ -43,8 +47,8 @@ export class BrowserApiImpl implements BrowserApi {
     try {
       await chrome.offscreen.createDocument({
         url: url,
-        reasons: [chrome.offscreen.Reason.AUDIO_PLAYBACK],
-        justification: "audio playback",
+        reasons: [chrome.offscreen.Reason.BLOBS, chrome.offscreen.Reason.AUDIO_PLAYBACK],
+        justification: "background.js keep alive, audio playback",
       });
     } catch (e) {
       console.error(`Failed to create offscreen document: ${e}`);

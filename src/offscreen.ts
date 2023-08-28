@@ -1,5 +1,11 @@
 import { ChromeMessage } from "./infra/chrome_message/message";
 
+function startSendingKeepAlive() {
+  setInterval(async () => {
+    (await navigator.serviceWorker.ready).active?.postMessage("keepAlive");
+  }, 20e3); // 20 seconds
+}
+
 function addOnMessageListener() {
   chrome.runtime.onMessage.addListener(async (msg) => {
     // console.log(`Received message from the extension: ${JSON.stringify(msg)}`);
@@ -26,4 +32,5 @@ async function playAudio(source: string, volume: number = 1) {
   await audio.play();
 }
 
+startSendingKeepAlive();
 addOnMessageListener();

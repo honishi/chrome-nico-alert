@@ -26,6 +26,7 @@ export class BackgroundImpl implements Background {
 
   async run(): Promise<void> {
     console.log("Background run: start");
+    await this.browserApi.startSendingKeepAliveFromOffscreen();
     await this.requestProgramsIgnoringError();
     setInterval(async () => {
       await this.requestProgramsIgnoringError();
