@@ -26,8 +26,10 @@ export class BackgroundImpl implements Background {
 
   async run(): Promise<void> {
     console.log("Background run: start");
-    await this.requestPrograms();
-    setInterval(this.requestPrograms.bind(this), RUN_INTERVAL);
+    await this.requestProgramsIgnoringError();
+    setInterval(async () => {
+      await this.requestProgramsIgnoringError();
+    }, RUN_INTERVAL);
     console.log("Background run: end");
   }
 
@@ -40,6 +42,14 @@ export class BackgroundImpl implements Background {
       return;
     }
     await this.browserApi.openTab(url);
+  }
+
+  private async requestProgramsIgnoringError(): Promise<void> {
+    try {
+      await this.requestPrograms();
+    } catch (e) {
+      console.log(`Failed to request programs: ${e}`);
+    }
   }
 
   private async requestPrograms(): Promise<void> {
