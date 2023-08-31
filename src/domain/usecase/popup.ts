@@ -21,21 +21,25 @@ export class PopupImpl implements Popup {
       this.niconamaApi.getFollowingPrograms(),
       this.niconamaApi.getRankingPrograms(),
     ]);
-    return [following.map(this.fixScreenshotThumbnailUrlIfNeeded), ranking];
+    return [following.map(this.fixScreenshotThumbnailUrlIfTooEarly), ranking];
   }
 
   async setBadgeNumber(number: number): Promise<void> {
     await this.browserApi.setBadgeNumber(number);
   }
 
-  private fixScreenshotThumbnailUrlIfNeeded(program: Program): Program {
-    return {
-      ...program,
-      screenshotThumbnail: {
-        liveScreenshotThumbnailUrl:
-          program.screenshotThumbnail.liveScreenshotThumbnailUrl ??
-          program.socialGroup.thumbnailUrl,
-      },
-    };
+  private fixScreenshotThumbnailUrlIfTooEarly(program: Program): Program {
+    const begin = program.beginAt.getTime();
+    const now = new Date().getTime();
+    const elapsed = now - begin;
+    const isTooEarly = elapsed < 1000 * 60 * 2; // 2 minutes
+    return isTooEarly
+      ? {
+          ...program,
+          screenshotThumbnail: {
+            liveScreenshotThumbnailUrl: program.socialGroup.thumbnailUrl,
+          },
+        }
+      : program;
   }
 }

@@ -10,7 +10,7 @@ export type Program = {
 };
 
 type ScreenshotThumbnail = {
-  liveScreenshotThumbnailUrl?: string;
+  liveScreenshotThumbnailUrl: string;
 };
 
 type ProgramProvider = {
