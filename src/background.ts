@@ -20,12 +20,15 @@ function configureNotificationsListener(background: Background) {
 }
 
 function configureRuntimeListener(background: Background) {
-  chrome.runtime.onInstalled.addListener(async () => {
+  chrome.runtime.onInstalled.addListener(async (details) => {
+    console.log("onInstalled", details);
     await background.run();
   });
   chrome.runtime.onStartup.addListener(async () => {
+    console.log("onStartup");
     await background.run();
   });
+  console.log("configureRuntimeListener: done");
 }
 
 function configureListener(background: Background) {
@@ -37,3 +40,6 @@ function configureListener(background: Background) {
 configureDefaultContainer();
 const background = container.resolve<Background>(InjectTokens.Background);
 configureListener(background);
+console.log("Background script configured.");
+await background.run();
+console.log("Background script started.");

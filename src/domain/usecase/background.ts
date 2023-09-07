@@ -15,6 +15,7 @@ export interface Background {
 
 @injectable()
 export class BackgroundImpl implements Background {
+  private isRunning = false;
   private lastProgramCheckTime?: Date;
   private processedPrograms: Program[] = [];
   private notifiedPrograms: { [key: string]: string } = {}; // key: notificationId, value: watchPageUrl
@@ -25,12 +26,20 @@ export class BackgroundImpl implements Background {
   ) {}
 
   async run(): Promise<void> {
+    if (this.isRunning) {
+      console.log("Background run: already running");
+      return;
+    }
     console.log("Background run: start");
+    this.isRunning = true;
+
     await this.browserApi.startSendingKeepAliveFromOffscreen();
     await this.requestProgramsIgnoringError();
     setInterval(async () => {
       await this.requestProgramsIgnoringError();
     }, RUN_INTERVAL);
+
+    this.isRunning = false;
     console.log("Background run: end");
   }
 
