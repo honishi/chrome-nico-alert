@@ -3,6 +3,7 @@ const CopyPlugin = require("copy-webpack-plugin");
 
 const rootDir = path.join(__dirname, "..");
 const srcDir = path.join(rootDir, "src");
+const copyCommonPattern = { globOptions: { ignore: ["**/.DS_Store"] } };
 
 module.exports = {
   entry: {
@@ -33,19 +34,19 @@ module.exports = {
     new CopyPlugin({
       patterns: [
         {
+          ...copyCommonPattern,
           from: path.join(rootDir, "public"),
           to: path.join(rootDir, "dist"),
-          globOptions: { ignore: ["**/.DS_Store"] },
         },
         {
+          ...copyCommonPattern,
           from: path.join(srcDir, "view", "css"),
           to: path.join(rootDir, "dist", "css"),
-          globOptions: { ignore: ["**/.DS_Store"] },
         },
         {
+          ...copyCommonPattern,
           from: path.join(srcDir, "view", "html"),
           to: path.join(rootDir, "dist", "html"),
-          globOptions: { ignore: ["**/.DS_Store"] },
         },
       ],
     }),
