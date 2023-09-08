@@ -1,17 +1,21 @@
+// eslint-disable-next-line @typescript-eslint/no-var-requires
 const path = require("path");
+// eslint-disable-next-line @typescript-eslint/no-var-requires
 const CopyPlugin = require("copy-webpack-plugin");
 
+// eslint-disable-next-line no-undef
 const rootDir = path.join(__dirname, "..");
 const srcDir = path.join(rootDir, "src");
+const entryDir = path.join(srcDir, "entry");
 const copyCommonPattern = { globOptions: { ignore: ["**/.DS_Store"] } };
 
 module.exports = {
   entry: {
-    content: path.join(srcDir, "content.ts"),
-    background: path.join(srcDir, "background.ts"),
-    // option: path.join(srcDir, 'option.ts'),
-    popup: path.join(srcDir, "popup.ts"),
-    offscreen: path.join(srcDir, "offscreen.ts"),
+    content: path.join(entryDir, "content.ts"),
+    background: path.join(entryDir, "background.ts"),
+    // option: path.join(srcEntryDir, "option.ts"),
+    popup: path.join(entryDir, "popup.ts"),
+    offscreen: path.join(entryDir, "offscreen.ts"),
   },
   output: {
     clean: true,

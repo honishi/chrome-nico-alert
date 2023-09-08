@@ -1,8 +1,8 @@
 import "reflect-metadata";
 import { container } from "tsyringe";
-import { InjectTokens } from "./di/inject-tokens";
-import { Content } from "./domain/usecase/content";
-import { configureDefaultContainer } from "./di/register";
+import { InjectTokens } from "../di/inject-tokens";
+import { Content } from "../domain/usecase/content";
+import { configureDefaultContainer } from "../di/register";
 
 const MY_FOLLOW_PAGE_URL = "https://www.nicovideo.jp/my/follow";
 

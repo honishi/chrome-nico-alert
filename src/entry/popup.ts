@@ -1,9 +1,9 @@
 import "reflect-metadata";
 import { container } from "tsyringe";
-import { InjectTokens } from "./di/inject-tokens";
-import { Program } from "./domain/model/program";
-import { Popup } from "./domain/usecase/popup";
-import { configureDefaultContainer } from "./di/register";
+import { InjectTokens } from "../di/inject-tokens";
+import { Program } from "../domain/model/program";
+import { Popup } from "../domain/usecase/popup";
+import { configureDefaultContainer } from "../di/register";
 
 async function renderPage() {
   const popup = container.resolve<Popup>(InjectTokens.Popup);

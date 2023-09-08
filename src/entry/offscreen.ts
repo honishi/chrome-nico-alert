@@ -1,4 +1,4 @@
-import { ChromeMessage } from "./infra/chrome_message/message";
+import { ChromeMessage } from "../infra/chrome_message/message";
 
 function startSendingKeepAlive() {
   setInterval(async () => {

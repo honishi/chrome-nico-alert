@@ -1,8 +1,8 @@
 import "reflect-metadata";
-import { InjectTokens } from "./di/inject-tokens";
-import { Background } from "./domain/usecase/background";
+import { InjectTokens } from "../di/inject-tokens";
+import { Background } from "../domain/usecase/background";
 import { container } from "tsyringe";
-import { configureDefaultContainer } from "./di/register";
+import { configureDefaultContainer } from "../di/register";
 
 // Receives keep-alive message from offscreen window just to wake up the background script.
 // https://stackoverflow.com/a/66618269
