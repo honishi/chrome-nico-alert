@@ -6,7 +6,7 @@ An alternative Chrome Extension implementation for Niconama Live Alert.
 
 ## Installation
 
-* Will be published on Chrome Web Store soon.
+* [Chrome Web Store](https://chrome.google.com/webstore/detail/kdgfbbcfpidajkpljnlngpglniggjbjm)
 
 ## Build
 
