@@ -63,62 +63,92 @@ export class BackgroundImpl implements Background {
   }
 
   private async requestPrograms(): Promise<void> {
-    console.log("Background checkPrograms: start", new Date());
+    console.log("Background requestPrograms: start", new Date());
 
     const [following, recent] = await Promise.all([
       this.niconamaApi.getFollowingPrograms(),
       this.niconamaApi.getRecentPrograms(),
     ]);
     await this.browserApi.setBadgeNumber(following.length);
-    await this.checkPrograms([...following, ...recent]);
+    await this.checkPrograms(following, recent);
 
-    console.log("Background checkPrograms: end", new Date());
+    console.log("Background requestPrograms: end", new Date());
   }
 
-  private async checkPrograms(programs: Program[]): Promise<void> {
-    console.log("Background checkAndPlaySounds: start", new Date());
+  private async checkPrograms(following: Program[], recent: Program[]): Promise<void> {
     if (this.lastProgramCheckTime === undefined) {
       this.lastProgramCheckTime = new Date();
-      this.processedPrograms = programs;
+      this.processedPrograms = [...following, ...recent];
       return;
     }
+    this.lastProgramCheckTime = new Date();
 
-    let detectedNewProgram = false;
-    for (const program of programs) {
-      const isProcessed = this.processedPrograms.map((p) => p.id).includes(program.id);
-      if (isProcessed) {
+    let openedAnyPrograms = false;
+    for (const program of following) {
+      if (this.isProcessed(program)) {
         continue;
       }
-      console.log(
-        program.programProvider?.name,
-        program.title,
-        program.programProvider?.icon,
-        program.screenshotThumbnail.liveScreenshotThumbnailUrl,
-      );
-      if (detectedNewProgram) {
-        console.log(`Background checkAndPlaySounds: wait ${DELAY_AFTER_OPEN} ms`);
+      this.logProgram("Found following program:", program);
+      this.processedPrograms.push(program);
+      if (openedAnyPrograms) {
+        console.log(`wait: ${DELAY_AFTER_OPEN} ms`);
         await this.delay(DELAY_AFTER_OPEN);
       }
-      // await this.browserApi.openTab(program.screenshotThumbnail.liveScreenshotThumbnailUrl);
-      this.browserApi.showNotification(
-        `${program.programProvider?.name ?? program.socialGroup.name}が放送開始`,
-        `「${program.title}」\n${program.socialGroup.name}`,
-        program.programProvider?.icon ?? program.socialGroup.thumbnailUrl,
-        (notificationId) => {
-          console.log(`Background checkAndPlaySounds: notificationId: ${notificationId}`);
-          this.notifiedPrograms[notificationId] = program.watchPageUrl;
-        },
+      const autoOpened = await this.autoOpenProgramIfNeeded(program);
+      this.showNotification(program);
+      await this.browserApi.playSound(
+        autoOpened ? SoundType.NEW_LIVE_MAIN : SoundType.NEW_LIVE_SUB,
       );
-      const opened = await this.autoOpenProgramIfNeeded(program);
-      await this.browserApi.playSound(opened ? SoundType.NEW_LIVE_MAIN : SoundType.NEW_LIVE_SUB);
-      this.processedPrograms.push(program);
-      detectedNewProgram = true;
+      openedAnyPrograms = true;
     }
 
-    this.lastProgramCheckTime = new Date();
-    console.log("Background checkAndPlaySounds: end", new Date());
+    for (const program of recent) {
+      if (this.isProcessed(program)) {
+        continue;
+      }
+      this.processedPrograms.push(program);
+      if (openedAnyPrograms) {
+        console.log(`wait: ${DELAY_AFTER_OPEN} ms`);
+        await this.delay(DELAY_AFTER_OPEN);
+      }
+      const autoOpened = await this.autoOpenProgramIfNeeded(program);
+      if (!autoOpened) {
+        continue;
+      }
+      this.logProgram("Found recent program:", program);
+      this.showNotification(program);
+      await this.browserApi.playSound(SoundType.NEW_LIVE_MAIN);
+      openedAnyPrograms = true;
+    }
+
+    this.processedPrograms = this.processedPrograms.slice(-10000);
   }
 
+  private isProcessed(program: Program): boolean {
+    return this.processedPrograms.map((p) => p.id).includes(program.id);
+  }
+
+  private logProgram(message: string, program: Program): void {
+    console.log(
+      message,
+      program.programProvider?.name,
+      program.title,
+      program.programProvider?.icon,
+      program.screenshotThumbnail.liveScreenshotThumbnailUrl,
+    );
+  }
+
+  private showNotification(program: Program): void {
+    this.browserApi.showNotification(
+      `${program.programProvider?.name ?? program.socialGroup.name}が放送開始`,
+      `「${program.title}」\n${program.socialGroup.name}`,
+      program.programProvider?.icon ?? program.socialGroup.thumbnailUrl,
+      (notificationId) => {
+        console.log(`Background checkAndPlaySounds: notificationId: ${notificationId}`);
+        this.notifiedPrograms[notificationId] = program.watchPageUrl;
+      },
+    );
+  }
   private async autoOpenProgramIfNeeded(program: Program): Promise<boolean> {
     if (program.programProvider === undefined) {
       return false;
