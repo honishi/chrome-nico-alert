@@ -1,0 +1,2773 @@
+{
+  "meta": {
+    "status": 200,
+    "errorCode": "OK"
+  },
+  "data": [
+    {
+      "id": "lv342873081",
+      "title": "パキスタン　ラホール散歩",
+      "thumbnailUrl": null,
+      "hugeThumbnailUrl": null,
+      "screenshotThumbnail": {
+        "liveScreenshotThumbnailUrl": "https://ssth.dmc.nico/thumbnail/20230924/00/31/nicolive-production-pg34677388739194/nicolive-production-pg34677388739194_352_198.jpg",
+        "tsScreenshotThumbnailUrl": "https://ssth.dmc.nico/thumbnail/20230924/00/31/nicolive-production-pg34677388739194/nicolive-production-pg34677388739194_352_198.jpg"
+      },
+      "watchPageUrl": "https://live.nicovideo.jp/watch/lv342873081?ref=RecentPage-RecentOnairBroadcastStatusProgramListSection-ProgramCard",
+      "watchPageUrlAtExtPlayer": null,
+      "providerType": "community",
+      "liveCycle": "ON_AIR",
+      "beginAt": 1695483132000,
+      "endAt": 1695484932000,
+      "isFollowerOnly": false,
+      "socialGroup": {
+        "id": "co202522",
+        "name": "勝俣ジュニアにおまかせ",
+        "thumbnailUrl": "https://secure-dcdn.cdn.nimg.jp/comch/community-icon/128x128/co202522.jpg?1570457886"
+      },
+      "programProvider": {
+        "id": "10493783",
+        "name": "勝俣ジュニア",
+        "icon": "https://secure-dcdn.cdn.nimg.jp/nicoaccount/usericon/1049/10493783.jpg?1351136661",
+        "iconSmall": "https://secure-dcdn.cdn.nimg.jp/nicoaccount/usericon/s/1049/10493783.jpg?1351136661"
+      },
+      "statistics": {
+        "watchCount": 1,
+        "commentCount": 0,
+        "reservationCount": null
+      },
+      "timeshift": {
+        "isPlayable": false,
+        "isReservable": true
+      },
+      "isPayProgram": false,
+      "isOfficialChannelMemberFree": false
+    },
+    {
+      "id": "lv342873071",
+      "title": "雑談　おひとりさま コメントお願いします",
+      "thumbnailUrl": null,
+      "hugeThumbnailUrl": null,
+      "screenshotThumbnail": {
+        "liveScreenshotThumbnailUrl": "https://ssth.dmc.nico/thumbnail/20230924/00/31/nicolive-production-pg54616673747578/nicolive-production-pg54616673747578_352_198.jpg",
+        "tsScreenshotThumbnailUrl": "https://ssth.dmc.nico/thumbnail/20230924/00/31/nicolive-production-pg54616673747578/nicolive-production-pg54616673747578_352_198.jpg"
+      },
+      "watchPageUrl": "https://live.nicovideo.jp/watch/lv342873071?ref=RecentPage-RecentOnairBroadcastStatusProgramListSection-ProgramCard",
+      "watchPageUrlAtExtPlayer": null,
+      "providerType": "community",
+      "liveCycle": "ON_AIR",
+      "beginAt": 1695483122000,
+      "endAt": 1695484922000,
+      "isFollowerOnly": false,
+      "socialGroup": {
+        "id": "co2653091",
+        "name": "ざぼはん",
+        "thumbnailUrl": "https://secure-dcdn.cdn.nimg.jp/comch/community-icon/128x128/co2653091.jpg?1528467212"
+      },
+      "programProvider": {
+        "id": "43845367",
+        "name": "ざぼはん",
+        "icon": "https://secure-dcdn.cdn.nimg.jp/nicoaccount/usericon/defaults/blank.jpg",
+        "iconSmall": "https://secure-dcdn.cdn.nimg.jp/nicoaccount/usericon/defaults/blank_s.jpg"
+      },
+      "statistics": {
+        "watchCount": 0,
+        "commentCount": 0,
+        "reservationCount": null
+      },
+      "timeshift": {
+        "isPlayable": false,
+        "isReservable": false
+      },
+      "isPayProgram": false,
+      "isOfficialChannelMemberFree": false
+    },
+    {
+      "id": "lv342873077",
+      "title": "ニコニコ生放送アプリからの放送by高知",
+      "thumbnailUrl": null,
+      "hugeThumbnailUrl": null,
+      "screenshotThumbnail": {
+        "liveScreenshotThumbnailUrl": "https://ssth.dmc.nico/thumbnail/20230924/00/31/nicolive-production-pg39619773071994/nicolive-production-pg39619773071994_352_198.jpg",
+        "tsScreenshotThumbnailUrl": "https://ssth.dmc.nico/thumbnail/20230924/00/31/nicolive-production-pg39619773071994/nicolive-production-pg39619773071994_352_198.jpg"
+      },
+      "watchPageUrl": "https://live.nicovideo.jp/watch/lv342873077?ref=RecentPage-RecentOnairBroadcastStatusProgramListSection-ProgramCard",
+      "watchPageUrlAtExtPlayer": null,
+      "providerType": "community",
+      "liveCycle": "ON_AIR",
+      "beginAt": 1695483113000,
+      "endAt": 1695484913000,
+      "isFollowerOnly": false,
+      "socialGroup": {
+        "id": "co6110820",
+        "name": "ゲストさんのコミュニティ",
+        "thumbnailUrl": "https://secure-dcdn.cdn.nimg.jp/comch/community-icon/128x128/co6110820.jpg?1684637154"
+      },
+      "programProvider": {
+        "id": "121338664",
+        "name": "ゲスト",
+        "icon": "https://secure-dcdn.cdn.nimg.jp/nicoaccount/usericon/defaults/blank.jpg",
+        "iconSmall": "https://secure-dcdn.cdn.nimg.jp/nicoaccount/usericon/defaults/blank_s.jpg"
+      },
+      "statistics": {
+        "watchCount": 1,
+        "commentCount": 0,
+        "reservationCount": null
+      },
+      "timeshift": {
+        "isPlayable": false,
+        "isReservable": true
+      },
+      "isPayProgram": false,
+      "isOfficialChannelMemberFree": false
+    },
+    {
+      "id": "lv342873076",
+      "title": "【初見歓迎】ニートの雑談(｀・ω・´)",
+      "thumbnailUrl": null,
+      "hugeThumbnailUrl": null,
+      "screenshotThumbnail": {
+        "liveScreenshotThumbnailUrl": "https://ssth.dmc.nico/thumbnail/20230924/00/31/nicolive-production-pg69289780445818/nicolive-production-pg69289780445818_352_198.jpg",
+        "tsScreenshotThumbnailUrl": "https://ssth.dmc.nico/thumbnail/20230924/00/31/nicolive-production-pg69289780445818/nicolive-production-pg69289780445818_352_198.jpg"
+      },
+      "watchPageUrl": "https://live.nicovideo.jp/watch/lv342873076?ref=RecentPage-RecentOnairBroadcastStatusProgramListSection-ProgramCard",
+      "watchPageUrlAtExtPlayer": null,
+      "providerType": "community",
+      "liveCycle": "ON_AIR",
+      "beginAt": 1695483110000,
+      "endAt": 1695484910000,
+      "isFollowerOnly": false,
+      "socialGroup": {
+        "id": "co2947341",
+        "name": "Perfectionism",
+        "thumbnailUrl": "https://secure-dcdn.cdn.nimg.jp/comch/community-icon/128x128/co2947341.jpg?1695313835"
+      },
+      "programProvider": {
+        "id": "3759244",
+        "name": "fukumi",
+        "icon": "https://secure-dcdn.cdn.nimg.jp/nicoaccount/usericon/375/3759244.jpg?1614586314",
+        "iconSmall": "https://secure-dcdn.cdn.nimg.jp/nicoaccount/usericon/s/375/3759244.jpg?1614586314"
+      },
+      "statistics": {
+        "watchCount": 0,
+        "commentCount": 0,
+        "reservationCount": null
+      },
+      "timeshift": {
+        "isPlayable": false,
+        "isReservable": false
+      },
+      "isPayProgram": false,
+      "isOfficialChannelMemberFree": false
+    },
+    {
+      "id": "lv342873052",
+      "title": "いつもの黙々gdるぐらせｆ・・適当にうろうろして2時間で強制終了（今週はオートショップ強盗報酬2倍）",
+      "thumbnailUrl": null,
+      "hugeThumbnailUrl": null,
+      "screenshotThumbnail": {
+        "liveScreenshotThumbnailUrl": "https://ssth.dmc.nico/thumbnail/20230924/00/28/nicolive-production-pg43240281604730/nicolive-production-pg43240281604730_352_198.jpg",
+        "tsScreenshotThumbnailUrl": "https://ssth.dmc.nico/thumbnail/20230924/00/28/nicolive-production-pg43240281604730/nicolive-production-pg43240281604730_352_198.jpg"
+      },
+      "watchPageUrl": "https://live.nicovideo.jp/watch/lv342873052?ref=RecentPage-RecentOnairBroadcastStatusProgramListSection-ProgramCard",
+      "watchPageUrlAtExtPlayer": null,
+      "providerType": "community",
+      "liveCycle": "ON_AIR",
+      "beginAt": 1695483101000,
+      "endAt": 1695490301000,
+      "isFollowerOnly": false,
+      "socialGroup": {
+        "id": "co4158038",
+        "name": "まずふらさんのコミュニティ",
+        "thumbnailUrl": "https://secure-dcdn.cdn.nimg.jp/comch/community-icon/128x128/co4158038.jpg?1600048630"
+      },
+      "programProvider": {
+        "id": "150170",
+        "name": "まずふら",
+        "icon": "https://secure-dcdn.cdn.nimg.jp/nicoaccount/usericon/15/150170.jpg?1566880122",
+        "iconSmall": "https://secure-dcdn.cdn.nimg.jp/nicoaccount/usericon/s/15/150170.jpg?1566880122"
+      },
+      "statistics": {
+        "watchCount": 0,
+        "commentCount": 0,
+        "reservationCount": null
+      },
+      "timeshift": {
+        "isPlayable": false,
+        "isReservable": false
+      },
+      "isPayProgram": false,
+      "isOfficialChannelMemberFree": false
+    },
+    {
+      "id": "lv342873000",
+      "title": "頭痛いおやすみ(   ˙-；   )",
+      "thumbnailUrl": null,
+      "hugeThumbnailUrl": null,
+      "screenshotThumbnail": {
+        "liveScreenshotThumbnailUrl": "https://ssth.dmc.nico/thumbnail/20230924/00/23/nicolive-production-pg54263963189882/nicolive-production-pg54263963189882_352_198.jpg",
+        "tsScreenshotThumbnailUrl": "https://ssth.dmc.nico/thumbnail/20230924/00/23/nicolive-production-pg54263963189882/nicolive-production-pg54263963189882_352_198.jpg"
+      },
+      "watchPageUrl": "https://live.nicovideo.jp/watch/lv342873000?ref=RecentPage-RecentOnairBroadcastStatusProgramListSection-ProgramCard",
+      "watchPageUrlAtExtPlayer": null,
+      "providerType": "community",
+      "liveCycle": "ON_AIR",
+      "beginAt": 1695483075000,
+      "endAt": 1695484875000,
+      "isFollowerOnly": false,
+      "socialGroup": {
+        "id": "co5379119",
+        "name": "けしけしさんのコミュニティ",
+        "thumbnailUrl": "https://secure-dcdn.cdn.nimg.jp/comch/community-icon/128x128/co5379119.jpg?1624683469"
+      },
+      "programProvider": {
+        "id": "119047428",
+        "name": "けしけし",
+        "icon": "https://secure-dcdn.cdn.nimg.jp/nicoaccount/usericon/11904/119047428.jpg?1680687602",
+        "iconSmall": "https://secure-dcdn.cdn.nimg.jp/nicoaccount/usericon/s/11904/119047428.jpg?1680687602"
+      },
+      "statistics": {
+        "watchCount": 1,
+        "commentCount": 0,
+        "reservationCount": null
+      },
+      "timeshift": {
+        "isPlayable": false,
+        "isReservable": false
+      },
+      "isPayProgram": false,
+      "isOfficialChannelMemberFree": false
+    },
+    {
+      "id": "lv342873070",
+      "title": "あづきbar",
+      "thumbnailUrl": null,
+      "hugeThumbnailUrl": null,
+      "screenshotThumbnail": {
+        "liveScreenshotThumbnailUrl": null,
+        "tsScreenshotThumbnailUrl": null
+      },
+      "watchPageUrl": "https://live.nicovideo.jp/watch/lv342873070?ref=RecentPage-RecentOnairBroadcastStatusProgramListSection-ProgramCard",
+      "watchPageUrlAtExtPlayer": null,
+      "providerType": "community",
+      "liveCycle": "ON_AIR",
+      "beginAt": 1695483069000,
+      "endAt": 1695504669000,
+      "isFollowerOnly": true,
+      "socialGroup": {
+        "id": "co4090385",
+        "name": "一生に一度だ。",
+        "thumbnailUrl": "https://secure-dcdn.cdn.nimg.jp/comch/community-icon/128x128/co4090385.jpg?1571454418"
+      },
+      "programProvider": {
+        "id": "12078089",
+        "name": "あづき",
+        "icon": "https://secure-dcdn.cdn.nimg.jp/nicoaccount/usericon/defaults/blank.jpg",
+        "iconSmall": "https://secure-dcdn.cdn.nimg.jp/nicoaccount/usericon/defaults/blank_s.jpg"
+      },
+      "statistics": {
+        "watchCount": 3,
+        "commentCount": 0,
+        "reservationCount": null
+      },
+      "timeshift": {
+        "isPlayable": false,
+        "isReservable": false
+      },
+      "isPayProgram": false,
+      "isOfficialChannelMemberFree": false
+    },
+    {
+      "id": "lv342873069",
+      "title": "おっさんの酒飲み雑談",
+      "thumbnailUrl": null,
+      "hugeThumbnailUrl": null,
+      "screenshotThumbnail": {
+        "liveScreenshotThumbnailUrl": "https://ssth.dmc.nico/thumbnail/20230924/00/30/nicolive-production-pg30767762637434/nicolive-production-pg30767762637434_352_198.jpg",
+        "tsScreenshotThumbnailUrl": "https://ssth.dmc.nico/thumbnail/20230924/00/30/nicolive-production-pg30767762637434/nicolive-production-pg30767762637434_352_198.jpg"
+      },
+      "watchPageUrl": "https://live.nicovideo.jp/watch/lv342873069?ref=RecentPage-RecentOnairBroadcastStatusProgramListSection-ProgramCard",
+      "watchPageUrlAtExtPlayer": null,
+      "providerType": "community",
+      "liveCycle": "ON_AIR",
+      "beginAt": 1695483053000,
+      "endAt": 1695484853000,
+      "isFollowerOnly": false,
+      "socialGroup": {
+        "id": "co3987735",
+        "name": "めーこぶさんのコミュニティ",
+        "thumbnailUrl": "https://secure-dcdn.cdn.nimg.jp/comch/community-icon/128x128/co3987735.jpg?1596535484"
+      },
+      "programProvider": {
+        "id": "37010137",
+        "name": "めーこぶ",
+        "icon": "https://secure-dcdn.cdn.nimg.jp/nicoaccount/usericon/3701/37010137.jpg?1458487944",
+        "iconSmall": "https://secure-dcdn.cdn.nimg.jp/nicoaccount/usericon/s/3701/37010137.jpg?1458487944"
+      },
+      "statistics": {
+        "watchCount": 0,
+        "commentCount": 0,
+        "reservationCount": null
+      },
+      "timeshift": {
+        "isPlayable": false,
+        "isReservable": false
+      },
+      "isPayProgram": false,
+      "isOfficialChannelMemberFree": false
+    },
+    {
+      "id": "lv342873033",
+      "title": "【FastAPI】Pythonで動くWebフレームワークをお勉強",
+      "thumbnailUrl": null,
+      "hugeThumbnailUrl": null,
+      "screenshotThumbnail": {
+        "liveScreenshotThumbnailUrl": "https://ssth.dmc.nico/thumbnail/20230924/00/26/nicolive-production-pg31659209523834/nicolive-production-pg31659209523834_352_198.jpg",
+        "tsScreenshotThumbnailUrl": "https://ssth.dmc.nico/thumbnail/20230924/00/26/nicolive-production-pg31659209523834/nicolive-production-pg31659209523834_352_198.jpg"
+      },
+      "watchPageUrl": "https://live.nicovideo.jp/watch/lv342873033?ref=RecentPage-RecentOnairBroadcastStatusProgramListSection-ProgramCard",
+      "watchPageUrlAtExtPlayer": null,
+      "providerType": "community",
+      "liveCycle": "ON_AIR",
+      "beginAt": 1695483039000,
+      "endAt": 1695484839000,
+      "isFollowerOnly": false,
+      "socialGroup": {
+        "id": "co1762774",
+        "name": "りれんざっていう主が色々とやっていきたいコミュニティ",
+        "thumbnailUrl": "https://secure-dcdn.cdn.nimg.jp/comch/community-icon/128x128/co1762774.jpg?1639322261"
+      },
+      "programProvider": {
+        "id": "17081279",
+        "name": "りれんざ(林廉太郎)",
+        "icon": "https://secure-dcdn.cdn.nimg.jp/nicoaccount/usericon/1708/17081279.jpg?1653136352",
+        "iconSmall": "https://secure-dcdn.cdn.nimg.jp/nicoaccount/usericon/s/1708/17081279.jpg?1653136352"
+      },
+      "statistics": {
+        "watchCount": 2,
+        "commentCount": 0,
+        "reservationCount": null
+      },
+      "timeshift": {
+        "isPlayable": false,
+        "isReservable": true
+      },
+      "isPayProgram": false,
+      "isOfficialChannelMemberFree": false
+    },
+    {
+      "id": "lv342872073",
+      "title": "モンエナ飲みながら買ったもの紹介する雑談",
+      "thumbnailUrl": null,
+      "hugeThumbnailUrl": null,
+      "screenshotThumbnail": {
+        "liveScreenshotThumbnailUrl": "https://ssth.dmc.nico/thumbnail/20230924/00/00/nicolive-production-pg42449331290746/nicolive-production-pg42449331290746_352_198.jpg",
+        "tsScreenshotThumbnailUrl": "https://ssth.dmc.nico/thumbnail/20230924/00/00/nicolive-production-pg42449331290746/nicolive-production-pg42449331290746_352_198.jpg"
+      },
+      "watchPageUrl": "https://live.nicovideo.jp/watch/lv342872073?ref=RecentPage-RecentOnairBroadcastStatusProgramListSection-ProgramCard",
+      "watchPageUrlAtExtPlayer": null,
+      "providerType": "community",
+      "liveCycle": "ON_AIR",
+      "beginAt": 1695483000000,
+      "endAt": 1695484800000,
+      "isFollowerOnly": false,
+      "socialGroup": {
+        "id": "co6040171",
+        "name": "ごっこさんのコミュニティ",
+        "thumbnailUrl": "https://secure-dcdn.cdn.nimg.jp/comch/community-icon/128x128/co6040171.jpg?1675403145"
+      },
+      "programProvider": {
+        "id": "346133",
+        "name": "ごっこ",
+        "icon": "https://secure-dcdn.cdn.nimg.jp/nicoaccount/usericon/34/346133.jpg?1690543718",
+        "iconSmall": "https://secure-dcdn.cdn.nimg.jp/nicoaccount/usericon/s/34/346133.jpg?1690543718"
+      },
+      "statistics": {
+        "watchCount": 4,
+        "commentCount": 0,
+        "reservationCount": 1
+      },
+      "timeshift": {
+        "isPlayable": false,
+        "isReservable": true
+      },
+      "isPayProgram": false,
+      "isOfficialChannelMemberFree": false
+    },
+    {
+      "id": "lv342816455",
+      "title": "日テレ【 ニコニコ実況 】にわかファンがダラダラ観てる“ RWC2023 イングランドvsチリ”！2023年9月23日 24:45〜( ※試合映像なし！試合後しばらくダラダラ。)",
+      "thumbnailUrl": null,
+      "hugeThumbnailUrl": null,
+      "screenshotThumbnail": {
+        "liveScreenshotThumbnailUrl": "https://ssth.dmc.nico/thumbnail/20230924/00/00/nicolive-production-pg76171604656762/nicolive-production-pg76171604656762_352_198.jpg",
+        "tsScreenshotThumbnailUrl": "https://ssth.dmc.nico/thumbnail/20230924/00/00/nicolive-production-pg76171604656762/nicolive-production-pg76171604656762_352_198.jpg"
+      },
+      "watchPageUrl": "https://live.nicovideo.jp/watch/lv342816455?ref=RecentPage-RecentOnairBroadcastStatusProgramListSection-ProgramCard",
+      "watchPageUrlAtExtPlayer": null,
+      "providerType": "community",
+      "liveCycle": "ON_AIR",
+      "beginAt": 1695483000000,
+      "endAt": 1695493800000,
+      "isFollowerOnly": false,
+      "socialGroup": {
+        "id": "co4973039",
+        "name": "ゆんゆんち。",
+        "thumbnailUrl": "https://secure-dcdn.cdn.nimg.jp/comch/community-icon/128x128/co4973039.jpg?1674972455"
+      },
+      "programProvider": {
+        "id": "59359575",
+        "name": "ゆんゆん。。　　　　　　　　　.",
+        "icon": "https://secure-dcdn.cdn.nimg.jp/nicoaccount/usericon/5935/59359575.jpg?1695471488",
+        "iconSmall": "https://secure-dcdn.cdn.nimg.jp/nicoaccount/usericon/s/5935/59359575.jpg?1695471488"
+      },
+      "statistics": {
+        "watchCount": 1,
+        "commentCount": 0,
+        "reservationCount": null
+      },
+      "timeshift": {
+        "isPlayable": false,
+        "isReservable": true
+      },
+      "isPayProgram": false,
+      "isOfficialChannelMemberFree": false
+    },
+    {
+      "id": "lv342873062",
+      "title": "ちんが如く～大阪配信！24日目！【埼玉⇒東京⇒大阪⇒京都⇒奈良⇒京都⇒大阪パチ以外基本ノープラン旅】",
+      "thumbnailUrl": null,
+      "hugeThumbnailUrl": null,
+      "screenshotThumbnail": {
+        "liveScreenshotThumbnailUrl": "https://ssth.dmc.nico/thumbnail/20230924/00/29/nicolive-production-pg40952306598522/nicolive-production-pg40952306598522_352_198.jpg",
+        "tsScreenshotThumbnailUrl": "https://ssth.dmc.nico/thumbnail/20230924/00/29/nicolive-production-pg40952306598522/nicolive-production-pg40952306598522_352_198.jpg"
+      },
+      "watchPageUrl": "https://live.nicovideo.jp/watch/lv342873062?ref=RecentPage-RecentOnairBroadcastStatusProgramListSection-ProgramCard",
+      "watchPageUrlAtExtPlayer": null,
+      "providerType": "community",
+      "liveCycle": "ON_AIR",
+      "beginAt": 1695482994000,
+      "endAt": 1695484794000,
+      "isFollowerOnly": false,
+      "socialGroup": {
+        "id": "co4987984",
+        "name": "黄昏ぎんぎん物語",
+        "thumbnailUrl": "https://secure-dcdn.cdn.nimg.jp/comch/community-icon/128x128/co4987984.jpg?1671906578"
+      },
+      "programProvider": {
+        "id": "98041659",
+        "name": "ちんｋちゃん",
+        "icon": "https://secure-dcdn.cdn.nimg.jp/nicoaccount/usericon/9804/98041659.jpg?1664689280",
+        "iconSmall": "https://secure-dcdn.cdn.nimg.jp/nicoaccount/usericon/s/9804/98041659.jpg?1664689280"
+      },
+      "statistics": {
+        "watchCount": 10,
+        "commentCount": 2,
+        "reservationCount": null
+      },
+      "timeshift": {
+        "isPlayable": false,
+        "isReservable": true
+      },
+      "isPayProgram": false,
+      "isOfficialChannelMemberFree": false
+    },
+    {
+      "id": "lv342873059",
+      "title": "4444444な人生終わってる",
+      "thumbnailUrl": null,
+      "hugeThumbnailUrl": null,
+      "screenshotThumbnail": {
+        "liveScreenshotThumbnailUrl": "https://ssth.dmc.nico/thumbnail/20230924/00/29/nicolive-production-pg59593588736634/nicolive-production-pg59593588736634_352_198.jpg",
+        "tsScreenshotThumbnailUrl": "https://ssth.dmc.nico/thumbnail/20230924/00/29/nicolive-production-pg59593588736634/nicolive-production-pg59593588736634_352_198.jpg"
+      },
+      "watchPageUrl": "https://live.nicovideo.jp/watch/lv342873059?ref=RecentPage-RecentOnairBroadcastStatusProgramListSection-ProgramCard",
+      "watchPageUrlAtExtPlayer": null,
+      "providerType": "community",
+      "liveCycle": "ON_AIR",
+      "beginAt": 1695482970000,
+      "endAt": 1695484770000,
+      "isFollowerOnly": false,
+      "socialGroup": {
+        "id": "co3325149",
+        "name": "株とFX　もうすぐ億トレ",
+        "thumbnailUrl": "https://secure-dcdn.cdn.nimg.jp/comch/community-icon/128x128/co3325149.jpg?1688749756"
+      },
+      "programProvider": {
+        "id": "71082859",
+        "name": "わおわお＠もうすぐ億トレ",
+        "icon": "https://secure-dcdn.cdn.nimg.jp/nicoaccount/usericon/7108/71082859.jpg?1688185686",
+        "iconSmall": "https://secure-dcdn.cdn.nimg.jp/nicoaccount/usericon/s/7108/71082859.jpg?1688185686"
+      },
+      "statistics": {
+        "watchCount": 16,
+        "commentCount": 3,
+        "reservationCount": null
+      },
+      "timeshift": {
+        "isPlayable": false,
+        "isReservable": false
+      },
+      "isPayProgram": false,
+      "isOfficialChannelMemberFree": false
+    },
+    {
+      "id": "lv342873060",
+      "title": "寝れないので少しだけ",
+      "thumbnailUrl": null,
+      "hugeThumbnailUrl": null,
+      "screenshotThumbnail": {
+        "liveScreenshotThumbnailUrl": "https://ssth.dmc.nico/thumbnail/20230924/00/29/nicolive-production-pg30577885446778/nicolive-production-pg30577885446778_352_198.jpg",
+        "tsScreenshotThumbnailUrl": "https://ssth.dmc.nico/thumbnail/20230924/00/29/nicolive-production-pg30577885446778/nicolive-production-pg30577885446778_352_198.jpg"
+      },
+      "watchPageUrl": "https://live.nicovideo.jp/watch/lv342873060?ref=RecentPage-RecentOnairBroadcastStatusProgramListSection-ProgramCard",
+      "watchPageUrlAtExtPlayer": null,
+      "providerType": "community",
+      "liveCycle": "ON_AIR",
+      "beginAt": 1695482969000,
+      "endAt": 1695484769000,
+      "isFollowerOnly": false,
+      "socialGroup": {
+        "id": "co5932923",
+        "name": "ゲストさんのコミュニティ",
+        "thumbnailUrl": "https://secure-dcdn.cdn.nimg.jp/comch/community-icon/128x128/co5932923.jpg?1666915996"
+      },
+      "programProvider": {
+        "id": "126433152",
+        "name": "しーちゃん",
+        "icon": "https://secure-dcdn.cdn.nimg.jp/nicoaccount/usericon/12643/126433152.jpg?1695202777",
+        "iconSmall": "https://secure-dcdn.cdn.nimg.jp/nicoaccount/usericon/s/12643/126433152.jpg?1695202777"
+      },
+      "statistics": {
+        "watchCount": 1,
+        "commentCount": 0,
+        "reservationCount": null
+      },
+      "timeshift": {
+        "isPlayable": false,
+        "isReservable": false
+      },
+      "isPayProgram": false,
+      "isOfficialChannelMemberFree": false
+    },
+    {
+      "id": "lv342873057",
+      "title": "KPP耐久 Midnight Sun",
+      "thumbnailUrl": null,
+      "hugeThumbnailUrl": null,
+      "screenshotThumbnail": {
+        "liveScreenshotThumbnailUrl": "https://ssth.dmc.nico/thumbnail/20230924/00/29/nicolive-production-pg33962503176826/nicolive-production-pg33962503176826_352_198.jpg",
+        "tsScreenshotThumbnailUrl": "https://ssth.dmc.nico/thumbnail/20230924/00/29/nicolive-production-pg33962503176826/nicolive-production-pg33962503176826_352_198.jpg"
+      },
+      "watchPageUrl": "https://live.nicovideo.jp/watch/lv342873057?ref=RecentPage-RecentOnairBroadcastStatusProgramListSection-ProgramCard",
+      "watchPageUrlAtExtPlayer": null,
+      "providerType": "community",
+      "liveCycle": "ON_AIR",
+      "beginAt": 1695482969000,
+      "endAt": 1695484769000,
+      "isFollowerOnly": false,
+      "socialGroup": {
+        "id": "co5671401",
+        "name": "てすと",
+        "thumbnailUrl": "https://secure-dcdn.cdn.nimg.jp/comch/community-icon/128x128/co5671401.jpg?1645541783"
+      },
+      "programProvider": {
+        "id": "9140271",
+        "name": "らきあん",
+        "icon": "https://secure-dcdn.cdn.nimg.jp/nicoaccount/usericon/914/9140271.jpg?1614591012",
+        "iconSmall": "https://secure-dcdn.cdn.nimg.jp/nicoaccount/usericon/s/914/9140271.jpg?1614591012"
+      },
+      "statistics": {
+        "watchCount": 0,
+        "commentCount": 0,
+        "reservationCount": null
+      },
+      "timeshift": {
+        "isPlayable": false,
+        "isReservable": false
+      },
+      "isPayProgram": false,
+      "isOfficialChannelMemberFree": false
+    },
+    {
+      "id": "lv342873053",
+      "title": "(^o^)／",
+      "thumbnailUrl": null,
+      "hugeThumbnailUrl": null,
+      "screenshotThumbnail": {
+        "liveScreenshotThumbnailUrl": "https://ssth.dmc.nico/thumbnail/20230924/00/29/nicolive-production-pg44400810918522/nicolive-production-pg44400810918522_352_198.jpg",
+        "tsScreenshotThumbnailUrl": "https://ssth.dmc.nico/thumbnail/20230924/00/29/nicolive-production-pg44400810918522/nicolive-production-pg44400810918522_352_198.jpg"
+      },
+      "watchPageUrl": "https://live.nicovideo.jp/watch/lv342873053?ref=RecentPage-RecentOnairBroadcastStatusProgramListSection-ProgramCard",
+      "watchPageUrlAtExtPlayer": null,
+      "providerType": "community",
+      "liveCycle": "ON_AIR",
+      "beginAt": 1695482962000,
+      "endAt": 1695484762000,
+      "isFollowerOnly": false,
+      "socialGroup": {
+        "id": "co5248102",
+        "name": "＿|￣|○ il||liさんのコミュニティ",
+        "thumbnailUrl": "https://secure-dcdn.cdn.nimg.jp/comch/community-icon/128x128/co5248102.jpg?1609809003"
+      },
+      "programProvider": {
+        "id": "117206505",
+        "name": "JUN　＿|￣|○ il||li",
+        "icon": "https://secure-dcdn.cdn.nimg.jp/nicoaccount/usericon/11720/117206505.jpg?1663376030",
+        "iconSmall": "https://secure-dcdn.cdn.nimg.jp/nicoaccount/usericon/s/11720/117206505.jpg?1663376030"
+      },
+      "statistics": {
+        "watchCount": 1,
+        "commentCount": 0,
+        "reservationCount": null
+      },
+      "timeshift": {
+        "isPlayable": false,
+        "isReservable": false
+      },
+      "isPayProgram": false,
+      "isOfficialChannelMemberFree": false
+    },
+    {
+      "id": "lv342873051",
+      "title": "a",
+      "thumbnailUrl": null,
+      "hugeThumbnailUrl": null,
+      "screenshotThumbnail": {
+        "liveScreenshotThumbnailUrl": null,
+        "tsScreenshotThumbnailUrl": null
+      },
+      "watchPageUrl": "https://live.nicovideo.jp/watch/lv342873051?ref=RecentPage-RecentOnairBroadcastStatusProgramListSection-ProgramCard",
+      "watchPageUrlAtExtPlayer": null,
+      "providerType": "community",
+      "liveCycle": "ON_AIR",
+      "beginAt": 1695482938000,
+      "endAt": 1695484738000,
+      "isFollowerOnly": true,
+      "socialGroup": {
+        "id": "co5443688",
+        "name": "蟹",
+        "thumbnailUrl": "https://secure-dcdn.cdn.nimg.jp/comch/community-icon/128x128/co5443688.jpg?1645975777"
+      },
+      "programProvider": {
+        "id": "120224853",
+        "name": "礒五郎",
+        "icon": "https://secure-dcdn.cdn.nimg.jp/nicoaccount/usericon/12022/120224853.jpg?1627501417",
+        "iconSmall": "https://secure-dcdn.cdn.nimg.jp/nicoaccount/usericon/s/12022/120224853.jpg?1627501417"
+      },
+      "statistics": {
+        "watchCount": 2,
+        "commentCount": 1,
+        "reservationCount": null
+      },
+      "timeshift": {
+        "isPlayable": false,
+        "isReservable": true
+      },
+      "isPayProgram": false,
+      "isOfficialChannelMemberFree": false
+    },
+    {
+      "id": "lv342873045",
+      "title": "裏でえっちな漫画書いてる",
+      "thumbnailUrl": null,
+      "hugeThumbnailUrl": null,
+      "screenshotThumbnail": {
+        "liveScreenshotThumbnailUrl": "https://ssth.dmc.nico/thumbnail/20230924/00/28/nicolive-production-pg38630655525498/nicolive-production-pg38630655525498_352_198.jpg",
+        "tsScreenshotThumbnailUrl": "https://ssth.dmc.nico/thumbnail/20230924/00/28/nicolive-production-pg38630655525498/nicolive-production-pg38630655525498_352_198.jpg"
+      },
+      "watchPageUrl": "https://live.nicovideo.jp/watch/lv342873045?ref=RecentPage-RecentOnairBroadcastStatusProgramListSection-ProgramCard",
+      "watchPageUrlAtExtPlayer": null,
+      "providerType": "community",
+      "liveCycle": "ON_AIR",
+      "beginAt": 1695482938000,
+      "endAt": 1695484738000,
+      "isFollowerOnly": false,
+      "socialGroup": {
+        "id": "co2767471",
+        "name": "miri_1m",
+        "thumbnailUrl": "https://secure-dcdn.cdn.nimg.jp/comch/community-icon/128x128/co2767471.jpg?1690548557"
+      },
+      "programProvider": {
+        "id": "7095912",
+        "name": "miri_1m",
+        "icon": "https://secure-dcdn.cdn.nimg.jp/nicoaccount/usericon/709/7095912.jpg?1690291061",
+        "iconSmall": "https://secure-dcdn.cdn.nimg.jp/nicoaccount/usericon/s/709/7095912.jpg?1690291061"
+      },
+      "statistics": {
+        "watchCount": 14,
+        "commentCount": 8,
+        "reservationCount": null
+      },
+      "timeshift": {
+        "isPlayable": false,
+        "isReservable": false
+      },
+      "isPayProgram": false,
+      "isOfficialChannelMemberFree": false
+    },
+    {
+      "id": "lv342873036",
+      "title": "魔王学院の不適合者Ⅱ12話リアタイ実況枠",
+      "thumbnailUrl": null,
+      "hugeThumbnailUrl": null,
+      "screenshotThumbnail": {
+        "liveScreenshotThumbnailUrl": "https://ssth.dmc.nico/thumbnail/20230924/00/27/nicolive-production-pg48720339010170/nicolive-production-pg48720339010170_352_198.jpg",
+        "tsScreenshotThumbnailUrl": "https://ssth.dmc.nico/thumbnail/20230924/00/27/nicolive-production-pg48720339010170/nicolive-production-pg48720339010170_352_198.jpg"
+      },
+      "watchPageUrl": "https://live.nicovideo.jp/watch/lv342873036?ref=RecentPage-RecentOnairBroadcastStatusProgramListSection-ProgramCard",
+      "watchPageUrlAtExtPlayer": null,
+      "providerType": "community",
+      "liveCycle": "ON_AIR",
+      "beginAt": 1695482891000,
+      "endAt": 1695486491000,
+      "isFollowerOnly": false,
+      "socialGroup": {
+        "id": "co3663015",
+        "name": "アニメとかゲームとか",
+        "thumbnailUrl": "https://secure-dcdn.cdn.nimg.jp/comch/community-icon/128x128/co3663015.jpg?1684962688"
+      },
+      "programProvider": {
+        "id": "18090344",
+        "name": "ezo",
+        "icon": "https://secure-dcdn.cdn.nimg.jp/nicoaccount/usericon/1809/18090344.jpg?1610749812",
+        "iconSmall": "https://secure-dcdn.cdn.nimg.jp/nicoaccount/usericon/s/1809/18090344.jpg?1610749812"
+      },
+      "statistics": {
+        "watchCount": 7,
+        "commentCount": 4,
+        "reservationCount": null
+      },
+      "timeshift": {
+        "isPlayable": false,
+        "isReservable": true
+      },
+      "isPayProgram": false,
+      "isOfficialChannelMemberFree": false
+    },
+    {
+      "id": "lv342873037",
+      "title": "スチーム",
+      "thumbnailUrl": null,
+      "hugeThumbnailUrl": null,
+      "screenshotThumbnail": {
+        "liveScreenshotThumbnailUrl": "https://ssth.dmc.nico/thumbnail/20230924/00/27/nicolive-production-pg48723580158586/nicolive-production-pg48723580158586_352_198.jpg",
+        "tsScreenshotThumbnailUrl": "https://ssth.dmc.nico/thumbnail/20230924/00/27/nicolive-production-pg48723580158586/nicolive-production-pg48723580158586_352_198.jpg"
+      },
+      "watchPageUrl": "https://live.nicovideo.jp/watch/lv342873037?ref=RecentPage-RecentOnairBroadcastStatusProgramListSection-ProgramCard",
+      "watchPageUrlAtExtPlayer": null,
+      "providerType": "community",
+      "liveCycle": "ON_AIR",
+      "beginAt": 1695482879000,
+      "endAt": 1695504479000,
+      "isFollowerOnly": false,
+      "socialGroup": {
+        "id": "co4001799",
+        "name": "物欲の超マルチルーム",
+        "thumbnailUrl": "https://secure-dcdn.cdn.nimg.jp/comch/community-icon/128x128/co4001799.jpg?1570158198"
+      },
+      "programProvider": {
+        "id": "7603579",
+        "name": "てんたま",
+        "icon": "https://secure-dcdn.cdn.nimg.jp/nicoaccount/usericon/760/7603579.jpg?1695351039",
+        "iconSmall": "https://secure-dcdn.cdn.nimg.jp/nicoaccount/usericon/s/760/7603579.jpg?1695351039"
+      },
+      "statistics": {
+        "watchCount": 0,
+        "commentCount": 0,
+        "reservationCount": null
+      },
+      "timeshift": {
+        "isPlayable": false,
+        "isReservable": true
+      },
+      "isPayProgram": false,
+      "isOfficialChannelMemberFree": false
+    },
+    {
+      "id": "lv342873038",
+      "title": "test",
+      "thumbnailUrl": null,
+      "hugeThumbnailUrl": null,
+      "screenshotThumbnail": {
+        "liveScreenshotThumbnailUrl": null,
+        "tsScreenshotThumbnailUrl": null
+      },
+      "watchPageUrl": "https://live.nicovideo.jp/watch/lv342873038?ref=RecentPage-RecentOnairBroadcastStatusProgramListSection-ProgramCard",
+      "watchPageUrlAtExtPlayer": null,
+      "providerType": "community",
+      "liveCycle": "ON_AIR",
+      "beginAt": 1695482861000,
+      "endAt": 1695504461000,
+      "isFollowerOnly": true,
+      "socialGroup": {
+        "id": "co5647419",
+        "name": "nikumisoのコミュニティ",
+        "thumbnailUrl": "https://secure-dcdn.cdn.nimg.jp/comch/community-icon/128x128/co5647419.jpg?1662525069"
+      },
+      "programProvider": {
+        "id": "122690004",
+        "name": "nikumiso",
+        "icon": "https://secure-dcdn.cdn.nimg.jp/nicoaccount/usericon/12269/122690004.jpg?1678432806",
+        "iconSmall": "https://secure-dcdn.cdn.nimg.jp/nicoaccount/usericon/s/12269/122690004.jpg?1678432806"
+      },
+      "statistics": {
+        "watchCount": 6,
+        "commentCount": 4,
+        "reservationCount": null
+      },
+      "timeshift": {
+        "isPlayable": false,
+        "isReservable": true
+      },
+      "isPayProgram": false,
+      "isOfficialChannelMemberFree": false
+    },
+    {
+      "id": "lv342873031",
+      "title": "頂いたビールなどを飲む",
+      "thumbnailUrl": null,
+      "hugeThumbnailUrl": null,
+      "screenshotThumbnail": {
+        "liveScreenshotThumbnailUrl": "https://ssth.dmc.nico/thumbnail/20230924/00/26/nicolive-production-pg34522755236474/nicolive-production-pg34522755236474_352_198.jpg",
+        "tsScreenshotThumbnailUrl": "https://ssth.dmc.nico/thumbnail/20230924/00/26/nicolive-production-pg34522755236474/nicolive-production-pg34522755236474_352_198.jpg"
+      },
+      "watchPageUrl": "https://live.nicovideo.jp/watch/lv342873031?ref=RecentPage-RecentOnairBroadcastStatusProgramListSection-ProgramCard",
+      "watchPageUrlAtExtPlayer": null,
+      "providerType": "community",
+      "liveCycle": "ON_AIR",
+      "beginAt": 1695482861000,
+      "endAt": 1695484661000,
+      "isFollowerOnly": false,
+      "socialGroup": {
+        "id": "co5590474",
+        "name": "早起きできない",
+        "thumbnailUrl": "https://secure-dcdn.cdn.nimg.jp/comch/community-icon/128x128/co5590474.jpg?1649865596"
+      },
+      "programProvider": {
+        "id": "117407561",
+        "name": "チェカ子",
+        "icon": "https://secure-dcdn.cdn.nimg.jp/nicoaccount/usericon/11740/117407561.jpg?1644312281",
+        "iconSmall": "https://secure-dcdn.cdn.nimg.jp/nicoaccount/usericon/s/11740/117407561.jpg?1644312281"
+      },
+      "statistics": {
+        "watchCount": 45,
+        "commentCount": 15,
+        "reservationCount": null
+      },
+      "timeshift": {
+        "isPlayable": false,
+        "isReservable": false
+      },
+      "isPayProgram": false,
+      "isOfficialChannelMemberFree": false
+    },
+    {
+      "id": "lv342873021",
+      "title": "やど",
+      "thumbnailUrl": null,
+      "hugeThumbnailUrl": null,
+      "screenshotThumbnail": {
+        "liveScreenshotThumbnailUrl": null,
+        "tsScreenshotThumbnailUrl": null
+      },
+      "watchPageUrl": "https://live.nicovideo.jp/watch/lv342873021?ref=RecentPage-RecentOnairBroadcastStatusProgramListSection-ProgramCard",
+      "watchPageUrlAtExtPlayer": null,
+      "providerType": "community",
+      "liveCycle": "ON_AIR",
+      "beginAt": 1695482820000,
+      "endAt": 1695484620000,
+      "isFollowerOnly": true,
+      "socialGroup": {
+        "id": "co1507902",
+        "name": "ほんといいなこれファクトリー（仮）",
+        "thumbnailUrl": "https://secure-dcdn.cdn.nimg.jp/comch/community-icon/128x128/co1507902.jpg?1676626549"
+      },
+      "programProvider": {
+        "id": "1148183",
+        "name": "TNNBとかマッピィ",
+        "icon": "https://secure-dcdn.cdn.nimg.jp/nicoaccount/usericon/114/1148183.jpg?1683106692",
+        "iconSmall": "https://secure-dcdn.cdn.nimg.jp/nicoaccount/usericon/s/114/1148183.jpg?1683106692"
+      },
+      "statistics": {
+        "watchCount": 62,
+        "commentCount": 31,
+        "reservationCount": null
+      },
+      "timeshift": {
+        "isPlayable": false,
+        "isReservable": true
+      },
+      "isPayProgram": false,
+      "isOfficialChannelMemberFree": false
+    },
+    {
+      "id": "lv342873028",
+      "title": "介護の勉強　今後の予定（9/15-10/15 介護職員初任者研修　10/20 チャリ旅大阪-名古屋-東京）",
+      "thumbnailUrl": null,
+      "hugeThumbnailUrl": null,
+      "screenshotThumbnail": {
+        "liveScreenshotThumbnailUrl": "https://ssth.dmc.nico/thumbnail/20230924/00/26/nicolive-production-pg43013592056442/nicolive-production-pg43013592056442_198_352.jpg",
+        "tsScreenshotThumbnailUrl": "https://ssth.dmc.nico/thumbnail/20230924/00/26/nicolive-production-pg43013592056442/nicolive-production-pg43013592056442_198_352.jpg"
+      },
+      "watchPageUrl": "https://live.nicovideo.jp/watch/lv342873028?ref=RecentPage-RecentOnairBroadcastStatusProgramListSection-ProgramCard",
+      "watchPageUrlAtExtPlayer": null,
+      "providerType": "community",
+      "liveCycle": "ON_AIR",
+      "beginAt": 1695482788000,
+      "endAt": 1695484588000,
+      "isFollowerOnly": false,
+      "socialGroup": {
+        "id": "co2721390",
+        "name": "なんわかのコミュニティ",
+        "thumbnailUrl": "https://secure-dcdn.cdn.nimg.jp/comch/community-icon/128x128/co2721390.jpg?1671147261"
+      },
+      "programProvider": {
+        "id": "46460446",
+        "name": "暇な人",
+        "icon": "https://secure-dcdn.cdn.nimg.jp/nicoaccount/usericon/4646/46460446.jpg?1690052621",
+        "iconSmall": "https://secure-dcdn.cdn.nimg.jp/nicoaccount/usericon/s/4646/46460446.jpg?1690052621"
+      },
+      "statistics": {
+        "watchCount": 6,
+        "commentCount": 4,
+        "reservationCount": null
+      },
+      "timeshift": {
+        "isPlayable": false,
+        "isReservable": true
+      },
+      "isPayProgram": false,
+      "isOfficialChannelMemberFree": false
+    },
+    {
+      "id": "lv342873026",
+      "title": "ニコニコ生放送アプリからの放送",
+      "thumbnailUrl": null,
+      "hugeThumbnailUrl": null,
+      "screenshotThumbnail": {
+        "liveScreenshotThumbnailUrl": "https://ssth.dmc.nico/thumbnail/20230924/00/26/nicolive-production-pg65356211159674/nicolive-production-pg65356211159674_198_352.jpg",
+        "tsScreenshotThumbnailUrl": "https://ssth.dmc.nico/thumbnail/20230924/00/26/nicolive-production-pg65356211159674/nicolive-production-pg65356211159674_198_352.jpg"
+      },
+      "watchPageUrl": "https://live.nicovideo.jp/watch/lv342873026?ref=RecentPage-RecentOnairBroadcastStatusProgramListSection-ProgramCard",
+      "watchPageUrlAtExtPlayer": null,
+      "providerType": "community",
+      "liveCycle": "ON_AIR",
+      "beginAt": 1695482788000,
+      "endAt": 1695484588000,
+      "isFollowerOnly": false,
+      "socialGroup": {
+        "id": "co3597131",
+        "name": "のりプロ",
+        "thumbnailUrl": "https://secure-dcdn.cdn.nimg.jp/comch/community-icon/128x128/co3597131.jpg?1492545612"
+      },
+      "programProvider": {
+        "id": "39886556",
+        "name": "ゲーム小僧",
+        "icon": "https://secure-dcdn.cdn.nimg.jp/nicoaccount/usericon/3988/39886556.jpg?1686911693",
+        "iconSmall": "https://secure-dcdn.cdn.nimg.jp/nicoaccount/usericon/s/3988/39886556.jpg?1686911693"
+      },
+      "statistics": {
+        "watchCount": 1,
+        "commentCount": 0,
+        "reservationCount": null
+      },
+      "timeshift": {
+        "isPlayable": false,
+        "isReservable": true
+      },
+      "isPayProgram": false,
+      "isOfficialChannelMemberFree": false
+    },
+    {
+      "id": "lv342873023",
+      "title": "引きこもりがまったり",
+      "thumbnailUrl": null,
+      "hugeThumbnailUrl": null,
+      "screenshotThumbnail": {
+        "liveScreenshotThumbnailUrl": "https://ssth.dmc.nico/thumbnail/20230924/00/26/nicolive-production-pg62246981993082/nicolive-production-pg62246981993082_352_198.jpg",
+        "tsScreenshotThumbnailUrl": "https://ssth.dmc.nico/thumbnail/20230924/00/26/nicolive-production-pg62246981993082/nicolive-production-pg62246981993082_352_198.jpg"
+      },
+      "watchPageUrl": "https://live.nicovideo.jp/watch/lv342873023?ref=RecentPage-RecentOnairBroadcastStatusProgramListSection-ProgramCard",
+      "watchPageUrlAtExtPlayer": null,
+      "providerType": "community",
+      "liveCycle": "ON_AIR",
+      "beginAt": 1695482769000,
+      "endAt": 1695484569000,
+      "isFollowerOnly": false,
+      "socialGroup": {
+        "id": "co4518313",
+        "name": "ゲストのコミュニティ",
+        "thumbnailUrl": "https://secure-dcdn.cdn.nimg.jp/comch/community-icon/128x128/co4518313.jpg?1581700807"
+      },
+      "programProvider": {
+        "id": "55439380",
+        "name": "サイコチキンのホットライン",
+        "icon": "https://secure-dcdn.cdn.nimg.jp/nicoaccount/usericon/5543/55439380.jpg?1667722989",
+        "iconSmall": "https://secure-dcdn.cdn.nimg.jp/nicoaccount/usericon/s/5543/55439380.jpg?1667722989"
+      },
+      "statistics": {
+        "watchCount": 5,
+        "commentCount": 9,
+        "reservationCount": null
+      },
+      "timeshift": {
+        "isPlayable": false,
+        "isReservable": true
+      },
+      "isPayProgram": false,
+      "isOfficialChannelMemberFree": false
+    },
+    {
+      "id": "lv342873019",
+      "title": "お構いもしませんで",
+      "thumbnailUrl": null,
+      "hugeThumbnailUrl": null,
+      "screenshotThumbnail": {
+        "liveScreenshotThumbnailUrl": null,
+        "tsScreenshotThumbnailUrl": null
+      },
+      "watchPageUrl": "https://live.nicovideo.jp/watch/lv342873019?ref=RecentPage-RecentOnairBroadcastStatusProgramListSection-ProgramCard",
+      "watchPageUrlAtExtPlayer": null,
+      "providerType": "community",
+      "liveCycle": "ON_AIR",
+      "beginAt": 1695482762000,
+      "endAt": 1695484562000,
+      "isFollowerOnly": true,
+      "socialGroup": {
+        "id": "co2426654",
+        "name": "イッカサンの放送",
+        "thumbnailUrl": "https://secure-dcdn.cdn.nimg.jp/comch/community-icon/128x128/co2426654.jpg?1548201277"
+      },
+      "programProvider": {
+        "id": "4346691",
+        "name": "イッカサン",
+        "icon": "https://secure-dcdn.cdn.nimg.jp/nicoaccount/usericon/434/4346691.jpg?1388243936",
+        "iconSmall": "https://secure-dcdn.cdn.nimg.jp/nicoaccount/usericon/s/434/4346691.jpg?1388243936"
+      },
+      "statistics": {
+        "watchCount": 0,
+        "commentCount": 0,
+        "reservationCount": null
+      },
+      "timeshift": {
+        "isPlayable": false,
+        "isReservable": false
+      },
+      "isPayProgram": false,
+      "isOfficialChannelMemberFree": false
+    },
+    {
+      "id": "lv342873015",
+      "title": "起きた",
+      "thumbnailUrl": null,
+      "hugeThumbnailUrl": null,
+      "screenshotThumbnail": {
+        "liveScreenshotThumbnailUrl": "https://ssth.dmc.nico/thumbnail/20230924/00/25/nicolive-production-pg21462533538426/nicolive-production-pg21462533538426_352_198.jpg",
+        "tsScreenshotThumbnailUrl": "https://ssth.dmc.nico/thumbnail/20230924/00/25/nicolive-production-pg21462533538426/nicolive-production-pg21462533538426_352_198.jpg"
+      },
+      "watchPageUrl": "https://live.nicovideo.jp/watch/lv342873015?ref=RecentPage-RecentOnairBroadcastStatusProgramListSection-ProgramCard",
+      "watchPageUrlAtExtPlayer": null,
+      "providerType": "community",
+      "liveCycle": "ON_AIR",
+      "beginAt": 1695482738000,
+      "endAt": 1695484538000,
+      "isFollowerOnly": false,
+      "socialGroup": {
+        "id": "co5992546",
+        "name": "ゲストさんのコミュニティ",
+        "thumbnailUrl": "https://secure-dcdn.cdn.nimg.jp/comch/community-icon/128x128/co5992546.jpg?1671858126"
+      },
+      "programProvider": {
+        "id": "126902827",
+        "name": "ブランキー",
+        "icon": "https://secure-dcdn.cdn.nimg.jp/nicoaccount/usericon/12690/126902827.jpg?1694240101",
+        "iconSmall": "https://secure-dcdn.cdn.nimg.jp/nicoaccount/usericon/s/12690/126902827.jpg?1694240101"
+      },
+      "statistics": {
+        "watchCount": 2,
+        "commentCount": 0,
+        "reservationCount": null
+      },
+      "timeshift": {
+        "isPlayable": false,
+        "isReservable": true
+      },
+      "isPayProgram": false,
+      "isOfficialChannelMemberFree": false
+    },
+    {
+      "id": "lv342873011",
+      "title": "土曜の夜なのに弱男しか放送してなくて草w",
+      "thumbnailUrl": null,
+      "hugeThumbnailUrl": null,
+      "screenshotThumbnail": {
+        "liveScreenshotThumbnailUrl": "https://ssth.dmc.nico/thumbnail/20230924/00/24/nicolive-production-pg72012005376634/nicolive-production-pg72012005376634_352_198.jpg",
+        "tsScreenshotThumbnailUrl": "https://ssth.dmc.nico/thumbnail/20230924/00/24/nicolive-production-pg72012005376634/nicolive-production-pg72012005376634_352_198.jpg"
+      },
+      "watchPageUrl": "https://live.nicovideo.jp/watch/lv342873011?ref=RecentPage-RecentOnairBroadcastStatusProgramListSection-ProgramCard",
+      "watchPageUrlAtExtPlayer": null,
+      "providerType": "community",
+      "liveCycle": "ON_AIR",
+      "beginAt": 1695482708000,
+      "endAt": 1695484508000,
+      "isFollowerOnly": false,
+      "socialGroup": {
+        "id": "co152022",
+        "name": "スタイリッシュ研究会",
+        "thumbnailUrl": "https://secure-dcdn.cdn.nimg.jp/comch/community-icon/128x128/co152022.jpg?1694845830"
+      },
+      "programProvider": {
+        "id": "1067424",
+        "name": "立ち見Aのコメント",
+        "icon": "https://secure-dcdn.cdn.nimg.jp/nicoaccount/usericon/106/1067424.jpg?1535238799",
+        "iconSmall": "https://secure-dcdn.cdn.nimg.jp/nicoaccount/usericon/s/106/1067424.jpg?1535238799"
+      },
+      "statistics": {
+        "watchCount": 2,
+        "commentCount": 3,
+        "reservationCount": null
+      },
+      "timeshift": {
+        "isPlayable": false,
+        "isReservable": false
+      },
+      "isPayProgram": false,
+      "isOfficialChannelMemberFree": false
+    },
+    {
+      "id": "lv342872829",
+      "title": "ボーッ (ﾟρﾟ) としたいので、ご参加禁止です",
+      "thumbnailUrl": null,
+      "hugeThumbnailUrl": null,
+      "screenshotThumbnail": {
+        "liveScreenshotThumbnailUrl": null,
+        "tsScreenshotThumbnailUrl": null
+      },
+      "watchPageUrl": "https://live.nicovideo.jp/watch/lv342872829?ref=RecentPage-RecentOnairBroadcastStatusProgramListSection-ProgramCard",
+      "watchPageUrlAtExtPlayer": null,
+      "providerType": "community",
+      "liveCycle": "ON_AIR",
+      "beginAt": 1695482699000,
+      "endAt": 1695486299000,
+      "isFollowerOnly": true,
+      "socialGroup": {
+        "id": "co4253775",
+        "name": "Keep Out",
+        "thumbnailUrl": "https://secure-dcdn.cdn.nimg.jp/comch/community-icon/128x128/co4253775.jpg?1652967990"
+      },
+      "programProvider": {
+        "id": "11124905",
+        "name": "グレコローマンスタイル",
+        "icon": "https://secure-dcdn.cdn.nimg.jp/nicoaccount/usericon/1112/11124905.jpg?1323330529",
+        "iconSmall": "https://secure-dcdn.cdn.nimg.jp/nicoaccount/usericon/s/1112/11124905.jpg?1323330529"
+      },
+      "statistics": {
+        "watchCount": 0,
+        "commentCount": 0,
+        "reservationCount": null
+      },
+      "timeshift": {
+        "isPlayable": false,
+        "isReservable": true
+      },
+      "isPayProgram": false,
+      "isOfficialChannelMemberFree": false
+    },
+    {
+      "id": "lv342873009",
+      "title": "うにいべ終わりにいろいろやる",
+      "thumbnailUrl": null,
+      "hugeThumbnailUrl": null,
+      "screenshotThumbnail": {
+        "liveScreenshotThumbnailUrl": "https://ssth.dmc.nico/thumbnail/20230924/00/24/nicolive-production-pg76077143687802/nicolive-production-pg76077143687802_352_198.jpg",
+        "tsScreenshotThumbnailUrl": "https://ssth.dmc.nico/thumbnail/20230924/00/24/nicolive-production-pg76077143687802/nicolive-production-pg76077143687802_352_198.jpg"
+      },
+      "watchPageUrl": "https://live.nicovideo.jp/watch/lv342873009?ref=RecentPage-RecentOnairBroadcastStatusProgramListSection-ProgramCard",
+      "watchPageUrlAtExtPlayer": null,
+      "providerType": "community",
+      "liveCycle": "ON_AIR",
+      "beginAt": 1695482688000,
+      "endAt": 1695504288000,
+      "isFollowerOnly": false,
+      "socialGroup": {
+        "id": "co2056805",
+        "name": "そうてんマニアの適当配信",
+        "thumbnailUrl": "https://secure-dcdn.cdn.nimg.jp/comch/community-icon/128x128/co2056805.jpg?1584467002"
+      },
+      "programProvider": {
+        "id": "16978290",
+        "name": "そうてんマニア",
+        "icon": "https://secure-dcdn.cdn.nimg.jp/nicoaccount/usericon/1697/16978290.jpg?1355822613",
+        "iconSmall": "https://secure-dcdn.cdn.nimg.jp/nicoaccount/usericon/s/1697/16978290.jpg?1355822613"
+      },
+      "statistics": {
+        "watchCount": 5,
+        "commentCount": 16,
+        "reservationCount": null
+      },
+      "timeshift": {
+        "isPlayable": false,
+        "isReservable": false
+      },
+      "isPayProgram": false,
+      "isOfficialChannelMemberFree": false
+    },
+    {
+      "id": "lv342873005",
+      "title": "話題の新作【スイカゲーム】  #Vtuber 【視聴歓迎!】＊。o +​。",
+      "thumbnailUrl": null,
+      "hugeThumbnailUrl": null,
+      "screenshotThumbnail": {
+        "liveScreenshotThumbnailUrl": "https://ssth.dmc.nico/thumbnail/20230924/00/24/nicolive-production-pg46015573918330/nicolive-production-pg46015573918330_352_198.jpg",
+        "tsScreenshotThumbnailUrl": "https://ssth.dmc.nico/thumbnail/20230924/00/24/nicolive-production-pg46015573918330/nicolive-production-pg46015573918330_352_198.jpg"
+      },
+      "watchPageUrl": "https://live.nicovideo.jp/watch/lv342873005?ref=RecentPage-RecentOnairBroadcastStatusProgramListSection-ProgramCard",
+      "watchPageUrlAtExtPlayer": null,
+      "providerType": "community",
+      "liveCycle": "ON_AIR",
+      "beginAt": 1695482663000,
+      "endAt": 1695504263000,
+      "isFollowerOnly": false,
+      "socialGroup": {
+        "id": "co1483049",
+        "name": "＋。* おやすみきょんぴ *。＋",
+        "thumbnailUrl": "https://secure-dcdn.cdn.nimg.jp/comch/community-icon/128x128/co1483049.jpg?1682264427"
+      },
+      "programProvider": {
+        "id": "22576479",
+        "name": "きょんぴーす＊",
+        "icon": "https://secure-dcdn.cdn.nimg.jp/nicoaccount/usericon/defaults/blank.jpg",
+        "iconSmall": "https://secure-dcdn.cdn.nimg.jp/nicoaccount/usericon/defaults/blank_s.jpg"
+      },
+      "statistics": {
+        "watchCount": 12,
+        "commentCount": 28,
+        "reservationCount": null
+      },
+      "timeshift": {
+        "isPlayable": false,
+        "isReservable": true
+      },
+      "isPayProgram": false,
+      "isOfficialChannelMemberFree": false
+    },
+    {
+      "id": "lv342872987",
+      "title": "タロット占い放送(チャット配信)　悩み相談承り〼",
+      "thumbnailUrl": null,
+      "hugeThumbnailUrl": null,
+      "screenshotThumbnail": {
+        "liveScreenshotThumbnailUrl": "https://ssth.dmc.nico/thumbnail/20230924/00/22/nicolive-production-pg30962203230842/nicolive-production-pg30962203230842_352_198.jpg",
+        "tsScreenshotThumbnailUrl": "https://ssth.dmc.nico/thumbnail/20230924/00/22/nicolive-production-pg30962203230842/nicolive-production-pg30962203230842_352_198.jpg"
+      },
+      "watchPageUrl": "https://live.nicovideo.jp/watch/lv342872987?ref=RecentPage-RecentOnairBroadcastStatusProgramListSection-ProgramCard",
+      "watchPageUrlAtExtPlayer": null,
+      "providerType": "community",
+      "liveCycle": "ON_AIR",
+      "beginAt": 1695482658000,
+      "endAt": 1695484458000,
+      "isFollowerOnly": false,
+      "socialGroup": {
+        "id": "co2045167",
+        "name": "タロット占い修行場(稀にｹﾞｰﾑ配信)",
+        "thumbnailUrl": "https://secure-dcdn.cdn.nimg.jp/comch/community-icon/128x128/co2045167.jpg?1409816092"
+      },
+      "programProvider": {
+        "id": "4329266",
+        "name": "狼さん",
+        "icon": "https://secure-dcdn.cdn.nimg.jp/nicoaccount/usericon/432/4329266.jpg?1260521193",
+        "iconSmall": "https://secure-dcdn.cdn.nimg.jp/nicoaccount/usericon/s/432/4329266.jpg?1260521193"
+      },
+      "statistics": {
+        "watchCount": 0,
+        "commentCount": 0,
+        "reservationCount": null
+      },
+      "timeshift": {
+        "isPlayable": false,
+        "isReservable": false
+      },
+      "isPayProgram": false,
+      "isOfficialChannelMemberFree": false
+    },
+    {
+      "id": "lv342873004",
+      "title": "ニャ",
+      "thumbnailUrl": null,
+      "hugeThumbnailUrl": null,
+      "screenshotThumbnail": {
+        "liveScreenshotThumbnailUrl": "https://ssth.dmc.nico/thumbnail/20230924/00/24/nicolive-production-pg40666015990394/nicolive-production-pg40666015990394_352_198.jpg",
+        "tsScreenshotThumbnailUrl": "https://ssth.dmc.nico/thumbnail/20230924/00/24/nicolive-production-pg40666015990394/nicolive-production-pg40666015990394_352_198.jpg"
+      },
+      "watchPageUrl": "https://live.nicovideo.jp/watch/lv342873004?ref=RecentPage-RecentOnairBroadcastStatusProgramListSection-ProgramCard",
+      "watchPageUrlAtExtPlayer": null,
+      "providerType": "community",
+      "liveCycle": "ON_AIR",
+      "beginAt": 1695482652000,
+      "endAt": 1695484452000,
+      "isFollowerOnly": false,
+      "socialGroup": {
+        "id": "co6100999",
+        "name": "ゲストさんのコミュニティ",
+        "thumbnailUrl": "https://secure-dcdn.cdn.nimg.jp/comch/community-icon/128x128/co6100999.jpg?1683277632"
+      },
+      "programProvider": {
+        "id": "129103031",
+        "name": "パルンキー",
+        "icon": "https://secure-dcdn.cdn.nimg.jp/nicoaccount/usericon/12910/129103031.jpg?1695041823",
+        "iconSmall": "https://secure-dcdn.cdn.nimg.jp/nicoaccount/usericon/s/12910/129103031.jpg?1695041823"
+      },
+      "statistics": {
+        "watchCount": 2,
+        "commentCount": 0,
+        "reservationCount": null
+      },
+      "timeshift": {
+        "isPlayable": false,
+        "isReservable": false
+      },
+      "isPayProgram": false,
+      "isOfficialChannelMemberFree": false
+    },
+    {
+      "id": "lv342872999",
+      "title": "bibo ergo sum (スルーで)",
+      "thumbnailUrl": null,
+      "hugeThumbnailUrl": null,
+      "screenshotThumbnail": {
+        "liveScreenshotThumbnailUrl": "https://ssth.dmc.nico/thumbnail/20230924/00/23/nicolive-production-pg69971653689978/nicolive-production-pg69971653689978_352_198.jpg",
+        "tsScreenshotThumbnailUrl": "https://ssth.dmc.nico/thumbnail/20230924/00/23/nicolive-production-pg69971653689978/nicolive-production-pg69971653689978_352_198.jpg"
+      },
+      "watchPageUrl": "https://live.nicovideo.jp/watch/lv342872999?ref=RecentPage-RecentOnairBroadcastStatusProgramListSection-ProgramCard",
+      "watchPageUrlAtExtPlayer": null,
+      "providerType": "community",
+      "liveCycle": "ON_AIR",
+      "beginAt": 1695482626000,
+      "endAt": 1695484426000,
+      "isFollowerOnly": false,
+      "socialGroup": {
+        "id": "co4840568",
+        "name": "その他",
+        "thumbnailUrl": "https://secure-dcdn.cdn.nimg.jp/comch/community-icon/128x128/co4840568.jpg?1690884575"
+      },
+      "programProvider": {
+        "id": "6850745",
+        "name": "酔睡",
+        "icon": "https://secure-dcdn.cdn.nimg.jp/nicoaccount/usericon/defaults/blank.jpg",
+        "iconSmall": "https://secure-dcdn.cdn.nimg.jp/nicoaccount/usericon/defaults/blank_s.jpg"
+      },
+      "statistics": {
+        "watchCount": 1,
+        "commentCount": 16,
+        "reservationCount": null
+      },
+      "timeshift": {
+        "isPlayable": false,
+        "isReservable": false
+      },
+      "isPayProgram": false,
+      "isOfficialChannelMemberFree": false
+    },
+    {
+      "id": "lv342872882",
+      "title": "まったり雑談・いろいろ(VirtualCast)",
+      "thumbnailUrl": null,
+      "hugeThumbnailUrl": null,
+      "screenshotThumbnail": {
+        "liveScreenshotThumbnailUrl": "https://ssth.dmc.nico/thumbnail/20230924/00/11/nicolive-production-pg28774091457146/nicolive-production-pg28774091457146_352_198.jpg",
+        "tsScreenshotThumbnailUrl": "https://ssth.dmc.nico/thumbnail/20230924/00/11/nicolive-production-pg28774091457146/nicolive-production-pg28774091457146_352_198.jpg"
+      },
+      "watchPageUrl": "https://live.nicovideo.jp/watch/lv342872882?ref=RecentPage-RecentOnairBroadcastStatusProgramListSection-ProgramCard",
+      "watchPageUrlAtExtPlayer": null,
+      "providerType": "community",
+      "liveCycle": "ON_AIR",
+      "beginAt": 1695482618000,
+      "endAt": 1695484418000,
+      "isFollowerOnly": false,
+      "socialGroup": {
+        "id": "co3943881",
+        "name": "つゆぴさんのへや",
+        "thumbnailUrl": "https://secure-dcdn.cdn.nimg.jp/comch/community-icon/128x128/co3943881.jpg?1683078029"
+      },
+      "programProvider": {
+        "id": "17233880",
+        "name": "つゆぴ",
+        "icon": "https://secure-dcdn.cdn.nimg.jp/nicoaccount/usericon/1723/17233880.jpg?1640978644",
+        "iconSmall": "https://secure-dcdn.cdn.nimg.jp/nicoaccount/usericon/s/1723/17233880.jpg?1640978644"
+      },
+      "statistics": {
+        "watchCount": 10,
+        "commentCount": 9,
+        "reservationCount": null
+      },
+      "timeshift": {
+        "isPlayable": false,
+        "isReservable": true
+      },
+      "isPayProgram": false,
+      "isOfficialChannelMemberFree": false
+    },
+    {
+      "id": "lv342872996",
+      "title": "年始の宇宙戦艦ヤマト‐愛の戦士たち‐できみたちはどこに注目すべきか♡",
+      "thumbnailUrl": null,
+      "hugeThumbnailUrl": null,
+      "screenshotThumbnail": {
+        "liveScreenshotThumbnailUrl": "https://ssth.dmc.nico/thumbnail/20230924/00/23/nicolive-production-pg67938735358586/nicolive-production-pg67938735358586_352_198.jpg",
+        "tsScreenshotThumbnailUrl": "https://ssth.dmc.nico/thumbnail/20230924/00/23/nicolive-production-pg67938735358586/nicolive-production-pg67938735358586_352_198.jpg"
+      },
+      "watchPageUrl": "https://live.nicovideo.jp/watch/lv342872996?ref=RecentPage-RecentOnairBroadcastStatusProgramListSection-ProgramCard",
+      "watchPageUrlAtExtPlayer": null,
+      "providerType": "community",
+      "liveCycle": "ON_AIR",
+      "beginAt": 1695482615000,
+      "endAt": 1695484415000,
+      "isFollowerOnly": false,
+      "socialGroup": {
+        "id": "co3864508",
+        "name": "725おじちゃんの地下都市建設ちゅう！",
+        "thumbnailUrl": "https://secure-dcdn.cdn.nimg.jp/comch/community-icon/128x128/co3864508.jpg?1621944602"
+      },
+      "programProvider": {
+        "id": "85508995",
+        "name": "725おじちゃん",
+        "icon": "https://secure-dcdn.cdn.nimg.jp/nicoaccount/usericon/8550/85508995.jpg?1540743719",
+        "iconSmall": "https://secure-dcdn.cdn.nimg.jp/nicoaccount/usericon/s/8550/85508995.jpg?1540743719"
+      },
+      "statistics": {
+        "watchCount": 2,
+        "commentCount": 0,
+        "reservationCount": null
+      },
+      "timeshift": {
+        "isPlayable": false,
+        "isReservable": false
+      },
+      "isPayProgram": false,
+      "isOfficialChannelMemberFree": false
+    },
+    {
+      "id": "lv342872990",
+      "title": "うん",
+      "thumbnailUrl": null,
+      "hugeThumbnailUrl": null,
+      "screenshotThumbnail": {
+        "liveScreenshotThumbnailUrl": "https://ssth.dmc.nico/thumbnail/20230924/00/23/nicolive-production-pg72235211555450/nicolive-production-pg72235211555450_352_198.jpg",
+        "tsScreenshotThumbnailUrl": "https://ssth.dmc.nico/thumbnail/20230924/00/23/nicolive-production-pg72235211555450/nicolive-production-pg72235211555450_352_198.jpg"
+      },
+      "watchPageUrl": "https://live.nicovideo.jp/watch/lv342872990?ref=RecentPage-RecentOnairBroadcastStatusProgramListSection-ProgramCard",
+      "watchPageUrlAtExtPlayer": null,
+      "providerType": "community",
+      "liveCycle": "ON_AIR",
+      "beginAt": 1695482588000,
+      "endAt": 1695484388000,
+      "isFollowerOnly": false,
+      "socialGroup": {
+        "id": "co6137887",
+        "name": "ゲストさんのコミュニティ",
+        "thumbnailUrl": "https://secure-dcdn.cdn.nimg.jp/comch/community-icon/128x128/co6137887.jpg?1688048031"
+      },
+      "programProvider": {
+        "id": "129698082",
+        "name": "ゲスト",
+        "icon": "https://secure-dcdn.cdn.nimg.jp/nicoaccount/usericon/defaults/blank.jpg",
+        "iconSmall": "https://secure-dcdn.cdn.nimg.jp/nicoaccount/usericon/defaults/blank_s.jpg"
+      },
+      "statistics": {
+        "watchCount": 11,
+        "commentCount": 0,
+        "reservationCount": null
+      },
+      "timeshift": {
+        "isPlayable": false,
+        "isReservable": false
+      },
+      "isPayProgram": false,
+      "isOfficialChannelMemberFree": false
+    },
+    {
+      "id": "lv342872989",
+      "title": "DQ7デミーラさんかいせん",
+      "thumbnailUrl": null,
+      "hugeThumbnailUrl": null,
+      "screenshotThumbnail": {
+        "liveScreenshotThumbnailUrl": "https://ssth.dmc.nico/thumbnail/20230924/00/22/nicolive-production-pg24481847313018/nicolive-production-pg24481847313018_352_198.jpg",
+        "tsScreenshotThumbnailUrl": "https://ssth.dmc.nico/thumbnail/20230924/00/22/nicolive-production-pg24481847313018/nicolive-production-pg24481847313018_352_198.jpg"
+      },
+      "watchPageUrl": "https://live.nicovideo.jp/watch/lv342872989?ref=RecentPage-RecentOnairBroadcastStatusProgramListSection-ProgramCard",
+      "watchPageUrlAtExtPlayer": null,
+      "providerType": "community",
+      "liveCycle": "ON_AIR",
+      "beginAt": 1695482584000,
+      "endAt": 1695484384000,
+      "isFollowerOnly": false,
+      "socialGroup": {
+        "id": "co5510657",
+        "name": "hamano(なつき（てぃーびーのサブチャンネル。）ニコニコ支部)",
+        "thumbnailUrl": "https://secure-dcdn.cdn.nimg.jp/comch/community-icon/128x128/co5510657.jpg?1679068607"
+      },
+      "programProvider": {
+        "id": "120885757",
+        "name": "hamano（なつき(て)）",
+        "icon": "https://secure-dcdn.cdn.nimg.jp/nicoaccount/usericon/12088/120885757.jpg?1679067358",
+        "iconSmall": "https://secure-dcdn.cdn.nimg.jp/nicoaccount/usericon/s/12088/120885757.jpg?1679067358"
+      },
+      "statistics": {
+        "watchCount": 3,
+        "commentCount": 0,
+        "reservationCount": null
+      },
+      "timeshift": {
+        "isPlayable": false,
+        "isReservable": false
+      },
+      "isPayProgram": false,
+      "isOfficialChannelMemberFree": false
+    },
+    {
+      "id": "lv342872986",
+      "title": "パチンコ実機配信　銀河乙女99,9ver",
+      "thumbnailUrl": null,
+      "hugeThumbnailUrl": null,
+      "screenshotThumbnail": {
+        "liveScreenshotThumbnailUrl": "https://ssth.dmc.nico/thumbnail/20230924/00/22/nicolive-production-pg25155172565626/nicolive-production-pg25155172565626_352_198.jpg",
+        "tsScreenshotThumbnailUrl": "https://ssth.dmc.nico/thumbnail/20230924/00/22/nicolive-production-pg25155172565626/nicolive-production-pg25155172565626_352_198.jpg"
+      },
+      "watchPageUrl": "https://live.nicovideo.jp/watch/lv342872986?ref=RecentPage-RecentOnairBroadcastStatusProgramListSection-ProgramCard",
+      "watchPageUrlAtExtPlayer": null,
+      "providerType": "community",
+      "liveCycle": "ON_AIR",
+      "beginAt": 1695482575000,
+      "endAt": 1695484375000,
+      "isFollowerOnly": false,
+      "socialGroup": {
+        "id": "co3078059",
+        "name": "パチンコで蔵建てたい",
+        "thumbnailUrl": "https://secure-dcdn.cdn.nimg.jp/comch/community-icon/128x128/co3078059.jpg?1569770964"
+      },
+      "programProvider": {
+        "id": "11951698",
+        "name": "食券",
+        "icon": "https://secure-dcdn.cdn.nimg.jp/nicoaccount/usericon/1195/11951698.jpg?1467729468",
+        "iconSmall": "https://secure-dcdn.cdn.nimg.jp/nicoaccount/usericon/s/1195/11951698.jpg?1467729468"
+      },
+      "statistics": {
+        "watchCount": 8,
+        "commentCount": 26,
+        "reservationCount": null
+      },
+      "timeshift": {
+        "isPlayable": false,
+        "isReservable": true
+      },
+      "isPayProgram": false,
+      "isOfficialChannelMemberFree": false
+    },
+    {
+      "id": "lv342872983",
+      "title": "こんぺーの今日も 格ゲー、キャプ翼、レース 、どれか一つ ＝＝⚽  ３０ぷん!(^^)!マイクオフ",
+      "thumbnailUrl": null,
+      "hugeThumbnailUrl": null,
+      "screenshotThumbnail": {
+        "liveScreenshotThumbnailUrl": "https://ssth.dmc.nico/thumbnail/20230924/00/22/nicolive-production-pg32669485236858/nicolive-production-pg32669485236858_352_198.jpg",
+        "tsScreenshotThumbnailUrl": "https://ssth.dmc.nico/thumbnail/20230924/00/22/nicolive-production-pg32669485236858/nicolive-production-pg32669485236858_352_198.jpg"
+      },
+      "watchPageUrl": "https://live.nicovideo.jp/watch/lv342872983?ref=RecentPage-RecentOnairBroadcastStatusProgramListSection-ProgramCard",
+      "watchPageUrlAtExtPlayer": null,
+      "providerType": "community",
+      "liveCycle": "ON_AIR",
+      "beginAt": 1695482553000,
+      "endAt": 1695484353000,
+      "isFollowerOnly": false,
+      "socialGroup": {
+        "id": "co4401274",
+        "name": "こんぺーーーですさんのコミュニティ",
+        "thumbnailUrl": "https://secure-dcdn.cdn.nimg.jp/comch/community-icon/128x128/co4401274.jpg?1578063164"
+      },
+      "programProvider": {
+        "id": "56244049",
+        "name": "こんぺーーーです",
+        "icon": "https://secure-dcdn.cdn.nimg.jp/nicoaccount/usericon/5624/56244049.jpg?1685801065",
+        "iconSmall": "https://secure-dcdn.cdn.nimg.jp/nicoaccount/usericon/s/5624/56244049.jpg?1685801065"
+      },
+      "statistics": {
+        "watchCount": 0,
+        "commentCount": 0,
+        "reservationCount": null
+      },
+      "timeshift": {
+        "isPlayable": false,
+        "isReservable": false
+      },
+      "isPayProgram": false,
+      "isOfficialChannelMemberFree": false
+    },
+    {
+      "id": "lv342872977",
+      "title": "【アズレン】キアサージ【SDイラスト】",
+      "thumbnailUrl": null,
+      "hugeThumbnailUrl": null,
+      "screenshotThumbnail": {
+        "liveScreenshotThumbnailUrl": "https://ssth.dmc.nico/thumbnail/20230924/00/21/nicolive-production-pg93920359875194/nicolive-production-pg93920359875194_352_198.jpg",
+        "tsScreenshotThumbnailUrl": "https://ssth.dmc.nico/thumbnail/20230924/00/21/nicolive-production-pg93920359875194/nicolive-production-pg93920359875194_352_198.jpg"
+      },
+      "watchPageUrl": "https://live.nicovideo.jp/watch/lv342872977?ref=RecentPage-RecentOnairBroadcastStatusProgramListSection-ProgramCard",
+      "watchPageUrlAtExtPlayer": null,
+      "providerType": "community",
+      "liveCycle": "ON_AIR",
+      "beginAt": 1695482543000,
+      "endAt": 1695484343000,
+      "isFollowerOnly": false,
+      "socialGroup": {
+        "id": "co1234172",
+        "name": "げおこみゅ",
+        "thumbnailUrl": "https://secure-dcdn.cdn.nimg.jp/comch/community-icon/128x128/co1234172.jpg?1439491263"
+      },
+      "programProvider": {
+        "id": "391323",
+        "name": "Geo",
+        "icon": "https://secure-dcdn.cdn.nimg.jp/nicoaccount/usericon/39/391323.jpg?1289660374",
+        "iconSmall": "https://secure-dcdn.cdn.nimg.jp/nicoaccount/usericon/s/39/391323.jpg?1289660374"
+      },
+      "statistics": {
+        "watchCount": 3,
+        "commentCount": 0,
+        "reservationCount": null
+      },
+      "timeshift": {
+        "isPlayable": false,
+        "isReservable": true
+      },
+      "isPayProgram": false,
+      "isOfficialChannelMemberFree": false
+    },
+    {
+      "id": "lv342872968",
+      "title": "寝配信#144（リスナー様雑談枠）",
+      "thumbnailUrl": null,
+      "hugeThumbnailUrl": null,
+      "screenshotThumbnail": {
+        "liveScreenshotThumbnailUrl": "https://ssth.dmc.nico/thumbnail/20230924/00/20/nicolive-production-pg47111320109690/nicolive-production-pg47111320109690_352_198.jpg",
+        "tsScreenshotThumbnailUrl": "https://ssth.dmc.nico/thumbnail/20230924/00/20/nicolive-production-pg47111320109690/nicolive-production-pg47111320109690_352_198.jpg"
+      },
+      "watchPageUrl": "https://live.nicovideo.jp/watch/lv342872968?ref=RecentPage-RecentOnairBroadcastStatusProgramListSection-ProgramCard",
+      "watchPageUrlAtExtPlayer": null,
+      "providerType": "community",
+      "liveCycle": "ON_AIR",
+      "beginAt": 1695482508000,
+      "endAt": 1695504108000,
+      "isFollowerOnly": false,
+      "socialGroup": {
+        "id": "co5577109",
+        "name": "ジローさんのコミュニティ",
+        "thumbnailUrl": "https://secure-dcdn.cdn.nimg.jp/comch/community-icon/128x128/co5577109.jpg?1641922346"
+      },
+      "programProvider": {
+        "id": "121605976",
+        "name": "ジロー",
+        "icon": "https://secure-dcdn.cdn.nimg.jp/nicoaccount/usericon/12160/121605976.jpg?1640544954",
+        "iconSmall": "https://secure-dcdn.cdn.nimg.jp/nicoaccount/usericon/s/12160/121605976.jpg?1640544954"
+      },
+      "statistics": {
+        "watchCount": 381,
+        "commentCount": 409,
+        "reservationCount": null
+      },
+      "timeshift": {
+        "isPlayable": false,
+        "isReservable": false
+      },
+      "isPayProgram": false,
+      "isOfficialChannelMemberFree": false
+    },
+    {
+      "id": "lv342872976",
+      "title": "マイク無しギター（知り合いとシンクルーム",
+      "thumbnailUrl": null,
+      "hugeThumbnailUrl": null,
+      "screenshotThumbnail": {
+        "liveScreenshotThumbnailUrl": "https://ssth.dmc.nico/thumbnail/20230924/00/21/nicolive-production-pg28010270950010/nicolive-production-pg28010270950010_352_198.jpg",
+        "tsScreenshotThumbnailUrl": "https://ssth.dmc.nico/thumbnail/20230924/00/21/nicolive-production-pg28010270950010/nicolive-production-pg28010270950010_352_198.jpg"
+      },
+      "watchPageUrl": "https://live.nicovideo.jp/watch/lv342872976?ref=RecentPage-RecentOnairBroadcastStatusProgramListSection-ProgramCard",
+      "watchPageUrlAtExtPlayer": null,
+      "providerType": "community",
+      "liveCycle": "ON_AIR",
+      "beginAt": 1695482494000,
+      "endAt": 1695484294000,
+      "isFollowerOnly": false,
+      "socialGroup": {
+        "id": "co4639158",
+        "name": "ちゃそ's Bar",
+        "thumbnailUrl": "https://secure-dcdn.cdn.nimg.jp/comch/community-icon/128x128/co4639158.jpg?1680913175"
+      },
+      "programProvider": {
+        "id": "4864612",
+        "name": "てんちゃそic51g",
+        "icon": "https://secure-dcdn.cdn.nimg.jp/nicoaccount/usericon/486/4864612.jpg?1681859917",
+        "iconSmall": "https://secure-dcdn.cdn.nimg.jp/nicoaccount/usericon/s/486/4864612.jpg?1681859917"
+      },
+      "statistics": {
+        "watchCount": 1,
+        "commentCount": 0,
+        "reservationCount": null
+      },
+      "timeshift": {
+        "isPlayable": false,
+        "isReservable": true
+      },
+      "isPayProgram": false,
+      "isOfficialChannelMemberFree": false
+    },
+    {
+      "id": "lv342872975",
+      "title": "雑談",
+      "thumbnailUrl": null,
+      "hugeThumbnailUrl": null,
+      "screenshotThumbnail": {
+        "liveScreenshotThumbnailUrl": "https://ssth.dmc.nico/thumbnail/20230924/00/21/nicolive-production-pg101676999508602/nicolive-production-pg101676999508602_352_198.jpg",
+        "tsScreenshotThumbnailUrl": "https://ssth.dmc.nico/thumbnail/20230924/00/21/nicolive-production-pg101676999508602/nicolive-production-pg101676999508602_352_198.jpg"
+      },
+      "watchPageUrl": "https://live.nicovideo.jp/watch/lv342872975?ref=RecentPage-RecentOnairBroadcastStatusProgramListSection-ProgramCard",
+      "watchPageUrlAtExtPlayer": null,
+      "providerType": "community",
+      "liveCycle": "ON_AIR",
+      "beginAt": 1695482483000,
+      "endAt": 1695484283000,
+      "isFollowerOnly": false,
+      "socialGroup": {
+        "id": "co5996353",
+        "name": "のいすいさんのコミュニティ",
+        "thumbnailUrl": "https://secure-dcdn.cdn.nimg.jp/comch/community-icon/128x128/co5996353.jpg?1672100336"
+      },
+      "programProvider": {
+        "id": "124770391",
+        "name": "のいすい",
+        "icon": "https://secure-dcdn.cdn.nimg.jp/nicoaccount/usericon/12477/124770391.jpg?1673186240",
+        "iconSmall": "https://secure-dcdn.cdn.nimg.jp/nicoaccount/usericon/s/12477/124770391.jpg?1673186240"
+      },
+      "statistics": {
+        "watchCount": 6,
+        "commentCount": 11,
+        "reservationCount": null
+      },
+      "timeshift": {
+        "isPlayable": false,
+        "isReservable": false
+      },
+      "isPayProgram": false,
+      "isOfficialChannelMemberFree": false
+    },
+    {
+      "id": "lv342872974",
+      "title": "本日の30分雑談オンリーです！！！！",
+      "thumbnailUrl": null,
+      "hugeThumbnailUrl": null,
+      "screenshotThumbnail": {
+        "liveScreenshotThumbnailUrl": "https://ssth.dmc.nico/thumbnail/20230924/00/21/nicolive-production-pg36866336227962/nicolive-production-pg36866336227962_352_198.jpg",
+        "tsScreenshotThumbnailUrl": "https://ssth.dmc.nico/thumbnail/20230924/00/21/nicolive-production-pg36866336227962/nicolive-production-pg36866336227962_352_198.jpg"
+      },
+      "watchPageUrl": "https://live.nicovideo.jp/watch/lv342872974?ref=RecentPage-RecentOnairBroadcastStatusProgramListSection-ProgramCard",
+      "watchPageUrlAtExtPlayer": null,
+      "providerType": "community",
+      "liveCycle": "ON_AIR",
+      "beginAt": 1695482481000,
+      "endAt": 1695484281000,
+      "isFollowerOnly": false,
+      "socialGroup": {
+        "id": "co5715513",
+        "name": "声音さんのコミュニティ",
+        "thumbnailUrl": "https://secure-dcdn.cdn.nimg.jp/comch/community-icon/128x128/co5715513.jpg?1650192033"
+      },
+      "programProvider": {
+        "id": "119994830",
+        "name": "コわネちゃん",
+        "icon": "https://secure-dcdn.cdn.nimg.jp/nicoaccount/usericon/11999/119994830.jpg?1667703588",
+        "iconSmall": "https://secure-dcdn.cdn.nimg.jp/nicoaccount/usericon/s/11999/119994830.jpg?1667703588"
+      },
+      "statistics": {
+        "watchCount": 13,
+        "commentCount": 39,
+        "reservationCount": null
+      },
+      "timeshift": {
+        "isPlayable": false,
+        "isReservable": true
+      },
+      "nicoad": {
+        "userName": "",
+        "totalPoint": 1800,
+        "decoration": "silver"
+      },
+      "isPayProgram": false,
+      "isOfficialChannelMemberFree": false
+    },
+    {
+      "id": "lv342872972",
+      "title": "( ˘ω˘ )…のさいはい",
+      "thumbnailUrl": null,
+      "hugeThumbnailUrl": null,
+      "screenshotThumbnail": {
+        "liveScreenshotThumbnailUrl": null,
+        "tsScreenshotThumbnailUrl": null
+      },
+      "watchPageUrl": "https://live.nicovideo.jp/watch/lv342872972?ref=RecentPage-RecentOnairBroadcastStatusProgramListSection-ProgramCard",
+      "watchPageUrlAtExtPlayer": null,
+      "providerType": "community",
+      "liveCycle": "ON_AIR",
+      "beginAt": 1695482476000,
+      "endAt": 1695484276000,
+      "isFollowerOnly": true,
+      "socialGroup": {
+        "id": "co5029044",
+        "name": "猫 帰ってきたフライングアロウ",
+        "thumbnailUrl": "https://secure-dcdn.cdn.nimg.jp/comch/community-icon/128x128/co5029044.jpg?1689758607"
+      },
+      "programProvider": {
+        "id": "58100474",
+        "name": "ねこすけとあやめ姐2人目",
+        "icon": "https://secure-dcdn.cdn.nimg.jp/nicoaccount/usericon/5810/58100474.jpg?1692346415",
+        "iconSmall": "https://secure-dcdn.cdn.nimg.jp/nicoaccount/usericon/s/5810/58100474.jpg?1692346415"
+      },
+      "statistics": {
+        "watchCount": 10,
+        "commentCount": 8,
+        "reservationCount": null
+      },
+      "timeshift": {
+        "isPlayable": false,
+        "isReservable": false
+      },
+      "isPayProgram": false,
+      "isOfficialChannelMemberFree": false
+    },
+    {
+      "id": "lv342872952",
+      "title": "坊主にしようか",
+      "thumbnailUrl": null,
+      "hugeThumbnailUrl": null,
+      "screenshotThumbnail": {
+        "liveScreenshotThumbnailUrl": "https://ssth.dmc.nico/thumbnail/20230924/00/18/nicolive-production-pg21293136085626/nicolive-production-pg21293136085626_352_198.jpg",
+        "tsScreenshotThumbnailUrl": "https://ssth.dmc.nico/thumbnail/20230924/00/18/nicolive-production-pg21293136085626/nicolive-production-pg21293136085626_352_198.jpg"
+      },
+      "watchPageUrl": "https://live.nicovideo.jp/watch/lv342872952?ref=RecentPage-RecentOnairBroadcastStatusProgramListSection-ProgramCard",
+      "watchPageUrlAtExtPlayer": null,
+      "providerType": "community",
+      "liveCycle": "ON_AIR",
+      "beginAt": 1695482474000,
+      "endAt": 1695484274000,
+      "isFollowerOnly": false,
+      "socialGroup": {
+        "id": "co6060515",
+        "name": "くさぴーのコミュニティ",
+        "thumbnailUrl": "https://secure-dcdn.cdn.nimg.jp/comch/community-icon/128x128/co6060515.jpg?1683818566"
+      },
+      "programProvider": {
+        "id": "128277277",
+        "name": "くさぴー",
+        "icon": "https://secure-dcdn.cdn.nimg.jp/nicoaccount/usericon/12827/128277277.jpg?1688978416",
+        "iconSmall": "https://secure-dcdn.cdn.nimg.jp/nicoaccount/usericon/s/12827/128277277.jpg?1688978416"
+      },
+      "statistics": {
+        "watchCount": 9,
+        "commentCount": 29,
+        "reservationCount": null
+      },
+      "timeshift": {
+        "isPlayable": false,
+        "isReservable": false
+      },
+      "nicoad": {
+        "userName": "",
+        "totalPoint": 800,
+        "decoration": "silver"
+      },
+      "isPayProgram": false,
+      "isOfficialChannelMemberFree": false
+    },
+    {
+      "id": "lv342872971",
+      "title": "ｺﾝ。趣味で歌練習をしている人です。",
+      "thumbnailUrl": null,
+      "hugeThumbnailUrl": null,
+      "screenshotThumbnail": {
+        "liveScreenshotThumbnailUrl": "https://ssth.dmc.nico/thumbnail/20230924/00/21/nicolive-production-pg49673428533882/nicolive-production-pg49673428533882_352_198.jpg",
+        "tsScreenshotThumbnailUrl": "https://ssth.dmc.nico/thumbnail/20230924/00/21/nicolive-production-pg49673428533882/nicolive-production-pg49673428533882_352_198.jpg"
+      },
+      "watchPageUrl": "https://live.nicovideo.jp/watch/lv342872971?ref=RecentPage-RecentOnairBroadcastStatusProgramListSection-ProgramCard",
+      "watchPageUrlAtExtPlayer": null,
+      "providerType": "community",
+      "liveCycle": "ON_AIR",
+      "beginAt": 1695482473000,
+      "endAt": 1695484273000,
+      "isFollowerOnly": false,
+      "socialGroup": {
+        "id": "co1565157",
+        "name": "一緒にごろごろお話しよ？",
+        "thumbnailUrl": "https://secure-dcdn.cdn.nimg.jp/comch/community-icon/128x128/co1565157.jpg?1680710171"
+      },
+      "programProvider": {
+        "id": "23017457",
+        "name": "sky*",
+        "icon": "https://secure-dcdn.cdn.nimg.jp/nicoaccount/usericon/2301/23017457.jpg?1370964057",
+        "iconSmall": "https://secure-dcdn.cdn.nimg.jp/nicoaccount/usericon/s/2301/23017457.jpg?1370964057"
+      },
+      "statistics": {
+        "watchCount": 8,
+        "commentCount": 29,
+        "reservationCount": null
+      },
+      "timeshift": {
+        "isPlayable": false,
+        "isReservable": true
+      },
+      "nicoad": {
+        "userName": "",
+        "totalPoint": 3000,
+        "decoration": "silver"
+      },
+      "isPayProgram": false,
+      "isOfficialChannelMemberFree": false
+    },
+    {
+      "id": "lv342872970",
+      "title": "ほぼ毎日0コメ枠(皆さんより早くあの世へ逝きますが忘れて下さい　0",
+      "thumbnailUrl": null,
+      "hugeThumbnailUrl": null,
+      "screenshotThumbnail": {
+        "liveScreenshotThumbnailUrl": "https://ssth.dmc.nico/thumbnail/20230924/00/20/nicolive-production-pg144546519319162/nicolive-production-pg144546519319162_352_198.jpg",
+        "tsScreenshotThumbnailUrl": "https://ssth.dmc.nico/thumbnail/20230924/00/20/nicolive-production-pg144546519319162/nicolive-production-pg144546519319162_352_198.jpg"
+      },
+      "watchPageUrl": "https://live.nicovideo.jp/watch/lv342872970?ref=RecentPage-RecentOnairBroadcastStatusProgramListSection-ProgramCard",
+      "watchPageUrlAtExtPlayer": null,
+      "providerType": "community",
+      "liveCycle": "ON_AIR",
+      "beginAt": 1695482469000,
+      "endAt": 1695484269000,
+      "isFollowerOnly": false,
+      "socialGroup": {
+        "id": "co1551382",
+        "name": "まもって守護月天！ 解封の章",
+        "thumbnailUrl": "https://secure-dcdn.cdn.nimg.jp/comch/community-icon/128x128/co1551382.jpg?1694171910"
+      },
+      "programProvider": {
+        "id": "6258111",
+        "name": "守護月天小燐(シャオリン)",
+        "icon": "https://secure-dcdn.cdn.nimg.jp/nicoaccount/usericon/625/6258111.jpg?1692097541",
+        "iconSmall": "https://secure-dcdn.cdn.nimg.jp/nicoaccount/usericon/s/625/6258111.jpg?1692097541"
+      },
+      "statistics": {
+        "watchCount": 0,
+        "commentCount": 0,
+        "reservationCount": null
+      },
+      "timeshift": {
+        "isPlayable": false,
+        "isReservable": true
+      },
+      "isPayProgram": false,
+      "isOfficialChannelMemberFree": false
+    },
+    {
+      "id": "lv342872967",
+      "title": "感謝の鍵盤突き20230923発",
+      "thumbnailUrl": null,
+      "hugeThumbnailUrl": null,
+      "screenshotThumbnail": {
+        "liveScreenshotThumbnailUrl": "https://ssth.dmc.nico/thumbnail/20230924/00/20/nicolive-production-pg42552985125498/nicolive-production-pg42552985125498_352_198.jpg",
+        "tsScreenshotThumbnailUrl": "https://ssth.dmc.nico/thumbnail/20230924/00/20/nicolive-production-pg42552985125498/nicolive-production-pg42552985125498_352_198.jpg"
+      },
+      "watchPageUrl": "https://live.nicovideo.jp/watch/lv342872967?ref=RecentPage-RecentOnairBroadcastStatusProgramListSection-ProgramCard",
+      "watchPageUrlAtExtPlayer": null,
+      "providerType": "community",
+      "liveCycle": "ON_AIR",
+      "beginAt": 1695482455000,
+      "endAt": 1695484255000,
+      "isFollowerOnly": false,
+      "socialGroup": {
+        "id": "co6046623",
+        "name": "射手綱太郎香(エリート)さんのコミュニティ",
+        "thumbnailUrl": "https://secure-dcdn.cdn.nimg.jp/comch/community-icon/128x128/co6046623.jpg?1676695886"
+      },
+      "programProvider": {
+        "id": "128023097",
+        "name": "射手網太郎香(エリート)",
+        "icon": "https://secure-dcdn.cdn.nimg.jp/nicoaccount/usericon/12802/128023097.jpg?1676240667",
+        "iconSmall": "https://secure-dcdn.cdn.nimg.jp/nicoaccount/usericon/s/12802/128023097.jpg?1676240667"
+      },
+      "statistics": {
+        "watchCount": 4,
+        "commentCount": 1,
+        "reservationCount": null
+      },
+      "timeshift": {
+        "isPlayable": false,
+        "isReservable": true
+      },
+      "nicoad": {
+        "userName": "",
+        "totalPoint": 500,
+        "decoration": "silver"
+      },
+      "isPayProgram": false,
+      "isOfficialChannelMemberFree": false
+    },
+    {
+      "id": "lv342872966",
+      "title": "P5",
+      "thumbnailUrl": null,
+      "hugeThumbnailUrl": null,
+      "screenshotThumbnail": {
+        "liveScreenshotThumbnailUrl": "https://ssth.dmc.nico/thumbnail/20230924/00/20/nicolive-production-pg36612479124090/nicolive-production-pg36612479124090_352_198.jpg",
+        "tsScreenshotThumbnailUrl": "https://ssth.dmc.nico/thumbnail/20230924/00/20/nicolive-production-pg36612479124090/nicolive-production-pg36612479124090_352_198.jpg"
+      },
+      "watchPageUrl": "https://live.nicovideo.jp/watch/lv342872966?ref=RecentPage-RecentOnairBroadcastStatusProgramListSection-ProgramCard",
+      "watchPageUrlAtExtPlayer": null,
+      "providerType": "community",
+      "liveCycle": "ON_AIR",
+      "beginAt": 1695482451000,
+      "endAt": 1695484251000,
+      "isFollowerOnly": false,
+      "socialGroup": {
+        "id": "co4080620",
+        "name": "miruさんのコミュニティ",
+        "thumbnailUrl": "https://secure-dcdn.cdn.nimg.jp/comch/community-icon/128x128/co4080620.jpg?1568384452"
+      },
+      "programProvider": {
+        "id": "75647005",
+        "name": "miru",
+        "icon": "https://secure-dcdn.cdn.nimg.jp/nicoaccount/usericon/defaults/blank.jpg",
+        "iconSmall": "https://secure-dcdn.cdn.nimg.jp/nicoaccount/usericon/defaults/blank_s.jpg"
+      },
+      "statistics": {
+        "watchCount": 2,
+        "commentCount": 0,
+        "reservationCount": null
+      },
+      "timeshift": {
+        "isPlayable": false,
+        "isReservable": true
+      },
+      "isPayProgram": false,
+      "isOfficialChannelMemberFree": false
+    },
+    {
+      "id": "lv342872933",
+      "title": "週末のざつだん！",
+      "thumbnailUrl": null,
+      "hugeThumbnailUrl": null,
+      "screenshotThumbnail": {
+        "liveScreenshotThumbnailUrl": "https://ssth.dmc.nico/thumbnail/20230924/00/16/nicolive-production-pg21717656273530/nicolive-production-pg21717656273530_352_198.jpg",
+        "tsScreenshotThumbnailUrl": "https://ssth.dmc.nico/thumbnail/20230924/00/16/nicolive-production-pg21717656273530/nicolive-production-pg21717656273530_352_198.jpg"
+      },
+      "watchPageUrl": "https://live.nicovideo.jp/watch/lv342872933?ref=RecentPage-RecentOnairBroadcastStatusProgramListSection-ProgramCard",
+      "watchPageUrlAtExtPlayer": null,
+      "providerType": "community",
+      "liveCycle": "ON_AIR",
+      "beginAt": 1695482413000,
+      "endAt": 1695484213000,
+      "isFollowerOnly": false,
+      "socialGroup": {
+        "id": "co2495252",
+        "name": "クリスマス村",
+        "thumbnailUrl": "https://secure-dcdn.cdn.nimg.jp/comch/community-icon/128x128/co2495252.jpg?1687710567"
+      },
+      "programProvider": {
+        "id": "17504403",
+        "name": "マッキー",
+        "icon": "https://secure-dcdn.cdn.nimg.jp/nicoaccount/usericon/1750/17504403.jpg?1489861433",
+        "iconSmall": "https://secure-dcdn.cdn.nimg.jp/nicoaccount/usericon/s/1750/17504403.jpg?1489861433"
+      },
+      "statistics": {
+        "watchCount": 11,
+        "commentCount": 13,
+        "reservationCount": null
+      },
+      "timeshift": {
+        "isPlayable": false,
+        "isReservable": true
+      },
+      "nicoad": {
+        "userName": "",
+        "totalPoint": 3200,
+        "decoration": "silver"
+      },
+      "isPayProgram": false,
+      "isOfficialChannelMemberFree": false
+    },
+    {
+      "id": "lv342872962",
+      "title": "Drawing practice",
+      "thumbnailUrl": null,
+      "hugeThumbnailUrl": null,
+      "screenshotThumbnail": {
+        "liveScreenshotThumbnailUrl": "https://ssth.dmc.nico/thumbnail/20230924/00/20/nicolive-production-pg83305431040634/nicolive-production-pg83305431040634_352_198.jpg",
+        "tsScreenshotThumbnailUrl": "https://ssth.dmc.nico/thumbnail/20230924/00/20/nicolive-production-pg83305431040634/nicolive-production-pg83305431040634_352_198.jpg"
+      },
+      "watchPageUrl": "https://live.nicovideo.jp/watch/lv342872962?ref=RecentPage-RecentOnairBroadcastStatusProgramListSection-ProgramCard",
+      "watchPageUrlAtExtPlayer": null,
+      "providerType": "community",
+      "liveCycle": "ON_AIR",
+      "beginAt": 1695482410000,
+      "endAt": 1695504010000,
+      "isFollowerOnly": false,
+      "socialGroup": {
+        "id": "co4013955",
+        "name": "北海道メメント・モリ同盟",
+        "thumbnailUrl": "https://secure-dcdn.cdn.nimg.jp/comch/community-icon/128x128/co4013955.jpg?1672574754"
+      },
+      "programProvider": {
+        "id": "13312234",
+        "name": "りょーみず",
+        "icon": "https://secure-dcdn.cdn.nimg.jp/nicoaccount/usericon/1331/13312234.jpg?1661588718",
+        "iconSmall": "https://secure-dcdn.cdn.nimg.jp/nicoaccount/usericon/s/1331/13312234.jpg?1661588718"
+      },
+      "statistics": {
+        "watchCount": 0,
+        "commentCount": 0,
+        "reservationCount": null
+      },
+      "timeshift": {
+        "isPlayable": false,
+        "isReservable": true
+      },
+      "isPayProgram": false,
+      "isOfficialChannelMemberFree": false
+    },
+    {
+      "id": "lv342872949",
+      "title": "ただいま✈️",
+      "thumbnailUrl": null,
+      "hugeThumbnailUrl": null,
+      "screenshotThumbnail": {
+        "liveScreenshotThumbnailUrl": "https://ssth.dmc.nico/thumbnail/20230924/00/18/nicolive-production-pg55066614563450/nicolive-production-pg55066614563450_352_198.jpg",
+        "tsScreenshotThumbnailUrl": "https://ssth.dmc.nico/thumbnail/20230924/00/18/nicolive-production-pg55066614563450/nicolive-production-pg55066614563450_352_198.jpg"
+      },
+      "watchPageUrl": "https://live.nicovideo.jp/watch/lv342872949?ref=RecentPage-RecentOnairBroadcastStatusProgramListSection-ProgramCard",
+      "watchPageUrlAtExtPlayer": null,
+      "providerType": "community",
+      "liveCycle": "ON_AIR",
+      "beginAt": 1695482402000,
+      "endAt": 1695484202000,
+      "isFollowerOnly": false,
+      "socialGroup": {
+        "id": "co6162607",
+        "name": "ゲストさんのコミュニティ",
+        "thumbnailUrl": "https://secure-dcdn.cdn.nimg.jp/comch/community-icon/128x128/co6162607.jpg?1691503404"
+      },
+      "programProvider": {
+        "id": "130093856",
+        "name": "オジしか勝たん",
+        "icon": "https://secure-dcdn.cdn.nimg.jp/nicoaccount/usericon/13009/130093856.jpg?1691655039",
+        "iconSmall": "https://secure-dcdn.cdn.nimg.jp/nicoaccount/usericon/s/13009/130093856.jpg?1691655039"
+      },
+      "statistics": {
+        "watchCount": 74,
+        "commentCount": 22,
+        "reservationCount": null
+      },
+      "timeshift": {
+        "isPlayable": false,
+        "isReservable": true
+      },
+      "isPayProgram": false,
+      "isOfficialChannelMemberFree": false
+    },
+    {
+      "id": "lv342872957",
+      "title": "初見さん大歓迎❤️おっさんと飲ろうぜ❤️",
+      "thumbnailUrl": null,
+      "hugeThumbnailUrl": null,
+      "screenshotThumbnail": {
+        "liveScreenshotThumbnailUrl": "https://ssth.dmc.nico/thumbnail/20230924/00/19/nicolive-production-pg24925631939194/nicolive-production-pg24925631939194_352_198.jpg",
+        "tsScreenshotThumbnailUrl": "https://ssth.dmc.nico/thumbnail/20230924/00/19/nicolive-production-pg24925631939194/nicolive-production-pg24925631939194_352_198.jpg"
+      },
+      "watchPageUrl": "https://live.nicovideo.jp/watch/lv342872957?ref=RecentPage-RecentOnairBroadcastStatusProgramListSection-ProgramCard",
+      "watchPageUrlAtExtPlayer": null,
+      "providerType": "community",
+      "liveCycle": "ON_AIR",
+      "beginAt": 1695482390000,
+      "endAt": 1695484190000,
+      "isFollowerOnly": false,
+      "socialGroup": {
+        "id": "co1335856",
+        "name": "～おっさん休日バラエティー〜おつまみ道場たこ！",
+        "thumbnailUrl": "https://secure-dcdn.cdn.nimg.jp/comch/community-icon/128x128/co1335856.jpg?1450488266"
+      },
+      "programProvider": {
+        "id": "22214455",
+        "name": "タコちゃん",
+        "icon": "https://secure-dcdn.cdn.nimg.jp/nicoaccount/usericon/2221/22214455.jpg?1316505078",
+        "iconSmall": "https://secure-dcdn.cdn.nimg.jp/nicoaccount/usericon/s/2221/22214455.jpg?1316505078"
+      },
+      "statistics": {
+        "watchCount": 6,
+        "commentCount": 23,
+        "reservationCount": null
+      },
+      "timeshift": {
+        "isPlayable": false,
+        "isReservable": false
+      },
+      "isPayProgram": false,
+      "isOfficialChannelMemberFree": false
+    },
+    {
+      "id": "lv342872956",
+      "title": "鬱だお？家賃の低い県を調べて書いてって！いこっけいこっけ！",
+      "thumbnailUrl": null,
+      "hugeThumbnailUrl": null,
+      "screenshotThumbnail": {
+        "liveScreenshotThumbnailUrl": "https://ssth.dmc.nico/thumbnail/20230924/00/19/nicolive-production-pg24847990129274/nicolive-production-pg24847990129274_352_198.jpg",
+        "tsScreenshotThumbnailUrl": "https://ssth.dmc.nico/thumbnail/20230924/00/19/nicolive-production-pg24847990129274/nicolive-production-pg24847990129274_352_198.jpg"
+      },
+      "watchPageUrl": "https://live.nicovideo.jp/watch/lv342872956?ref=RecentPage-RecentOnairBroadcastStatusProgramListSection-ProgramCard",
+      "watchPageUrlAtExtPlayer": null,
+      "providerType": "community",
+      "liveCycle": "ON_AIR",
+      "beginAt": 1695482354000,
+      "endAt": 1695503954000,
+      "isFollowerOnly": false,
+      "socialGroup": {
+        "id": "co3587106",
+        "name": "みんとちゃんねる",
+        "thumbnailUrl": "https://secure-dcdn.cdn.nimg.jp/comch/community-icon/128x128/co3587106.jpg?1685267204"
+      },
+      "programProvider": {
+        "id": "130549242",
+        "name": "阪神ちゃーはん・。・(求職中)",
+        "icon": "https://secure-dcdn.cdn.nimg.jp/nicoaccount/usericon/13054/130549242.jpg?1694482473",
+        "iconSmall": "https://secure-dcdn.cdn.nimg.jp/nicoaccount/usericon/s/13054/130549242.jpg?1694482473"
+      },
+      "statistics": {
+        "watchCount": 11,
+        "commentCount": 7,
+        "reservationCount": null
+      },
+      "timeshift": {
+        "isPlayable": false,
+        "isReservable": true
+      },
+      "isPayProgram": false,
+      "isOfficialChannelMemberFree": false
+    },
+    {
+      "id": "lv342872950",
+      "title": "(o|o)ジュワッチ",
+      "thumbnailUrl": null,
+      "hugeThumbnailUrl": null,
+      "screenshotThumbnail": {
+        "liveScreenshotThumbnailUrl": null,
+        "tsScreenshotThumbnailUrl": null
+      },
+      "watchPageUrl": "https://live.nicovideo.jp/watch/lv342872950?ref=RecentPage-RecentOnairBroadcastStatusProgramListSection-ProgramCard",
+      "watchPageUrlAtExtPlayer": null,
+      "providerType": "community",
+      "liveCycle": "ON_AIR",
+      "beginAt": 1695482350000,
+      "endAt": 1695484150000,
+      "isFollowerOnly": true,
+      "socialGroup": {
+        "id": "co4402336",
+        "name": "タワー厨の部屋",
+        "thumbnailUrl": "https://secure-dcdn.cdn.nimg.jp/comch/community-icon/128x128/co4402336.jpg?1694303955"
+      },
+      "programProvider": {
+        "id": "26176450",
+        "name": "まーくん ソロ変態　　=^_^=",
+        "icon": "https://secure-dcdn.cdn.nimg.jp/nicoaccount/usericon/2617/26176450.jpg?1368317039",
+        "iconSmall": "https://secure-dcdn.cdn.nimg.jp/nicoaccount/usericon/s/2617/26176450.jpg?1368317039"
+      },
+      "statistics": {
+        "watchCount": 5,
+        "commentCount": 7,
+        "reservationCount": null
+      },
+      "timeshift": {
+        "isPlayable": false,
+        "isReservable": true
+      },
+      "nicoad": {
+        "userName": "",
+        "totalPoint": 2200,
+        "decoration": "silver"
+      },
+      "isPayProgram": false,
+      "isOfficialChannelMemberFree": false
+    },
+    {
+      "id": "lv342872955",
+      "title": "jcくるこつけま貼りたい",
+      "thumbnailUrl": null,
+      "hugeThumbnailUrl": null,
+      "screenshotThumbnail": {
+        "liveScreenshotThumbnailUrl": "https://ssth.dmc.nico/thumbnail/20230924/00/18/nicolive-production-pg89818633601658/nicolive-production-pg89818633601658_352_198.jpg",
+        "tsScreenshotThumbnailUrl": "https://ssth.dmc.nico/thumbnail/20230924/00/18/nicolive-production-pg89818633601658/nicolive-production-pg89818633601658_352_198.jpg"
+      },
+      "watchPageUrl": "https://live.nicovideo.jp/watch/lv342872955?ref=RecentPage-RecentOnairBroadcastStatusProgramListSection-ProgramCard",
+      "watchPageUrlAtExtPlayer": null,
+      "providerType": "community",
+      "liveCycle": "ON_AIR",
+      "beginAt": 1695482349000,
+      "endAt": 1695484149000,
+      "isFollowerOnly": false,
+      "socialGroup": {
+        "id": "co5838212",
+        "name": "ニックスさんのコミュニティ",
+        "thumbnailUrl": "https://secure-dcdn.cdn.nimg.jp/comch/community-icon/128x128/co5838212.jpg?1661184505"
+      },
+      "programProvider": {
+        "id": "26175612",
+        "name": "くる子",
+        "icon": "https://secure-dcdn.cdn.nimg.jp/nicoaccount/usericon/2617/26175612.jpg?1667831202",
+        "iconSmall": "https://secure-dcdn.cdn.nimg.jp/nicoaccount/usericon/s/2617/26175612.jpg?1667831202"
+      },
+      "statistics": {
+        "watchCount": 429,
+        "commentCount": 138,
+        "reservationCount": null
+      },
+      "timeshift": {
+        "isPlayable": false,
+        "isReservable": true
+      },
+      "isPayProgram": false,
+      "isOfficialChannelMemberFree": false
+    },
+    {
+      "id": "lv342872953",
+      "title": "鎮痛11ねことら",
+      "thumbnailUrl": null,
+      "hugeThumbnailUrl": null,
+      "screenshotThumbnail": {
+        "liveScreenshotThumbnailUrl": "https://ssth.dmc.nico/thumbnail/20230924/00/18/nicolive-production-pg25330174657146/nicolive-production-pg25330174657146_352_198.jpg",
+        "tsScreenshotThumbnailUrl": "https://ssth.dmc.nico/thumbnail/20230924/00/18/nicolive-production-pg25330174657146/nicolive-production-pg25330174657146_352_198.jpg"
+      },
+      "watchPageUrl": "https://live.nicovideo.jp/watch/lv342872953?ref=RecentPage-RecentOnairBroadcastStatusProgramListSection-ProgramCard",
+      "watchPageUrlAtExtPlayer": null,
+      "providerType": "community",
+      "liveCycle": "ON_AIR",
+      "beginAt": 1695482332000,
+      "endAt": 1695484132000,
+      "isFollowerOnly": false,
+      "socialGroup": {
+        "id": "co3554223",
+        "name": "ないとファイさんのコミュニティ",
+        "thumbnailUrl": "https://secure-dcdn.cdn.nimg.jp/comch/community-icon/128x128/co3554223.jpg?1694708046"
+      },
+      "programProvider": {
+        "id": "118946369",
+        "name": "ねこにんじゃう",
+        "icon": "https://secure-dcdn.cdn.nimg.jp/nicoaccount/usericon/11894/118946369.jpg?1619307318",
+        "iconSmall": "https://secure-dcdn.cdn.nimg.jp/nicoaccount/usericon/s/11894/118946369.jpg?1619307318"
+      },
+      "statistics": {
+        "watchCount": 44,
+        "commentCount": 19,
+        "reservationCount": null
+      },
+      "timeshift": {
+        "isPlayable": false,
+        "isReservable": false
+      },
+      "isPayProgram": false,
+      "isOfficialChannelMemberFree": false
+    },
+    {
+      "id": "lv342872947",
+      "title": "パチンコ実機配信　P蒼天の拳　双龍",
+      "thumbnailUrl": null,
+      "hugeThumbnailUrl": null,
+      "screenshotThumbnail": {
+        "liveScreenshotThumbnailUrl": "https://ssth.dmc.nico/thumbnail/20230924/00/18/nicolive-production-pg34443363353210/nicolive-production-pg34443363353210_352_198.jpg",
+        "tsScreenshotThumbnailUrl": "https://ssth.dmc.nico/thumbnail/20230924/00/18/nicolive-production-pg34443363353210/nicolive-production-pg34443363353210_352_198.jpg"
+      },
+      "watchPageUrl": "https://live.nicovideo.jp/watch/lv342872947?ref=RecentPage-RecentOnairBroadcastStatusProgramListSection-ProgramCard",
+      "watchPageUrlAtExtPlayer": null,
+      "providerType": "community",
+      "liveCycle": "ON_AIR",
+      "beginAt": 1695482309000,
+      "endAt": 1695484109000,
+      "isFollowerOnly": false,
+      "socialGroup": {
+        "id": "co6183612",
+        "name": "tsuttaroさんのコミュニティ",
+        "thumbnailUrl": "https://secure-dcdn.cdn.nimg.jp/comch/community-icon/128x128/co6183612.jpg?1694539980"
+      },
+      "programProvider": {
+        "id": "130557831",
+        "name": "tsuttaro",
+        "icon": "https://secure-dcdn.cdn.nimg.jp/nicoaccount/usericon/13055/130557831.jpg?1695041312",
+        "iconSmall": "https://secure-dcdn.cdn.nimg.jp/nicoaccount/usericon/s/13055/130557831.jpg?1695041312"
+      },
+      "statistics": {
+        "watchCount": 2,
+        "commentCount": 0,
+        "reservationCount": null
+      },
+      "timeshift": {
+        "isPlayable": false,
+        "isReservable": true
+      },
+      "isPayProgram": false,
+      "isOfficialChannelMemberFree": false
+    },
+    {
+      "id": "lv342872944",
+      "title": "【にゃんバトせかんど。】マジカルハロウィン4【設定6】",
+      "thumbnailUrl": null,
+      "hugeThumbnailUrl": null,
+      "screenshotThumbnail": {
+        "liveScreenshotThumbnailUrl": "https://ssth.dmc.nico/thumbnail/20230924/00/17/nicolive-production-pg69243518321274/nicolive-production-pg69243518321274_352_198.jpg",
+        "tsScreenshotThumbnailUrl": "https://ssth.dmc.nico/thumbnail/20230924/00/17/nicolive-production-pg69243518321274/nicolive-production-pg69243518321274_352_198.jpg"
+      },
+      "watchPageUrl": "https://live.nicovideo.jp/watch/lv342872944?ref=RecentPage-RecentOnairBroadcastStatusProgramListSection-ProgramCard",
+      "watchPageUrlAtExtPlayer": null,
+      "providerType": "community",
+      "liveCycle": "ON_AIR",
+      "beginAt": 1695482289000,
+      "endAt": 1695484089000,
+      "isFollowerOnly": false,
+      "socialGroup": {
+        "id": "co3531979",
+        "name": "白米はおかずです。",
+        "thumbnailUrl": "https://secure-dcdn.cdn.nimg.jp/comch/community-icon/128x128/co3531979.jpg?1690120293"
+      },
+      "programProvider": {
+        "id": "360501",
+        "name": "暁優",
+        "icon": "https://secure-dcdn.cdn.nimg.jp/nicoaccount/usericon/36/360501.jpg?1481986852",
+        "iconSmall": "https://secure-dcdn.cdn.nimg.jp/nicoaccount/usericon/s/36/360501.jpg?1481986852"
+      },
+      "statistics": {
+        "watchCount": 19,
+        "commentCount": 14,
+        "reservationCount": null
+      },
+      "timeshift": {
+        "isPlayable": false,
+        "isReservable": true
+      },
+      "isPayProgram": false,
+      "isOfficialChannelMemberFree": false
+    },
+    {
+      "id": "lv342872946",
+      "title": "かりんぐ（あいさつ必須",
+      "thumbnailUrl": null,
+      "hugeThumbnailUrl": null,
+      "screenshotThumbnail": {
+        "liveScreenshotThumbnailUrl": "https://ssth.dmc.nico/thumbnail/20230924/00/18/nicolive-production-pg62858049094266/nicolive-production-pg62858049094266_352_198.jpg",
+        "tsScreenshotThumbnailUrl": "https://ssth.dmc.nico/thumbnail/20230924/00/18/nicolive-production-pg62858049094266/nicolive-production-pg62858049094266_352_198.jpg"
+      },
+      "watchPageUrl": "https://live.nicovideo.jp/watch/lv342872946?ref=RecentPage-RecentOnairBroadcastStatusProgramListSection-ProgramCard",
+      "watchPageUrlAtExtPlayer": null,
+      "providerType": "community",
+      "liveCycle": "ON_AIR",
+      "beginAt": 1695482287000,
+      "endAt": 1695484087000,
+      "isFollowerOnly": false,
+      "socialGroup": {
+        "id": "co6053677",
+        "name": "なかよしひろば",
+        "thumbnailUrl": "https://secure-dcdn.cdn.nimg.jp/comch/community-icon/128x128/co6053677.jpg?1677168334"
+      },
+      "programProvider": {
+        "id": "121128059",
+        "name": "しょぼーん(´･ω･`)",
+        "icon": "https://secure-dcdn.cdn.nimg.jp/nicoaccount/usericon/12112/121128059.jpg?1680140558",
+        "iconSmall": "https://secure-dcdn.cdn.nimg.jp/nicoaccount/usericon/s/12112/121128059.jpg?1680140558"
+      },
+      "statistics": {
+        "watchCount": 6,
+        "commentCount": 3,
+        "reservationCount": null
+      },
+      "timeshift": {
+        "isPlayable": false,
+        "isReservable": false
+      },
+      "isPayProgram": false,
+      "isOfficialChannelMemberFree": false
+    },
+    {
+      "id": "lv342872844",
+      "title": "【ダークソウルⅢ】やっぱり逃げ切れない人【PC版】",
+      "thumbnailUrl": null,
+      "hugeThumbnailUrl": null,
+      "screenshotThumbnail": {
+        "liveScreenshotThumbnailUrl": "https://ssth.dmc.nico/thumbnail/20230924/00/07/nicolive-production-pg74485627617914/nicolive-production-pg74485627617914_352_198.jpg",
+        "tsScreenshotThumbnailUrl": "https://ssth.dmc.nico/thumbnail/20230924/00/07/nicolive-production-pg74485627617914/nicolive-production-pg74485627617914_352_198.jpg"
+      },
+      "watchPageUrl": "https://live.nicovideo.jp/watch/lv342872844?ref=RecentPage-RecentOnairBroadcastStatusProgramListSection-ProgramCard",
+      "watchPageUrlAtExtPlayer": null,
+      "providerType": "community",
+      "liveCycle": "ON_AIR",
+      "beginAt": 1695482264000,
+      "endAt": 1695503864000,
+      "isFollowerOnly": false,
+      "socialGroup": {
+        "id": "co4909443",
+        "name": "IA_Cthulhuさんのコミュニティ",
+        "thumbnailUrl": "https://secure-dcdn.cdn.nimg.jp/comch/community-icon/128x128/co4909443.jpg?1648742136"
+      },
+      "programProvider": {
+        "id": "97478806",
+        "name": "IA_Cthulhu",
+        "icon": "https://secure-dcdn.cdn.nimg.jp/nicoaccount/usericon/9747/97478806.jpg?1598769732",
+        "iconSmall": "https://secure-dcdn.cdn.nimg.jp/nicoaccount/usericon/s/9747/97478806.jpg?1598769732"
+      },
+      "statistics": {
+        "watchCount": 3,
+        "commentCount": 12,
+        "reservationCount": null
+      },
+      "timeshift": {
+        "isPlayable": false,
+        "isReservable": true
+      },
+      "isPayProgram": false,
+      "isOfficialChannelMemberFree": false
+    },
+    {
+      "id": "lv342872854",
+      "title": "眠いのでゆったり歌う",
+      "thumbnailUrl": null,
+      "hugeThumbnailUrl": null,
+      "screenshotThumbnail": {
+        "liveScreenshotThumbnailUrl": "https://ssth.dmc.nico/thumbnail/20230924/00/08/nicolive-production-pg54661893587578/nicolive-production-pg54661893587578_352_198.jpg",
+        "tsScreenshotThumbnailUrl": "https://ssth.dmc.nico/thumbnail/20230924/00/08/nicolive-production-pg54661893587578/nicolive-production-pg54661893587578_352_198.jpg"
+      },
+      "watchPageUrl": "https://live.nicovideo.jp/watch/lv342872854?ref=RecentPage-RecentOnairBroadcastStatusProgramListSection-ProgramCard",
+      "watchPageUrlAtExtPlayer": null,
+      "providerType": "community",
+      "liveCycle": "ON_AIR",
+      "beginAt": 1695482244000,
+      "endAt": 1695484044000,
+      "isFollowerOnly": false,
+      "socialGroup": {
+        "id": "co1448830",
+        "name": "とみっとの月結い放送室",
+        "thumbnailUrl": "https://secure-dcdn.cdn.nimg.jp/comch/community-icon/128x128/co1448830.jpg?1649094242"
+      },
+      "programProvider": {
+        "id": "18276204",
+        "name": "とみっと",
+        "icon": "https://secure-dcdn.cdn.nimg.jp/nicoaccount/usericon/1827/18276204.jpg?1649094207",
+        "iconSmall": "https://secure-dcdn.cdn.nimg.jp/nicoaccount/usericon/s/1827/18276204.jpg?1649094207"
+      },
+      "statistics": {
+        "watchCount": 11,
+        "commentCount": 0,
+        "reservationCount": null
+      },
+      "timeshift": {
+        "isPlayable": false,
+        "isReservable": false
+      },
+      "isPayProgram": false,
+      "isOfficialChannelMemberFree": false
+    },
+    {
+      "id": "lv342872930",
+      "title": "絵の練習（丸、フィギア、vtuberなど）",
+      "thumbnailUrl": null,
+      "hugeThumbnailUrl": null,
+      "screenshotThumbnail": {
+        "liveScreenshotThumbnailUrl": "https://ssth.dmc.nico/thumbnail/20230924/00/16/nicolive-production-pg67936413811322/nicolive-production-pg67936413811322_352_198.jpg",
+        "tsScreenshotThumbnailUrl": "https://ssth.dmc.nico/thumbnail/20230924/00/16/nicolive-production-pg67936413811322/nicolive-production-pg67936413811322_352_198.jpg"
+      },
+      "watchPageUrl": "https://live.nicovideo.jp/watch/lv342872930?ref=RecentPage-RecentOnairBroadcastStatusProgramListSection-ProgramCard",
+      "watchPageUrlAtExtPlayer": null,
+      "providerType": "community",
+      "liveCycle": "ON_AIR",
+      "beginAt": 1695482240000,
+      "endAt": 1695484040000,
+      "isFollowerOnly": false,
+      "socialGroup": {
+        "id": "co609077",
+        "name": "絵の練習",
+        "thumbnailUrl": "https://secure-dcdn.cdn.nimg.jp/comch/community-icon/128x128/co609077.jpg?1529382788"
+      },
+      "programProvider": {
+        "id": "502493",
+        "name": "sukkiri",
+        "icon": "https://secure-dcdn.cdn.nimg.jp/nicoaccount/usericon/defaults/blank.jpg",
+        "iconSmall": "https://secure-dcdn.cdn.nimg.jp/nicoaccount/usericon/defaults/blank_s.jpg"
+      },
+      "statistics": {
+        "watchCount": 8,
+        "commentCount": 13,
+        "reservationCount": null
+      },
+      "timeshift": {
+        "isPlayable": false,
+        "isReservable": true
+      },
+      "isPayProgram": false,
+      "isOfficialChannelMemberFree": false
+    },
+    {
+      "id": "lv342872938",
+      "title": "【イベ参加中】うさぎもどきぬいぐるみを作る最終回",
+      "thumbnailUrl": null,
+      "hugeThumbnailUrl": null,
+      "screenshotThumbnail": {
+        "liveScreenshotThumbnailUrl": "https://ssth.dmc.nico/thumbnail/20230924/00/16/nicolive-production-pg55351943627386/nicolive-production-pg55351943627386_352_198.jpg",
+        "tsScreenshotThumbnailUrl": "https://ssth.dmc.nico/thumbnail/20230924/00/16/nicolive-production-pg55351943627386/nicolive-production-pg55351943627386_352_198.jpg"
+      },
+      "watchPageUrl": "https://live.nicovideo.jp/watch/lv342872938?ref=RecentPage-RecentOnairBroadcastStatusProgramListSection-ProgramCard",
+      "watchPageUrlAtExtPlayer": null,
+      "providerType": "community",
+      "liveCycle": "ON_AIR",
+      "beginAt": 1695482231000,
+      "endAt": 1695484031000,
+      "isFollowerOnly": false,
+      "socialGroup": {
+        "id": "co5390591",
+        "name": "萌え声を目指す会",
+        "thumbnailUrl": "https://secure-dcdn.cdn.nimg.jp/comch/community-icon/128x128/co5390591.jpg?1677337774"
+      },
+      "programProvider": {
+        "id": "97929743",
+        "name": "か わしま",
+        "icon": "https://secure-dcdn.cdn.nimg.jp/nicoaccount/usericon/9792/97929743.jpg?1621518639",
+        "iconSmall": "https://secure-dcdn.cdn.nimg.jp/nicoaccount/usericon/s/9792/97929743.jpg?1621518639"
+      },
+      "statistics": {
+        "watchCount": 166,
+        "commentCount": 72,
+        "reservationCount": 1
+      },
+      "timeshift": {
+        "isPlayable": false,
+        "isReservable": true
+      },
+      "nicoad": {
+        "userName": "",
+        "totalPoint": 400,
+        "decoration": "silver"
+      },
+      "isPayProgram": false,
+      "isOfficialChannelMemberFree": false
+    },
+    {
+      "id": "lv342872937",
+      "title": "海賊ネットちゃんねる☠　お〜い　聴いてるかい( ^^) _U　紅のバックファイヤー✌☀俺は怒りのメタル＆パンカー",
+      "thumbnailUrl": null,
+      "hugeThumbnailUrl": null,
+      "screenshotThumbnail": {
+        "liveScreenshotThumbnailUrl": "https://ssth.dmc.nico/thumbnail/20230924/00/16/nicolive-production-pg78809931973242/nicolive-production-pg78809931973242_352_198.jpg",
+        "tsScreenshotThumbnailUrl": "https://ssth.dmc.nico/thumbnail/20230924/00/16/nicolive-production-pg78809931973242/nicolive-production-pg78809931973242_352_198.jpg"
+      },
+      "watchPageUrl": "https://live.nicovideo.jp/watch/lv342872937?ref=RecentPage-RecentOnairBroadcastStatusProgramListSection-ProgramCard",
+      "watchPageUrlAtExtPlayer": null,
+      "providerType": "community",
+      "liveCycle": "ON_AIR",
+      "beginAt": 1695482209000,
+      "endAt": 1695484009000,
+      "isFollowerOnly": false,
+      "socialGroup": {
+        "id": "co1871195",
+        "name": "静かなる暴動 魂！  ★Quiet Riot KON!★",
+        "thumbnailUrl": "https://secure-dcdn.cdn.nimg.jp/comch/community-icon/128x128/co1871195.jpg?1690621185"
+      },
+      "programProvider": {
+        "id": "25388512",
+        "name": "KON",
+        "icon": "https://secure-dcdn.cdn.nimg.jp/nicoaccount/usericon/2538/25388512.jpg?1477376923",
+        "iconSmall": "https://secure-dcdn.cdn.nimg.jp/nicoaccount/usericon/s/2538/25388512.jpg?1477376923"
+      },
+      "statistics": {
+        "watchCount": 1,
+        "commentCount": 0,
+        "reservationCount": null
+      },
+      "timeshift": {
+        "isPlayable": false,
+        "isReservable": false
+      },
+      "isPayProgram": false,
+      "isOfficialChannelMemberFree": false
+    },
+    {
+      "id": "lv342872932",
+      "title": "このゲームおもろー(´・ω・｀)＼漏らしても慌てるな！／",
+      "thumbnailUrl": null,
+      "hugeThumbnailUrl": null,
+      "screenshotThumbnail": {
+        "liveScreenshotThumbnailUrl": "https://ssth.dmc.nico/thumbnail/20230924/00/16/nicolive-production-pg57018835534458/nicolive-production-pg57018835534458_352_198.jpg",
+        "tsScreenshotThumbnailUrl": "https://ssth.dmc.nico/thumbnail/20230924/00/16/nicolive-production-pg57018835534458/nicolive-production-pg57018835534458_352_198.jpg"
+      },
+      "watchPageUrl": "https://live.nicovideo.jp/watch/lv342872932?ref=RecentPage-RecentOnairBroadcastStatusProgramListSection-ProgramCard",
+      "watchPageUrlAtExtPlayer": null,
+      "providerType": "community",
+      "liveCycle": "ON_AIR",
+      "beginAt": 1695482193000,
+      "endAt": 1695503793000,
+      "isFollowerOnly": false,
+      "socialGroup": {
+        "id": "co2047719",
+        "name": "適当配信",
+        "thumbnailUrl": "https://secure-dcdn.cdn.nimg.jp/comch/community-icon/128x128/co2047719.jpg?1664455049"
+      },
+      "programProvider": {
+        "id": "12995511",
+        "name": "ねこうどん",
+        "icon": "https://secure-dcdn.cdn.nimg.jp/nicoaccount/usericon/1299/12995511.jpg?1664454332",
+        "iconSmall": "https://secure-dcdn.cdn.nimg.jp/nicoaccount/usericon/s/1299/12995511.jpg?1664454332"
+      },
+      "statistics": {
+        "watchCount": 6,
+        "commentCount": 1,
+        "reservationCount": null
+      },
+      "timeshift": {
+        "isPlayable": false,
+        "isReservable": true
+      },
+      "isPayProgram": false,
+      "isOfficialChannelMemberFree": false
+    },
+    {
+      "id": "lv342872931",
+      "title": "【コミュ限】オーディオディレクターの設定だけの枠。",
+      "thumbnailUrl": null,
+      "hugeThumbnailUrl": null,
+      "screenshotThumbnail": {
+        "liveScreenshotThumbnailUrl": null,
+        "tsScreenshotThumbnailUrl": null
+      },
+      "watchPageUrl": "https://live.nicovideo.jp/watch/lv342872931?ref=RecentPage-RecentOnairBroadcastStatusProgramListSection-ProgramCard",
+      "watchPageUrlAtExtPlayer": null,
+      "providerType": "community",
+      "liveCycle": "ON_AIR",
+      "beginAt": 1695482188000,
+      "endAt": 1695483988000,
+      "isFollowerOnly": true,
+      "socialGroup": {
+        "id": "co326082",
+        "name": "やぎさん郵便局",
+        "thumbnailUrl": "https://secure-dcdn.cdn.nimg.jp/comch/community-icon/128x128/co326082.jpg?1664323002"
+      },
+      "programProvider": {
+        "id": "2721733",
+        "name": "やぎ",
+        "icon": "https://secure-dcdn.cdn.nimg.jp/nicoaccount/usericon/272/2721733.jpg?1687366190",
+        "iconSmall": "https://secure-dcdn.cdn.nimg.jp/nicoaccount/usericon/s/272/2721733.jpg?1687366190"
+      },
+      "statistics": {
+        "watchCount": 7,
+        "commentCount": 24,
+        "reservationCount": null
+      },
+      "timeshift": {
+        "isPlayable": false,
+        "isReservable": true
+      },
+      "isPayProgram": false,
+      "isOfficialChannelMemberFree": false
+    }
+  ]
+}
