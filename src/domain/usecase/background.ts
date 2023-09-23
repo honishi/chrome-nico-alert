@@ -87,9 +87,9 @@ export class BackgroundImpl implements Background {
         continue;
       }
       console.log(
-        program.programProvider.name,
+        program.programProvider?.name,
         program.title,
-        program.programProvider.icon,
+        program.programProvider?.icon,
         program.screenshotThumbnail.liveScreenshotThumbnailUrl,
       );
       if (detectedNewProgram) {
@@ -98,9 +98,9 @@ export class BackgroundImpl implements Background {
       }
       // await this.browserApi.openTab(program.screenshotThumbnail.liveScreenshotThumbnailUrl);
       this.browserApi.showNotification(
-        `${program.programProvider.name}が放送開始`,
+        `${program.programProvider?.name ?? program.socialGroup.name}が放送開始`,
         `「${program.title}」\n${program.socialGroup.name}`,
-        program.programProvider.icon,
+        program.programProvider?.icon ?? program.socialGroup.thumbnailUrl,
         (notificationId) => {
           console.log(`Background checkAndPlaySounds: notificationId: ${notificationId}`);
           this.notifiedPrograms[notificationId] = program.watchPageUrl;
@@ -117,6 +117,9 @@ export class BackgroundImpl implements Background {
   }
 
   private async autoOpenProgramIfNeeded(program: Program): Promise<boolean> {
+    if (program.programProvider === undefined) {
+      return false;
+    }
     const isTargetUser = await this.browserApi.isAutoOpenUser(program.programProvider.id);
     const isAlreadyOpened = (await this.getTabProgramIds()).includes(program.id);
     const shouldOpen = isTargetUser && !isAlreadyOpened;

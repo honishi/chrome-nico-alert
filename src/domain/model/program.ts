@@ -3,7 +3,7 @@ export type Program = {
   title: string;
   screenshotThumbnail: ScreenshotThumbnail;
   watchPageUrl: string;
-  programProvider: ProgramProvider;
+  programProvider?: ProgramProvider;
   socialGroup: SocialGroup;
   isFollowerOnly: boolean;
   beginAt: Date;

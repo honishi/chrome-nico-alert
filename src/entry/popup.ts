@@ -74,8 +74,8 @@ function toGridItem(program: Program, rank?: number): HTMLElement {
   userDiv.className = "user-div";
   const userIconImg = document.createElement("img");
   const userNameSpan = document.createElement("span");
-  userIconImg.src = program.programProvider.iconSmall;
-  userNameSpan.textContent = program.programProvider.name;
+  userIconImg.src = program.programProvider?.iconSmall ?? program.socialGroup.thumbnailUrl;
+  userNameSpan.textContent = program.programProvider?.name ?? program.socialGroup.name;
   userDiv.appendChild(userIconImg);
   userDiv.appendChild(userNameSpan);
   link.appendChild(userDiv);

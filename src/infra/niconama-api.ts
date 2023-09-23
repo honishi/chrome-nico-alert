@@ -46,7 +46,7 @@ export class NiconamaApiImpl implements NiconamaApi {
         liveScreenshotThumbnailUrl: responseProgram.screenshotThumbnail.liveScreenshotThumbnailUrl,
       },
       watchPageUrl: responseProgram.watchPageUrl,
-      programProvider: {
+      programProvider: responseProgram.programProvider && {
         id: responseProgram.programProvider.id,
         name: responseProgram.programProvider.name,
         icon: responseProgram.programProvider.icon,
