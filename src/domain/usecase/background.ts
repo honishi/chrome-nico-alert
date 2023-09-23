@@ -17,7 +17,7 @@ export interface Background {
 export class BackgroundImpl implements Background {
   private isRunning = false;
   private lastProgramCheckTime?: Date;
-  private processedPrograms: Program[] = [];
+  private processedProgramIds: string[] = [];
   private notifiedPrograms: { [key: string]: string } = {}; // key: notificationId, value: watchPageUrl
 
   constructor(
@@ -78,7 +78,7 @@ export class BackgroundImpl implements Background {
   private async checkPrograms(following: Program[], recent: Program[]): Promise<void> {
     if (this.lastProgramCheckTime === undefined) {
       this.lastProgramCheckTime = new Date();
-      this.processedPrograms = [...following, ...recent];
+      this.processedProgramIds = [...following, ...recent].map((p) => p.id);
       return;
     }
     this.lastProgramCheckTime = new Date();
@@ -89,7 +89,7 @@ export class BackgroundImpl implements Background {
         continue;
       }
       this.logProgram("Found following program:", program);
-      this.processedPrograms.push(program);
+      this.processedProgramIds.push(program.id);
       if (openedAnyPrograms) {
         console.log(`wait: ${DELAY_AFTER_OPEN} ms`);
         await this.delay(DELAY_AFTER_OPEN);
@@ -106,7 +106,7 @@ export class BackgroundImpl implements Background {
       if (this.isProcessed(program)) {
         continue;
       }
-      this.processedPrograms.push(program);
+      this.processedProgramIds.push(program.id);
       if (openedAnyPrograms) {
         console.log(`wait: ${DELAY_AFTER_OPEN} ms`);
         await this.delay(DELAY_AFTER_OPEN);
@@ -121,11 +121,11 @@ export class BackgroundImpl implements Background {
       openedAnyPrograms = true;
     }
 
-    this.processedPrograms = this.processedPrograms.slice(-10000);
+    this.processedProgramIds = this.processedProgramIds.slice(-10000);
   }
 
   private isProcessed(program: Program): boolean {
-    return this.processedPrograms.map((p) => p.id).includes(program.id);
+    return this.processedProgramIds.includes(program.id);
   }
 
   private logProgram(message: string, program: Program): void {
