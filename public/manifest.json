@@ -14,7 +14,8 @@
   ],
   "host_permissions": [
     "https://live.nicovideo.jp/watch/*",
-    "https://secure-dcdn.cdn.nimg.jp/*"
+    "https://secure-dcdn.cdn.nimg.jp/*",
+    "https://api.live2.nicovideo.jp/*"
   ],
   "content_scripts": [
     {

@@ -6,6 +6,7 @@ const FOLLOW_PROGRAMS_API_URL =
   "https://live.nicovideo.jp/front/api/pages/follow/v1/programs?status=onair&offset=0";
 const RECENT_PROGRAMS_API_URL = "https://live.nicovideo.jp/front/api/pages/recent/v1/programs";
 const RANKING_HTML_PAGE_URL = "https://live.nicovideo.jp/ranking";
+const USER_NICKNAME_API_URL = "https://api.live2.nicovideo.jp/api/v1/user/nickname";
 
 export class NiconamaApiImpl implements NiconamaApi {
   async getFollowingPrograms(): Promise<Program[]> {
@@ -27,6 +28,12 @@ export class NiconamaApiImpl implements NiconamaApi {
     const html = await response.text();
     // console.log(json);
     return this.extractUserProgramRankingFromHtml(html);
+  }
+
+  async resolveUserName(userId: string): Promise<string> {
+    const response = await fetch(USER_NICKNAME_API_URL + `?userId=${userId}`);
+    const json = await response.json();
+    return json.data.nickname;
   }
 
   private extractFollowingProgramsFromJson(json: string): Program[] {

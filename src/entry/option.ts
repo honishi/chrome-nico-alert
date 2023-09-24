@@ -11,16 +11,31 @@ async function renderPage() {
   if (autoOpenContainer === null) {
     return;
   }
+  autoOpenContainer.innerHTML = "";
   const userIds = await option.getAutoOpenUserIds();
   for (const userId of userIds) {
-    const userIdDiv = createUserIdDiv(userId);
+    const userIdDiv = await createUserIdDiv(userId);
     autoOpenContainer.appendChild(userIdDiv);
   }
 }
 
-function createUserIdDiv(userId: string): HTMLElement {
+async function createUserIdDiv(userId: string): Promise<HTMLElement> {
+  const option = container.resolve<Option>(InjectTokens.Option);
+  const userName = await option.getUserName(userId);
+
   const div = document.createElement("div");
-  div.textContent = userId;
+  const span = document.createElement("span");
+  span.textContent = `${userName} (${userId})`;
+  const button = document.createElement("button");
+  button.textContent = "Remove";
+  button.addEventListener("click", async () => {
+    console.log("remove", userId);
+    await option.disableAutoOpen(userId);
+    await renderPage();
+  });
+  div.appendChild(span);
+  div.appendChild(button);
+  console.log(div);
   return div;
 }
 

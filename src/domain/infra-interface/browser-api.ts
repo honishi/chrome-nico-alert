@@ -11,6 +11,7 @@ export interface BrowserApi {
     onCreated: (notificationId: string) => void,
   ): void;
   isAutoOpenUser(userId: string): Promise<boolean>;
+  getAutoOpenUserIds(): Promise<string[]>;
   setAutoOpenUser(userId: string, enabled: boolean): Promise<void>;
   openTab(url: string): Promise<void>;
   getTabUrls(): Promise<string[]>;

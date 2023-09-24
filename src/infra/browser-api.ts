@@ -75,10 +75,14 @@ export class BrowserApiImpl implements BrowserApi {
   }
 
   async isAutoOpenUser(userId: string): Promise<boolean> {
+    const autoOpenUserIds = await this.getAutoOpenUserIds();
+    return autoOpenUserIds.includes(userId);
+  }
+
+  async getAutoOpenUserIds(): Promise<string[]> {
     const result = await chrome.storage.local.get([AUTO_OPEN_USERS_KEY]);
     const autoOpenUsers = (result[AUTO_OPEN_USERS_KEY] as { [key: string]: string }[]) ?? [];
-    const autoOpenUserIds = autoOpenUsers.map((user) => user.userId);
-    return autoOpenUserIds.includes(userId);
+    return autoOpenUsers.map((user) => user.userId);
   }
 
   async setAutoOpenUser(userId: string, enabled: boolean): Promise<void> {

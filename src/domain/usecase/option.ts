@@ -5,6 +5,8 @@ import { BrowserApi } from "../infra-interface/browser-api";
 
 export interface Option {
   getAutoOpenUserIds(): Promise<string[]>;
+  getUserName(userId: string): Promise<string>;
+  disableAutoOpen(userId: string): Promise<void>;
 }
 
 @injectable()
@@ -15,6 +17,14 @@ export class OptionImpl implements Option {
   ) {}
 
   async getAutoOpenUserIds(): Promise<string[]> {
-    return ["123", "456"];
+    return await this.browserApi.getAutoOpenUserIds();
+  }
+
+  async getUserName(userId: string): Promise<string> {
+    return await this.niconamaApi.resolveUserName(userId);
+  }
+
+  async disableAutoOpen(userId: string): Promise<void> {
+    await this.browserApi.setAutoOpenUser(userId, false);
   }
 }
