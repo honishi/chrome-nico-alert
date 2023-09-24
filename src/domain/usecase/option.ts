@@ -17,7 +17,7 @@ export class OptionImpl implements Option {
   ) {}
 
   async getAutoOpenUserIds(): Promise<string[]> {
-    return await this.browserApi.getAutoOpenUserIds();
+    return (await this.browserApi.getAutoOpenUserIds()).reverse();
   }
 
   async getUserName(userId: string): Promise<string> {
