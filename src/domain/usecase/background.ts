@@ -94,10 +94,13 @@ export class BackgroundImpl implements Background {
         console.log(`wait: ${DELAY_AFTER_OPEN} ms`);
         await this.delay(DELAY_AFTER_OPEN);
       }
-      const autoOpened = await this.autoOpenProgramIfNeeded(program);
+      const shouldAutoOpen = await this.shouldAutoOpenProgram(program);
+      if (shouldAutoOpen) {
+        await this.browserApi.openTab(program.watchPageUrl);
+      }
       this.showNotification(program);
       await this.browserApi.playSound(
-        autoOpened ? SoundType.NEW_LIVE_MAIN : SoundType.NEW_LIVE_SUB,
+        shouldAutoOpen ? SoundType.NEW_LIVE_MAIN : SoundType.NEW_LIVE_SUB,
       );
       openedAnyPrograms = true;
     }
@@ -106,16 +109,17 @@ export class BackgroundImpl implements Background {
       if (this.isProcessed(program)) {
         continue;
       }
+      this.logProgram("Found recent program:", program);
       this.processedProgramIds.push(program.id);
+      const shouldAutoOpen = await this.shouldAutoOpenProgram(program);
+      if (!shouldAutoOpen) {
+        continue;
+      }
       if (openedAnyPrograms) {
         console.log(`wait: ${DELAY_AFTER_OPEN} ms`);
         await this.delay(DELAY_AFTER_OPEN);
       }
-      const autoOpened = await this.autoOpenProgramIfNeeded(program);
-      if (!autoOpened) {
-        continue;
-      }
-      this.logProgram("Found recent program:", program);
+      await this.browserApi.openTab(program.watchPageUrl);
       this.showNotification(program);
       await this.browserApi.playSound(SoundType.NEW_LIVE_MAIN);
       openedAnyPrograms = true;
@@ -149,18 +153,16 @@ export class BackgroundImpl implements Background {
       },
     );
   }
-  private async autoOpenProgramIfNeeded(program: Program): Promise<boolean> {
+
+  private async shouldAutoOpenProgram(program: Program): Promise<boolean> {
     if (program.programProvider === undefined) {
       return false;
     }
     const isTargetUser = await this.browserApi.isAutoOpenUser(program.programProvider.id);
     const isAlreadyOpened = (await this.getTabProgramIds()).includes(program.id);
     const shouldOpen = isTargetUser && !isAlreadyOpened;
-    if (shouldOpen) {
-      await this.browserApi.openTab(program.watchPageUrl);
-    }
     console.log(
-      `Background autoOpenProgramIfNeeded: userId:(${program.programProvider.id}) programId:(${program.id}) isTargetUser:(${isTargetUser}) isAlreadyOpened:(${isAlreadyOpened}) shouldOpen:(${shouldOpen})`,
+      `shouldAutoOpen: userId:(${program.programProvider.id}) programId:(${program.id}) isTargetUser:(${isTargetUser}) isAlreadyOpened:(${isAlreadyOpened}) shouldOpen:(${shouldOpen})`,
     );
     return shouldOpen;
   }
