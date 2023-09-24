@@ -5,13 +5,25 @@ import { Content } from "../domain/usecase/content";
 import { configureDefaultContainer } from "../di/register";
 
 const MY_FOLLOW_PAGE_URL = "https://www.nicovideo.jp/my/follow";
+const USER_PAGE_URL = "https://www.nicovideo.jp/user";
+
+let fixingFollowPage = false;
 
 function isMyFollowPage(): boolean {
   return window.location.href.startsWith(MY_FOLLOW_PAGE_URL);
 }
 
+function isUserPage(): boolean {
+  return window.location.href.startsWith(USER_PAGE_URL);
+}
+
 async function listenLoadEvent() {
   console.log("listenLoadEvent");
+  await fixFollowPage();
+  await fixUserPage();
+}
+
+async function fixFollowPage() {
   if (!isMyFollowPage()) {
     // console.log("not target");
     return;
@@ -32,18 +44,15 @@ async function listenLoadEvent() {
   await fixMyFollowPage();
 }
 
-let fixing = false;
-
 async function fixMyFollowPage() {
   // console.log("fix target", window.location.href);
   if (!isMyFollowPage()) {
-    // console.log("not target");
     return;
   }
-  if (fixing) {
+  if (fixingFollowPage) {
     return;
   }
-  fixing = true;
+  fixingFollowPage = true;
 
   const content = container.resolve<Content>(InjectTokens.Content);
 
@@ -63,21 +72,48 @@ async function fixMyFollowPage() {
       continue;
     }
     const userId = content.extractUserIdFromUrl(userItemLink.href);
-    const autoOpenSettingButton = await createAutoOpenSettingButton(buttonTag, userId, content);
+    const autoOpenSettingButton = await createAutoOpenSettingButton(
+      buttonTag,
+      userId,
+      content,
+      "follow-page-auto-open-button",
+    );
     userItem.appendChild(autoOpenSettingButton);
   }
 
-  fixing = false;
+  fixingFollowPage = false;
+}
+
+async function fixUserPage() {
+  if (!isUserPage()) {
+    return;
+  }
+  const content = container.resolve<Content>(InjectTokens.Content);
+
+  const userPageButtonContainer = document.getElementsByClassName("UserDetailsHeader-buttons")[0];
+  if (userPageButtonContainer === undefined) {
+    // console.log("userPageHeader is undefined");
+    return;
+  }
+  const userId = content.extractUserIdFromUrl(window.location.href);
+  const button = await createAutoOpenSettingButton(
+    "",
+    userId,
+    content,
+    "user-page-auto-open-button",
+  );
+  userPageButtonContainer.appendChild(button);
 }
 
 async function createAutoOpenSettingButton(
   buttonTag: string,
   userId: string,
   content: Content,
+  className: string,
 ): Promise<HTMLButtonElement> {
   const button = document.createElement("button");
   button.dataset.tag = buttonTag;
-  button.className = "auto-open-button";
+  button.className = className;
   updateButtonInnerHtml(button, await content.isAutoOpenUser(userId));
   button.onclick = async () => {
     const target = !(await content.isAutoOpenUser(userId));

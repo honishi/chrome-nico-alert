@@ -27,7 +27,8 @@
       ],
       "matches": [
         "https://live.nicovideo.jp/watch/*",
-        "https://www.nicovideo.jp/my/follow*"
+        "https://www.nicovideo.jp/my/follow*",
+        "https://www.nicovideo.jp/user/*"
       ]
     }
   ],

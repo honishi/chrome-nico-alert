@@ -1,4 +1,4 @@
-.auto-open-button {
+.follow-page-auto-open-button, .user-page-auto-open-button {
     position: absolute;
     top: 16px;
     right: 140px;
@@ -17,7 +17,12 @@
     white-space: nowrap;
 }
 
-.auto-open-button:hover {
+.follow-page-auto-open-button:hover, .user-page-auto-open-button:hover {
     background-color: #929292;
     color: #fff;
+}
+
+.user-page-auto-open-button {
+    position: static;
+    margin-left: 8px;
 }
