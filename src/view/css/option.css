@@ -1,0 +1,24 @@
+.user-div {
+}
+
+.remove-button {
+    background: none;
+    border: none;
+    color: inherit;
+    font: inherit;
+    cursor: pointer;
+    outline: none;
+    text-decoration: underline;
+    padding: 0;
+    margin: 0 8px 0 0;
+}
+
+.user-name {
+    margin: 0 8px 0 0;
+}
+
+.user-link {
+    color: inherit;
+    text-decoration: underline;
+    cursor: pointer;
+}

@@ -24,17 +24,26 @@ async function createUserIdDiv(userId: string): Promise<HTMLElement> {
   const userName = await option.getUserName(userId);
 
   const div = document.createElement("div");
-  const span = document.createElement("span");
-  span.textContent = `${userName} (${userId})`;
+  div.className = "user-div";
   const button = document.createElement("button");
-  button.textContent = "Remove";
+  button.className = "remove-button";
+  button.textContent = "[削除]";
   button.addEventListener("click", async () => {
     // console.log("remove", userId);
     await option.disableAutoOpen(userId);
     div.remove();
   });
-  div.appendChild(span);
+  const text = document.createElement("span");
+  text.className = "user-name";
+  text.textContent = userName;
+  const link = document.createElement("a");
+  link.className = "user-link";
+  link.text = `(${userId})`;
+  link.href = `https://www.nicovideo.jp/user/${userId}`;
+  link.target = "_blank";
   div.appendChild(button);
+  div.appendChild(text);
+  div.appendChild(link);
   // console.log(div);
   return div;
 }
