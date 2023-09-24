@@ -29,13 +29,13 @@ async function createUserIdDiv(userId: string): Promise<HTMLElement> {
   const button = document.createElement("button");
   button.textContent = "Remove";
   button.addEventListener("click", async () => {
-    console.log("remove", userId);
+    // console.log("remove", userId);
     await option.disableAutoOpen(userId);
-    await renderPage();
+    div.remove();
   });
   div.appendChild(span);
   div.appendChild(button);
-  console.log(div);
+  // console.log(div);
   return div;
 }
 
