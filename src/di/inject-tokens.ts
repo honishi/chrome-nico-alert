@@ -3,5 +3,6 @@ export const InjectTokens = {
   BrowserApi: Symbol.for("BrowserApi"),
   Content: Symbol.for("Content"),
   NiconamaApi: Symbol.for("NiconamaApi"),
+  Option: Symbol.for("Option"),
   Popup: Symbol.for("Popup"),
 };
