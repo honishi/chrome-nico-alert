@@ -7,6 +7,12 @@ import { configureDefaultContainer } from "../di/register";
 const MY_FOLLOW_PAGE_URL = "https://www.nicovideo.jp/my/follow";
 const USER_PAGE_URL = "https://www.nicovideo.jp/user";
 
+const autoOpenButtonTag = "auto-open";
+enum AutoOpenButtonType {
+  FollowPage = "follow-page",
+  UserPage = "user-page",
+}
+
 let fixingFollowPage = false;
 
 function isMyFollowPage(): boolean {
@@ -56,13 +62,14 @@ async function fixMyFollowPage() {
 
   const content = container.resolve<Content>(InjectTokens.Content);
 
-  const buttonTag = "auto-open";
   const userItems = document.getElementsByClassName("UserItem");
 
   for (const userItem of userItems) {
     const existingButtons = userItem.getElementsByTagName("button");
     const _existingButtons = [...existingButtons];
-    const isExisting = _existingButtons.map((button) => button.dataset.tag).includes(buttonTag);
+    const isExisting = _existingButtons
+      .map((button) => button.dataset.tag)
+      .includes(autoOpenButtonTag);
     if (isExisting) {
       continue;
     }
@@ -73,10 +80,9 @@ async function fixMyFollowPage() {
     }
     const userId = content.extractUserIdFromUrl(userItemLink.href);
     const autoOpenSettingButton = await createAutoOpenSettingButton(
-      buttonTag,
       userId,
       content,
-      "follow-page-auto-open-button",
+      AutoOpenButtonType.FollowPage,
     );
     userItem.appendChild(autoOpenSettingButton);
   }
@@ -96,36 +102,43 @@ async function fixUserPage() {
     return;
   }
   const userId = content.extractUserIdFromUrl(window.location.href);
-  const button = await createAutoOpenSettingButton(
-    "",
-    userId,
-    content,
-    "user-page-auto-open-button",
-  );
+  const button = await createAutoOpenSettingButton(userId, content, AutoOpenButtonType.UserPage);
   userPageButtonContainer.appendChild(button);
 }
 
 async function createAutoOpenSettingButton(
-  buttonTag: string,
   userId: string,
   content: Content,
-  className: string,
+  buttonType: AutoOpenButtonType,
 ): Promise<HTMLButtonElement> {
   const button = document.createElement("button");
-  button.dataset.tag = buttonTag;
-  button.className = className;
-  updateButtonInnerHtml(button, await content.isAutoOpenUser(userId));
+  button.dataset.tag = autoOpenButtonTag;
+  const currentOnOff = await content.isAutoOpenUser(userId);
+  updateButtonStyle(button, buttonType, currentOnOff);
   button.onclick = async () => {
-    const target = !(await content.isAutoOpenUser(userId));
-    await content.setAutoOpenUser(userId, target);
-    updateButtonInnerHtml(button, target);
+    const targetOnOff = !(await content.isAutoOpenUser(userId));
+    await content.setAutoOpenUser(userId, targetOnOff);
+    updateButtonStyle(button, buttonType, targetOnOff);
   };
   return button;
 }
 
-function updateButtonInnerHtml(button: HTMLButtonElement, isOn: boolean) {
-  const onOff = isOn ? "ON ✅" : "OFF";
-  button.innerHTML = `自動入場 ${onOff}`;
+function updateButtonStyle(
+  button: HTMLButtonElement,
+  buttonType: AutoOpenButtonType,
+  isOn: boolean,
+) {
+  const onOffString = isOn ? "on" : "off";
+  const className = (() => {
+    switch (buttonType) {
+      case AutoOpenButtonType.FollowPage:
+        return `follow-page-auto-open-${onOffString}-button`;
+      case AutoOpenButtonType.UserPage:
+        return `user-page-auto-open-${onOffString}-button`;
+    }
+  })();
+  button.className = className;
+  button.innerHTML = isOn ? "自動入場設定中" : "自動入場する";
 }
 
 configureDefaultContainer();

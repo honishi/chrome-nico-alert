@@ -1,28 +1,50 @@
-.follow-page-auto-open-button, .user-page-auto-open-button {
-    position: absolute;
-    top: 16px;
-    right: 140px;
-    background-color: #e9e9e9;
-    border: none;
-    color: #666;
-    align-items: center;
-    border-radius: 12px;
-    cursor: pointer;
-    display: flex;
-    font-size: 12px;
-    justify-content: center;
-    min-height: 24px;
-    min-width: 104px;
-    padding: 0 12px;
-    white-space: nowrap;
+/* base style: follow-on/off, user-on/off. */
+.follow-page-auto-open-off-button,
+.user-page-auto-open-off-button,
+.follow-page-auto-open-on-button,
+.user-page-auto-open-on-button {
+  position: absolute;
+  top: 16px;
+  right: 140px;
+  border: 1px solid #0080ff;
+  color: #0080ff;
+  align-items: center;
+  border-radius: 12px;
+  cursor: pointer;
+  display: flex;
+  font-size: 12px;
+  justify-content: center;
+  min-height: 24px;
+  min-width: 104px;
+  padding: 0 12px;
+  white-space: nowrap;
 }
 
-.follow-page-auto-open-button:hover, .user-page-auto-open-button:hover {
-    background-color: #929292;
-    color: #fff;
+/* hover: follow-off, user-off. */
+.follow-page-auto-open-off-button:hover,
+.user-page-auto-open-off-button:hover {
+  background-color: #0080ff;
+  color: #fff;
 }
 
-.user-page-auto-open-button {
-    position: static;
-    margin-left: 8px;
+/* follow-on, user-on. */
+.follow-page-auto-open-on-button,
+.user-page-auto-open-on-button {
+  border: none;
+  background-color: #e9e9e9;
+  color: #666;
+}
+
+/* hover: follow-on, user-on. */
+.follow-page-auto-open-on-button:hover,
+.user-page-auto-open-on-button:hover {
+  background-color: #929292;
+  color: #fff;
+}
+
+/* user-off/on. */
+.user-page-auto-open-off-button,
+.user-page-auto-open-on-button {
+  position: static;
+  margin-left: 8px;
 }
