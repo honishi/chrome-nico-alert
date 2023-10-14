@@ -1,5 +1,8 @@
-export enum ChromeMessage {
-  PLAY_DEFAULT_SOUND = "PLAY_DEFAULT_SOUND",
-  PLAY_NEW_LIVE_SOUND_MAIN = "PLAY_NEW_LIVE_SOUND_MAIN",
-  PLAY_NEW_LIVE_SOUND_SUB = "PLAY_NEW_LIVE_SOUND_SUB",
+export type ChromeMessage = {
+  messageType: ChromeMessageType;
+  options?: { [key: string]: unknown };
+};
+
+export enum ChromeMessageType {
+  PLAY_SOUND = "PLAY_SOUND",
 }

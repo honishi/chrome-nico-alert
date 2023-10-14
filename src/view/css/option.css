@@ -11,18 +11,42 @@
     margin: 0 0 0 16px;
 }
 
-.auto-open-user-div {
-    height: 20px;
+.volume-slider-container {
+    display: flex;
+    align-items: center;
 }
 
-.remove-button {
+.volume-slider {
+}
+
+.volume-value-text {
+    margin: 0 0 0 8px;
+}
+
+.volume-value-unit {
+    margin: 0 0 0 8px;
+}
+
+.play-test-sound-button, .remove-button {
     background: none;
     border: none;
+    text-decoration: underline;
     color: inherit;
     font: inherit;
     cursor: pointer;
     outline: none;
     padding: 0;
+}
+
+.play-test-sound-button {
+    margin: 0 0 0 8px;
+}
+
+.auto-open-user-div {
+    height: 20px;
+}
+
+.remove-button {
     margin: 0 8px 0 0;
 }
 

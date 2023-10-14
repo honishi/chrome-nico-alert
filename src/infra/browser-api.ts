@@ -1,7 +1,8 @@
 import { SoundType } from "../domain/model/sound-type";
-import { ChromeMessage } from "./chrome_message/message";
 import { BrowserApi } from "../domain/infra-interface/browser-api";
+import { ChromeMessage, ChromeMessageType } from "./chrome_message/message";
 
+const SOUND_VOLUME_KEY = "soundVolume";
 const AUTO_OPEN_USERS_KEY = "autoOpenUsers";
 
 const OFFSCREEN_HTML = "html/offscreen.html";
@@ -15,20 +16,25 @@ export class BrowserApiImpl implements BrowserApi {
     await chrome.action.setBadgeText({ text: number.toString() });
   }
 
+  async getSoundVolume(): Promise<number> {
+    const result = await chrome.storage.local.get([SOUND_VOLUME_KEY]);
+    return result[SOUND_VOLUME_KEY] ?? 1.0;
+  }
+
+  async setSoundVolume(value: number): Promise<void> {
+    await chrome.storage.local.set({ [SOUND_VOLUME_KEY]: value });
+  }
+
   async playSound(sound: SoundType): Promise<void> {
     await this.createOffscreen();
 
-    let message = ChromeMessage.PLAY_DEFAULT_SOUND;
-    switch (sound) {
-      case SoundType.DEFAULT:
-        break;
-      case SoundType.NEW_LIVE_MAIN:
-        message = ChromeMessage.PLAY_NEW_LIVE_SOUND_MAIN;
-        break;
-      case SoundType.NEW_LIVE_SUB:
-        message = ChromeMessage.PLAY_NEW_LIVE_SOUND_SUB;
-        break;
-    }
+    const message: ChromeMessage = {
+      messageType: ChromeMessageType.PLAY_SOUND,
+      options: {
+        sound: sound,
+        volume: await this.getSoundVolume(),
+      },
+    };
 
     try {
       await chrome.runtime.sendMessage(message);

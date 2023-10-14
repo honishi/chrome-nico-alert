@@ -1,4 +1,5 @@
-import { ChromeMessage } from "../infra/chrome_message/message";
+import { ChromeMessage, ChromeMessageType } from "../infra/chrome_message/message";
+import { SoundType } from "../domain/model/sound-type";
 
 function startSendingKeepAlive() {
   setInterval(async () => {
@@ -7,23 +8,24 @@ function startSendingKeepAlive() {
 }
 
 function addOnMessageListener() {
-  chrome.runtime.onMessage.addListener(async (msg) => {
-    // console.log(`Received message from the extension: ${JSON.stringify(msg)}`);
-    const chromeMessage = msg as ChromeMessage;
-    let source = "";
-    switch (chromeMessage) {
-      case ChromeMessage.PLAY_DEFAULT_SOUND:
-        source = "../sounds/new_live_sub.mp3";
-        break;
-      case ChromeMessage.PLAY_NEW_LIVE_SOUND_MAIN:
-        source = "../sounds/new_live_main.mp3";
-        break;
-      case ChromeMessage.PLAY_NEW_LIVE_SOUND_SUB:
-        source = "../sounds/new_live_sub.mp3";
-        break;
+  chrome.runtime.onMessage.addListener(async (message) => {
+    // console.log(`Received message from the extension: ${JSON.stringify(message)}`);
+    const chromeMessage = message as ChromeMessage;
+    if (chromeMessage.messageType === ChromeMessageType.PLAY_SOUND) {
+      await playAudio(toFilePath(message.options.sound), message.options.volume);
     }
-    await playAudio(source);
   });
+}
+
+function toFilePath(soundType: SoundType): string {
+  switch (soundType) {
+    case SoundType.DEFAULT:
+      return "../sounds/new_live_sub.mp3";
+    case SoundType.NEW_LIVE_MAIN:
+      return "../sounds/new_live_main.mp3";
+    case SoundType.NEW_LIVE_SUB:
+      return "../sounds/new_live_sub.mp3";
+  }
 }
 
 async function playAudio(source: string, volume: number = 1) {

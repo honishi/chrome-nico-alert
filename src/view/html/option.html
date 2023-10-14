@@ -3,10 +3,22 @@
 <head>
     <meta charset="UTF-8">
     <script src="../option.js"></script>
-    <link rel="stylesheet" href="../css/option.css" />
+    <link rel="stylesheet" href="../css/option.css"/>
     <title>Options</title>
 </head>
 <body>
+<div class="section-container">
+    <div class="section-title">
+        🔈️ 通知音量
+    </div>
+    <div class="section-content">
+        <div class="volume-slider-container">
+            <input id="volume-slider" class="volume-slider" type="range" min="0" max="100" step="5"/>
+            <span id="volume-value-text" class="volume-value-text"></span> %
+            <button id="play-test-sound-button" class="play-test-sound-button">[テスト]</button>
+        </div>
+    </div>
+</div>
 <div class="section-container">
     <div class="section-title">
         💁‍♂️️ 自動入場ユーザー
