@@ -8,6 +8,11 @@ import { configureDefaultContainer } from "../di/register";
 async function renderPage() {
   const popup = container.resolve<Popup>(InjectTokens.Popup);
 
+  const openOptionsButton = document.getElementById("open-options-button") as HTMLButtonElement;
+  openOptionsButton.onclick = () => {
+    popup.openOptionsPage();
+  };
+
   const [followingPrograms, rankingPrograms] = await popup.getPrograms();
 
   const followingContainer = document.getElementById("following");
@@ -91,5 +96,11 @@ function toGridItem(program: Program, rank?: number): HTMLElement {
   return item;
 }
 
+function addEventListeners() {
+  document.addEventListener("DOMContentLoaded", async () => {
+    await renderPage();
+  });
+}
+
 configureDefaultContainer();
-await renderPage();
+addEventListeners();

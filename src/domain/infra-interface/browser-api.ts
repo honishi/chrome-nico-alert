@@ -17,4 +17,5 @@ export interface BrowserApi {
   setAutoOpenUser(userId: string, enabled: boolean): Promise<void>;
   openTab(url: string): Promise<void>;
   getTabUrls(): Promise<string[]>;
+  openOptionsPage(): void;
 }

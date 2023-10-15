@@ -115,4 +115,8 @@ export class BrowserApiImpl implements BrowserApi {
     const tabs = await chrome.tabs.query({});
     return tabs.map((tab) => tab.url).filter((url): url is string => url !== undefined);
   }
+
+  openOptionsPage(): void {
+    chrome.runtime.openOptionsPage();
+  }
 }

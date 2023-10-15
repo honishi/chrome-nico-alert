@@ -7,6 +7,7 @@ import { BrowserApi } from "../infra-interface/browser-api";
 export interface Popup {
   getPrograms(): Promise<[Program[], Program[]]>; // [followingPrograms, rankingPrograms]
   setBadgeNumber(number: number): Promise<void>;
+  openOptionsPage(): void;
 }
 
 @injectable()
@@ -26,6 +27,10 @@ export class PopupImpl implements Popup {
 
   async setBadgeNumber(number: number): Promise<void> {
     await this.browserApi.setBadgeNumber(number);
+  }
+
+  openOptionsPage(): void {
+    this.browserApi.openOptionsPage();
   }
 
   private fixScreenshotThumbnailUrlIfTooEarly(program: Program): Program {
