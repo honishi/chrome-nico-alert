@@ -3,10 +3,13 @@ import { inject, injectable } from "tsyringe";
 import { InjectTokens } from "../../di/inject-tokens";
 import { NiconamaApi } from "../infra-interface/niconama-api";
 import { BrowserApi } from "../infra-interface/browser-api";
+import { defaultBadgeBackgroundColor, suspendedBadgeBackgroundColor } from "./colors";
 
 export interface Popup {
   getPrograms(): Promise<[Program[], Program[]]>; // [followingPrograms, rankingPrograms]
   setBadgeNumber(number: number): Promise<void>;
+  isSuspended(): Promise<boolean>;
+  setSuspended(suspended: boolean): Promise<void>;
   openOptionsPage(): void;
 }
 
@@ -27,6 +30,19 @@ export class PopupImpl implements Popup {
 
   async setBadgeNumber(number: number): Promise<void> {
     await this.browserApi.setBadgeNumber(number);
+  }
+
+  async isSuspended(): Promise<boolean> {
+    return (await this.browserApi.getSuspendFromDate()) !== undefined;
+  }
+
+  async setSuspended(suspended: boolean): Promise<void> {
+    await this.browserApi.setSuspendFromDate(suspended ? new Date() : undefined);
+
+    const isSuspended = await this.isSuspended();
+    await this.browserApi.setBadgeBackgroundColor(
+      isSuspended ? suspendedBadgeBackgroundColor : defaultBadgeBackgroundColor,
+    );
   }
 
   openOptionsPage(): void {

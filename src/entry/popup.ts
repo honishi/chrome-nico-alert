@@ -5,8 +5,17 @@ import { Program } from "../domain/model/program";
 import { Popup } from "../domain/usecase/popup";
 import { configureDefaultContainer } from "../di/register";
 
+const SUSPEND_BUTTON_ID = "suspend-button";
+
 async function renderPage() {
   const popup = container.resolve<Popup>(InjectTokens.Popup);
+
+  const suspendButton = document.getElementById(SUSPEND_BUTTON_ID) as HTMLButtonElement;
+  suspendButton.onclick = async () => {
+    await toggleSuspended();
+    await updateSuspendButton();
+  };
+  await updateSuspendButton();
 
   const openOptionsButton = document.getElementById("open-options-button") as HTMLButtonElement;
   openOptionsButton.onclick = () => {
@@ -35,6 +44,21 @@ async function renderPage() {
   }
 
   await popup.setBadgeNumber(followingPrograms.length);
+}
+
+async function toggleSuspended() {
+  const popup = container.resolve<Popup>(InjectTokens.Popup);
+  const isSuspended = await popup.isSuspended();
+  await popup.setSuspended(!isSuspended);
+}
+
+async function updateSuspendButton() {
+  const popup = container.resolve<Popup>(InjectTokens.Popup);
+  const isSuspended = await popup.isSuspended();
+  const suspendEmoji = document.getElementById("suspend-emoji") as HTMLSpanElement;
+  const suspendButton = document.getElementById(SUSPEND_BUTTON_ID) as HTMLButtonElement;
+  suspendEmoji.textContent = isSuspended ? "✋" : "👍";
+  suspendButton.textContent = `自動入場${isSuspended ? "停止" : "動作"}中`;
 }
 
 function setElementVisibility(id: string, visible: boolean) {

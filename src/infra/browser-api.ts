@@ -3,6 +3,7 @@ import { BrowserApi } from "../domain/infra-interface/browser-api";
 import { ChromeMessage, ChromeMessageType } from "./chrome_message/message";
 
 const SOUND_VOLUME_KEY = "soundVolume";
+const SUSPEND_FROM_DATE_KEY = "suspendFromDate";
 const AUTO_OPEN_USERS_KEY = "autoOpenUsers";
 
 const OFFSCREEN_HTML = "html/offscreen.html";
@@ -14,6 +15,10 @@ export class BrowserApiImpl implements BrowserApi {
 
   async setBadgeNumber(number: number): Promise<void> {
     await chrome.action.setBadgeText({ text: number.toString() });
+  }
+
+  async setBadgeBackgroundColor(hex: string): Promise<void> {
+    await chrome.action.setBadgeBackgroundColor({ color: hex });
   }
 
   async getSoundVolume(): Promise<number> {
@@ -114,6 +119,23 @@ export class BrowserApiImpl implements BrowserApi {
   async getTabUrls(): Promise<string[]> {
     const tabs = await chrome.tabs.query({});
     return tabs.map((tab) => tab.url).filter((url): url is string => url !== undefined);
+  }
+
+  async setSuspendFromDate(date: Date | undefined): Promise<void> {
+    if (date === undefined) {
+      await chrome.storage.local.remove(SUSPEND_FROM_DATE_KEY);
+      return;
+    }
+    await chrome.storage.local.set({ [SUSPEND_FROM_DATE_KEY]: date.toISOString() });
+  }
+
+  async getSuspendFromDate(): Promise<Date | undefined> {
+    const result = await chrome.storage.local.get([SUSPEND_FROM_DATE_KEY]);
+    const date = result[SUSPEND_FROM_DATE_KEY];
+    if (date === undefined) {
+      return undefined;
+    }
+    return new Date(date);
   }
 
   openOptionsPage(): void {
