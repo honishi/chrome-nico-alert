@@ -4,6 +4,7 @@ import { InjectTokens } from "../../di/inject-tokens";
 import { SoundType } from "../model/sound-type";
 import { BrowserApi } from "../infra-interface/browser-api";
 import { NiconamaApi } from "../infra-interface/niconama-api";
+import { defaultBadgeBackgroundColor } from "./colors";
 
 const RUN_INTERVAL = 1000 * 30; // 30 seconds
 const DELAY_AFTER_OPEN = 1000 * 5; // 5 seconds
@@ -23,7 +24,18 @@ export class BackgroundImpl implements Background {
   constructor(
     @inject(InjectTokens.NiconamaApi) private niconamaApi: NiconamaApi,
     @inject(InjectTokens.BrowserApi) private browserApi: BrowserApi,
-  ) {}
+  ) {
+    this.initialize().then(() => console.log("Background initialized"));
+  }
+
+  async initialize(): Promise<void> {
+    await this.resetSuspended();
+  }
+
+  async resetSuspended(): Promise<void> {
+    await this.browserApi.setSuspendFromDate(undefined);
+    await this.browserApi.setBadgeBackgroundColor(defaultBadgeBackgroundColor);
+  }
 
   async run(): Promise<void> {
     if (this.isRunning) {
@@ -83,6 +95,8 @@ export class BackgroundImpl implements Background {
     }
     this.lastProgramCheckTime = new Date();
 
+    const isSuspended = (await this.browserApi.getSuspendFromDate()) !== undefined;
+
     let openedAnyPrograms = false;
     for (const program of following) {
       if (this.isProcessed(program)) {
@@ -94,11 +108,15 @@ export class BackgroundImpl implements Background {
         console.log(`wait: ${DELAY_AFTER_OPEN} ms`);
         await this.delay(DELAY_AFTER_OPEN);
       }
+      this.showNotification(program);
+      if (isSuspended) {
+        console.log("Suspended", program.id);
+        continue;
+      }
       const shouldAutoOpen = await this.shouldAutoOpenProgram(program);
       if (shouldAutoOpen) {
         await this.browserApi.openTab(program.watchPageUrl);
       }
-      this.showNotification(program);
       await this.browserApi.playSound(
         shouldAutoOpen ? SoundType.NEW_LIVE_MAIN : SoundType.NEW_LIVE_SUB,
       );
@@ -119,8 +137,12 @@ export class BackgroundImpl implements Background {
         console.log(`wait: ${DELAY_AFTER_OPEN} ms`);
         await this.delay(DELAY_AFTER_OPEN);
       }
-      await this.browserApi.openTab(program.watchPageUrl);
       this.showNotification(program);
+      if (isSuspended) {
+        console.log("Suspended", program.id);
+        continue;
+      }
+      await this.browserApi.openTab(program.watchPageUrl);
       await this.browserApi.playSound(SoundType.NEW_LIVE_MAIN);
       openedAnyPrograms = true;
     }
