@@ -7,7 +7,7 @@ export interface Content {
   isAutoOpenUser(userId: string): Promise<boolean>;
   setAutoOpenUser(userId: string, enabled: boolean): Promise<void>;
   extractUserIdFromUrl(url: string): string;
-  extractChannelIdFromUrl(url: string): Promise<string | undefined>;
+  resolveChannelIdFromUrl(url: string): Promise<string | undefined>;
 }
 
 @injectable()
@@ -31,7 +31,7 @@ export class ContentImpl implements Content {
     return match === null ? "" : match[1];
   }
 
-  async extractChannelIdFromUrl(url: string): Promise<string | undefined> {
+  async resolveChannelIdFromUrl(url: string): Promise<string | undefined> {
     return await this.niconamaApi.resolveChannelId(url);
   }
 }

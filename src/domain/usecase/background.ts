@@ -177,15 +177,15 @@ export class BackgroundImpl implements Background {
   }
 
   private async shouldAutoOpenProgram(program: Program): Promise<boolean> {
-    const userOrChannelId = program.programProvider?.id ?? program.socialGroup.id;
-    if (userOrChannelId === undefined) {
+    const userIdOrChannelId = program.programProvider?.id ?? program.socialGroup.id;
+    if (userIdOrChannelId === undefined) {
       return false;
     }
-    const isTargetUser = await this.browserApi.isAutoOpenUser(userOrChannelId);
+    const isTargetUser = await this.browserApi.isAutoOpenUser(userIdOrChannelId);
     const isAlreadyOpened = (await this.getTabProgramIds()).includes(program.id);
     const shouldOpen = isTargetUser && !isAlreadyOpened;
     console.log(
-      `shouldAutoOpen: userOrChannelId:(${userOrChannelId}) programId:(${program.id}) isTargetUser:(${isTargetUser}) isAlreadyOpened:(${isAlreadyOpened}) shouldOpen:(${shouldOpen})`,
+      `shouldAutoOpen: userIdOrChannelId:(${userIdOrChannelId}) programId:(${program.id}) isTargetUser:(${isTargetUser}) isAlreadyOpened:(${isAlreadyOpened}) shouldOpen:(${shouldOpen})`,
     );
     return shouldOpen;
   }

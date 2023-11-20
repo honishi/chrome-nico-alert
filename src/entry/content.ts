@@ -123,7 +123,7 @@ async function fixChannelPage() {
     // console.log("channelPageHeader is undefined");
     return;
   }
-  const channelId = await content.extractChannelIdFromUrl(window.location.href);
+  const channelId = await content.resolveChannelIdFromUrl(window.location.href);
   // console.log("channelId", channelId);
   if (channelId === undefined) {
     // console.log("channelId is undefined");
