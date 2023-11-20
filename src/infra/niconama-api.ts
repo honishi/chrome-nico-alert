@@ -84,6 +84,7 @@ export class NiconamaApiImpl implements NiconamaApi {
         iconSmall: responseProgram.programProvider.iconSmall,
       },
       socialGroup: {
+        id: responseProgram.socialGroup.id,
         name: responseProgram.socialGroup.name,
         thumbnailUrl: responseProgram.socialGroup.thumbnailUrl,
       },

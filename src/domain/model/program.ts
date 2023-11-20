@@ -21,6 +21,7 @@ type ProgramProvider = {
 };
 
 type SocialGroup = {
+  id: string;
   name: string;
   thumbnailUrl: string;
 };
