@@ -1,6 +1,6 @@
 {
   "name": "ニコ生アラート",
-  "version": "0.7.0",
+  "version": "0.8.0",
   "manifest_version": 3,
   "description": "ニコニコ生放送の放送アラートと自動入場が可能になります。",
   "icons": {
@@ -28,7 +28,8 @@
       "matches": [
         "https://live.nicovideo.jp/watch/*",
         "https://www.nicovideo.jp/my/follow*",
-        "https://www.nicovideo.jp/user/*"
+        "https://www.nicovideo.jp/user/*",
+        "https://ch.nicovideo.jp/*"
       ]
     }
   ],

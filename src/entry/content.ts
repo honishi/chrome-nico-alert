@@ -6,6 +6,7 @@ import { configureDefaultContainer } from "../di/register";
 
 const MY_FOLLOW_PAGE_URL = "https://www.nicovideo.jp/my/follow";
 const USER_PAGE_URL = "https://www.nicovideo.jp/user";
+const CHANNEL_PAGE_URL = "https://ch.nicovideo.jp/";
 
 const autoOpenButtonTag = "auto-open";
 enum AutoOpenButtonType {
@@ -23,10 +24,15 @@ function isUserPage(): boolean {
   return window.location.href.startsWith(USER_PAGE_URL);
 }
 
+function isChannelPage(): boolean {
+  return window.location.href.startsWith(CHANNEL_PAGE_URL);
+}
+
 async function listenLoadEvent() {
   console.log("listenLoadEvent");
   await fixFollowPage();
   await fixUserPage();
+  await fixChannelPage();
 }
 
 async function fixFollowPage() {
@@ -106,6 +112,27 @@ async function fixUserPage() {
   userPageButtonContainer.appendChild(button);
 }
 
+async function fixChannelPage() {
+  if (!isChannelPage()) {
+    return;
+  }
+  const content = container.resolve<Content>(InjectTokens.Content);
+
+  const channelPageHeader = document.getElementsByClassName("join_leave")[0];
+  if (channelPageHeader === undefined) {
+    // console.log("channelPageHeader is undefined");
+    return;
+  }
+  const channelId = await content.extractChannelIdFromUrl(window.location.href);
+  // console.log("channelId", channelId);
+  if (channelId === undefined) {
+    // console.log("channelId is undefined");
+    return;
+  }
+  const button = await createAutoOpenSettingButton(channelId, content, AutoOpenButtonType.UserPage);
+  channelPageHeader.appendChild(button);
+}
+
 async function createAutoOpenSettingButton(
   userId: string,
   content: Content,
@@ -129,7 +156,7 @@ function updateButtonStyle(
   isOn: boolean,
 ) {
   const onOffString = isOn ? "on" : "off";
-  const className = (() => {
+  button.className = (() => {
     switch (buttonType) {
       case AutoOpenButtonType.FollowPage:
         return `follow-page-auto-open-${onOffString}-button`;
@@ -137,7 +164,6 @@ function updateButtonStyle(
         return `user-page-auto-open-${onOffString}-button`;
     }
   })();
-  button.className = className;
   button.innerHTML = isOn ? "自動入場設定中" : "自動入場する";
 }
 

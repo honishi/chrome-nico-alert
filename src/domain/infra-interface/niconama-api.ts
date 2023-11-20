@@ -5,4 +5,5 @@ export interface NiconamaApi {
   getRecentPrograms(): Promise<Program[]>;
   getRankingPrograms(): Promise<Program[]>;
   resolveUserName(userId: string): Promise<string>;
+  resolveChannelId(channelUrl: string): Promise<string | undefined>;
 }

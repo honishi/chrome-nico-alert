@@ -36,6 +36,13 @@ export class NiconamaApiImpl implements NiconamaApi {
     return json.data.nickname;
   }
 
+  async resolveChannelId(channelUrl: string): Promise<string | undefined> {
+    const response = await fetch(channelUrl);
+    const text = await response.text();
+    const match = text.match(/content\.channel_id\s*=\s*'([^']+)'/);
+    return match === null ? undefined : match[1];
+  }
+
   private extractFollowingProgramsFromJson(json: string): Program[] {
     const parsedJson = JSON.parse(json);
     return parsedJson.data.programs.map(this.toDomainProgram);
@@ -77,6 +84,7 @@ export class NiconamaApiImpl implements NiconamaApi {
         iconSmall: responseProgram.programProvider.iconSmall,
       },
       socialGroup: {
+        id: responseProgram.socialGroup.id,
         name: responseProgram.socialGroup.name,
         thumbnailUrl: responseProgram.socialGroup.thumbnailUrl,
       },
