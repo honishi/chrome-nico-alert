@@ -123,8 +123,12 @@ async function fixChannelPage() {
     // console.log("channelPageHeader is undefined");
     return;
   }
-  const channelId = content.extractChannelIdFromUrl(window.location.href);
+  const channelId = await content.extractChannelIdFromUrl(window.location.href);
   // console.log("channelId", channelId);
+  if (channelId === undefined) {
+    // console.log("channelId is undefined");
+    return;
+  }
   const button = await createAutoOpenSettingButton(channelId, content, AutoOpenButtonType.UserPage);
   channelPageHeader.appendChild(button);
 }
