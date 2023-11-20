@@ -7,6 +7,7 @@ const FOLLOW_PROGRAMS_API_URL =
 const RECENT_PROGRAMS_API_URL = "https://live.nicovideo.jp/front/api/pages/recent/v1/programs";
 const RANKING_HTML_PAGE_URL = "https://live.nicovideo.jp/ranking";
 const USER_NICKNAME_API_URL = "https://api.live2.nicovideo.jp/api/v1/user/nickname";
+const CHANNEL_PAGE_URL = "https://ch.nicovideo.jp/";
 
 export class NiconamaApiImpl implements NiconamaApi {
   async getFollowingPrograms(): Promise<Program[]> {
@@ -41,6 +42,14 @@ export class NiconamaApiImpl implements NiconamaApi {
     const text = await response.text();
     const match = text.match(/content\.channel_id\s*=\s*'([^']+)'/);
     return match === null ? undefined : match[1];
+  }
+
+  async resolveChannelName(channelId: string): Promise<string> {
+    // console.log("resolveChannelName", channelId);
+    const response = await fetch(CHANNEL_PAGE_URL + channelId);
+    const text = await response.text();
+    const match = text.match(/<meta property="og:site_name" content="([^"]+)">/);
+    return match === null ? "" : match[1];
   }
 
   private extractFollowingProgramsFromJson(json: string): Program[] {

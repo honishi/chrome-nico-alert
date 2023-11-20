@@ -76,7 +76,9 @@ async function renderAutoOpen() {
         return;
       }
       const text = entry.target.getElementsByClassName("user-name")[0] as HTMLSpanElement;
-      const userName = await option.getUserName(userId);
+      const userName = await (userId.startsWith("ch")
+        ? option.getChannelName(userId)
+        : option.getUserName(userId));
       if (text === null || userName === null) {
         return;
       }
@@ -112,7 +114,9 @@ async function createUserIdDiv(userId: string): Promise<HTMLElement> {
   const link = document.createElement("a");
   link.className = "user-link";
   link.text = `(${userId})`;
-  link.href = `https://www.nicovideo.jp/user/${userId}`;
+  link.href = userId.startsWith("ch")
+    ? `https://ch.nicovideo.jp/${userId}`
+    : `https://www.nicovideo.jp/user/${userId}`;
   link.target = "_blank";
   div.appendChild(link);
 

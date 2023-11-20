@@ -10,6 +10,7 @@ export interface Option {
   playTestSound(): Promise<void>;
   getAutoOpenUserIds(): Promise<string[]>;
   getUserName(userId: string): Promise<string>;
+  getChannelName(channelId: string): Promise<string>;
   disableAutoOpen(userId: string): Promise<void>;
 }
 
@@ -38,6 +39,10 @@ export class OptionImpl implements Option {
 
   async getUserName(userId: string): Promise<string> {
     return await this.niconamaApi.resolveUserName(userId);
+  }
+
+  async getChannelName(channelId: string): Promise<string> {
+    return await this.niconamaApi.resolveChannelName(channelId);
   }
 
   async disableAutoOpen(userId: string): Promise<void> {
