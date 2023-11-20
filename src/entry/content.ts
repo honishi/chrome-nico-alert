@@ -152,7 +152,7 @@ function updateButtonStyle(
   isOn: boolean,
 ) {
   const onOffString = isOn ? "on" : "off";
-  const className = (() => {
+  button.className = (() => {
     switch (buttonType) {
       case AutoOpenButtonType.FollowPage:
         return `follow-page-auto-open-${onOffString}-button`;
@@ -160,7 +160,6 @@ function updateButtonStyle(
         return `user-page-auto-open-${onOffString}-button`;
     }
   })();
-  button.className = className;
   button.innerHTML = isOn ? "自動入場設定中" : "自動入場する";
 }
 
