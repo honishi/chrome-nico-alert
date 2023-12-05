@@ -2,6 +2,7 @@ export type Program = {
   id: string;
   title: string;
   screenshotThumbnail: ScreenshotThumbnail;
+  listingThumbnail?: string;
   watchPageUrl: string;
   programProvider?: ProgramProvider;
   socialGroup: SocialGroup;

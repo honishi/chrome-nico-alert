@@ -92,7 +92,9 @@ function toGridItem(program: Program, rank?: number): HTMLElement {
 
   const img = document.createElement("img");
   img.src =
-    program.screenshotThumbnail.liveScreenshotThumbnailUrl ?? program.socialGroup.thumbnailUrl;
+    program.listingThumbnail ??
+    program.screenshotThumbnail.liveScreenshotThumbnailUrl ??
+    program.socialGroup.thumbnailUrl;
   link.appendChild(img);
 
   const titleSpan = document.createElement("span");

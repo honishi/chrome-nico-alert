@@ -79,6 +79,7 @@ export class NiconamaApiImpl implements NiconamaApi {
     return {
       id: responseProgram.id,
       title: responseProgram.title,
+      listingThumbnail: responseProgram.listingThumbnail,
       screenshotThumbnail: {
         // Seems channel lives have `responseProgram.thumbnailUrl`, but community lives have not.
         liveScreenshotThumbnailUrl:
