@@ -97,7 +97,13 @@ function toGridItem(program: Program, rank?: number): HTMLElement {
     program.socialGroup.thumbnailUrl;
   link.appendChild(img);
 
+  const elapsedTimeSpan = document.createElement("span");
+  elapsedTimeSpan.className = "elapsed-time";
+  elapsedTimeSpan.textContent = "XX 時間 XX 分経過";
+  link.appendChild(elapsedTimeSpan);
+
   const titleSpan = document.createElement("span");
+  titleSpan.className = "title-span";
   titleSpan.textContent = [program.isFollowerOnly ? "【限】" : "", program.title].join(" ");
   link.appendChild(titleSpan);
 
