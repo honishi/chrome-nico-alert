@@ -7,6 +7,7 @@ import { defaultBadgeBackgroundColor, suspendedBadgeBackgroundColor } from "./co
 
 export interface Popup {
   getPrograms(): Promise<[Program[], Program[]]>; // [followingPrograms, rankingPrograms]
+  toElapsedTime(program: Program): string;
   setBadgeNumber(number: number): Promise<void>;
   isSuspended(): Promise<boolean>;
   setSuspended(suspended: boolean): Promise<void>;
@@ -26,6 +27,13 @@ export class PopupImpl implements Popup {
       this.niconamaApi.getRankingPrograms(),
     ]);
     return [following.map(this.fixScreenshotThumbnailUrlIfTooEarly), ranking];
+  }
+
+  toElapsedTime(program: Program): string {
+    const elapsedMinutes = (new Date().getTime() - program.beginAt.getTime()) / 1000 / 60;
+    const hours = Math.floor(elapsedMinutes / 60);
+    const minutes = Math.floor(elapsedMinutes % 60);
+    return `${hours ? hours + " 時間 " : ""}${minutes} 分経過`;
   }
 
   async setBadgeNumber(number: number): Promise<void> {

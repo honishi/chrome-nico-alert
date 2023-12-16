@@ -27,7 +27,7 @@ async function renderPage() {
   const followingContainer = document.getElementById("following");
   if (followingContainer != null) {
     followingPrograms
-      .map((p) => toGridItem(p, rankOf(p, rankingPrograms)))
+      .map((p) => toGridItem(p, popup.toElapsedTime(p), rankOf(p, rankingPrograms)))
       .forEach((element) => {
         followingContainer.appendChild(element);
       });
@@ -37,7 +37,7 @@ async function renderPage() {
   const rankingContainer = document.getElementById("ranking");
   if (rankingContainer != null) {
     rankingPrograms
-      .map((p, index) => toGridItem(p, index + 1))
+      .map((p, index) => toGridItem(p, popup.toElapsedTime(p), index + 1))
       .forEach((element) => {
         rankingContainer.appendChild(element);
       });
@@ -78,7 +78,7 @@ function rankOf(program: Program, rankingPrograms: Program[]): number | undefine
   return index + 1;
 }
 
-function toGridItem(program: Program, rank?: number): HTMLElement {
+function toGridItem(program: Program, elapsedTime: string, rank?: number): HTMLElement {
   const item = document.createElement("div");
   item.className = "grid-item";
 
@@ -97,7 +97,13 @@ function toGridItem(program: Program, rank?: number): HTMLElement {
     program.socialGroup.thumbnailUrl;
   link.appendChild(img);
 
+  const elapsedTimeSpan = document.createElement("span");
+  elapsedTimeSpan.className = "elapsed-time";
+  elapsedTimeSpan.textContent = "⏱️ " + elapsedTime;
+  link.appendChild(elapsedTimeSpan);
+
   const titleSpan = document.createElement("span");
+  titleSpan.className = "title-span";
   titleSpan.textContent = [program.isFollowerOnly ? "【限】" : "", program.title].join(" ");
   link.appendChild(titleSpan);
 

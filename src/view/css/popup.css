@@ -5,6 +5,13 @@ body {
   width: 760px;
 }
 
+@media (prefers-color-scheme: dark) {
+  body {
+    background-color: #121212;
+    color: #f0f0f0;
+  }
+}
+
 .setting-container {
   display: flex;
   flex-direction: column;
@@ -84,6 +91,12 @@ body {
   transition: all 0.1s ease;
 }
 
+@media (prefers-color-scheme: dark) {
+  .grid-item {
+    background-color: #242424;
+  }
+}
+
 .grid-item:hover {
   box-shadow: 0 6px 8px rgba(0, 0, 0, 0.4);
   transform: scale(1.03);
@@ -100,10 +113,28 @@ body {
   object-fit: cover;
   overflow: hidden;
   border-radius: 8px 8px 0 0;
+  margin-bottom: 4px;
+}
+
+.elapsed-time {
+  padding: 0 8px 4px;
+  font-size: 11px;
+  overflow: hidden;
+  display: -webkit-box;
+  -webkit-line-clamp: 1;
+  -webkit-box-orient: vertical;
+  text-overflow: ellipsis;
+  border-bottom: 1px solid #ddd;
   margin-bottom: 8px;
 }
 
-.grid-item > a > span {
+@media (prefers-color-scheme: dark) {
+  .elapsed-time {
+    border-bottom: 1px solid #333;
+  }
+}
+
+.title-span {
   padding: 0 8px;
   height: 32px;
   line-height: 16px;
@@ -156,13 +187,6 @@ body {
 }
 
 @media (prefers-color-scheme: dark) {
-  body {
-    background-color: #121212;
-    color: #f0f0f0;
-  }
-  .grid-item {
-    background-color: #242424;
-  }
   .rank-number {
     background-color: #242424;
   }
