@@ -125,6 +125,7 @@ body {
   -webkit-box-orient: vertical;
   text-overflow: ellipsis;
   border-bottom: 1px solid #ddd;
+  margin-bottom: 8px;
 }
 
 @media (prefers-color-scheme: dark) {
@@ -134,7 +135,7 @@ body {
 }
 
 .title-span {
-  padding: 8px 8px 0;
+  padding: 0 8px;
   height: 32px;
   line-height: 16px;
   overflow: hidden;
