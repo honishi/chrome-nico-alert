@@ -61,6 +61,18 @@ body {
   font-size: 16px;
 }
 
+.section-title::before,
+.section-title::after {
+  content: "⚫";
+}
+
+@media (prefers-color-scheme: dark) {
+  .section-title::before,
+  .section-title::after {
+    content: "⚪";
+  }
+}
+
 .no-programs-container {
   margin-left: 16px;
   margin-bottom: 16px;
