@@ -26,10 +26,14 @@ export class PopupImpl implements Popup {
       this.niconamaApi.getFollowingPrograms(),
       this.niconamaApi.getRankingPrograms(),
     ]);
-    return [following.map(this.fixScreenshotThumbnailUrlIfTooEarly), ranking];
+    return [
+      following.map(this.fixScreenshotThumbnailUrlIfTooEarly),
+      ranking.map(this.maskProgramIfMuted),
+    ];
   }
 
   toElapsedTime(program: Program): string {
+    if (program.isMute) return "(非表示)";
     const elapsedMinutes = (new Date().getTime() - program.beginAt.getTime()) / 1000 / 60;
     const hours = Math.floor(elapsedMinutes / 60);
     const minutes = Math.floor(elapsedMinutes % 60);
@@ -67,6 +71,24 @@ export class PopupImpl implements Popup {
           ...program,
           screenshotThumbnail: {
             liveScreenshotThumbnailUrl: program.socialGroup.thumbnailUrl,
+          },
+        }
+      : program;
+  }
+
+  private maskProgramIfMuted(program: Program): Program {
+    const muteIconUrl =
+      "https://nicolive.cdn.nimg.jp/relive/party1-static/nicolive/symbol/namaco_icon_mono5.cc903.svg";
+    return program.isMute
+      ? {
+          ...program,
+          title: "(非表示に設定されています)",
+          listingThumbnail: muteIconUrl,
+          programProvider: {
+            id: "",
+            name: "(非表示)",
+            icon: muteIconUrl,
+            iconSmall: muteIconUrl,
           },
         }
       : program;

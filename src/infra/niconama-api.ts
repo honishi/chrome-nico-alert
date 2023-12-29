@@ -71,11 +71,14 @@ export class NiconamaApiImpl implements NiconamaApi {
     const jsonString = decode(dataProps);
     const json = JSON.parse(jsonString);
     // console.log(json.ranking.userPrograms);
-    return json.ranking.userPrograms.map(this.toDomainProgram);
+    // console.log(json.userMute.targets);
+    return json.ranking.userPrograms.map((p: object) =>
+      this.toDomainProgram(p, json.userMute.targets),
+    );
   }
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  private toDomainProgram(responseProgram: any): Program {
+  private toDomainProgram(responseProgram: any, muteUserIds: string[] = []): Program {
     return {
       id: responseProgram.id,
       title: responseProgram.title,
@@ -100,6 +103,10 @@ export class NiconamaApiImpl implements NiconamaApi {
       },
       isFollowerOnly: responseProgram.isFollowerOnly,
       beginAt: new Date(responseProgram.beginAt),
+      isMute:
+        responseProgram.programProvider &&
+        Array.isArray(muteUserIds) &&
+        muteUserIds.includes(responseProgram.programProvider.id),
     };
   }
 }

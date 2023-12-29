@@ -8,6 +8,7 @@ export type Program = {
   socialGroup: SocialGroup;
   isFollowerOnly: boolean;
   beginAt: Date;
+  isMute: boolean;
 };
 
 type ScreenshotThumbnail = {
