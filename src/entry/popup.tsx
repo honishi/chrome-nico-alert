@@ -6,6 +6,7 @@ import { Popup } from "../domain/usecase/popup";
 import { configureDefaultContainer } from "../di/register";
 import GridItem from "./component/GridItem";
 import { createRoot } from "react-dom/client";
+import React from "react";
 
 const SUSPEND_BUTTON_ID = "suspend-button";
 
@@ -28,22 +29,20 @@ async function renderPage() {
 
   const followingContainer = document.getElementById("following");
   if (followingContainer != null) {
-    const items = followingPrograms.map((p) =>
-      GridItem({
-        program: p,
-        elapsedTime: popup.toElapsedTime(p),
-        rank: rankOf(p, rankingPrograms),
-      }),
-    );
+    const items = followingPrograms.map((p) => {
+      const rank = rankOf(p, rankingPrograms);
+      return <GridItem program={p} elapsedTime={popup.toElapsedTime(p)} rank={rank} key={p.id} />;
+    });
     createRoot(followingContainer).render(items);
     setElementVisibility("following-no-programs", followingPrograms.length === 0);
   }
 
   const rankingContainer = document.getElementById("ranking");
   if (rankingContainer != null) {
-    const items = rankingPrograms.map((p, index) =>
-      GridItem({ program: p, elapsedTime: popup.toElapsedTime(p), rank: index + 1 }),
-    );
+    const items = rankingPrograms.map((p, index) => {
+      const rank = index + 1;
+      return <GridItem program={p} elapsedTime={popup.toElapsedTime(p)} rank={rank} key={p.id} />;
+    });
     createRoot(rankingContainer).render(items);
   }
 
