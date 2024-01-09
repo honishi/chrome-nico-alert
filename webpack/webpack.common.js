@@ -13,7 +13,7 @@ module.exports = {
   entry: {
     content: path.join(entryDir, "content.ts"),
     background: path.join(entryDir, "background.ts"),
-    option: path.join(entryDir, "option.ts"),
+    option: path.join(entryDir, "option.tsx"),
     popup: path.join(entryDir, "popup.tsx"),
     offscreen: path.join(entryDir, "offscreen.ts"),
   },

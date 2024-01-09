@@ -3,6 +3,9 @@ import { configureDefaultContainer } from "../di/register";
 import { container } from "tsyringe";
 import { InjectTokens } from "../di/inject-tokens";
 import { Option } from "../domain/usecase/option";
+import React from "react";
+import AutoOpenUser from "./component/AutoOpenUser";
+import { createRoot } from "react-dom/client";
 
 async function renderPage() {
   await renderSoundVolume();
@@ -61,67 +64,22 @@ async function renderAutoOpen() {
   autoOpenContainer.innerHTML = "";
 
   const userIds = await option.getAutoOpenUserIds();
-  for (const userId of userIds) {
-    const userIdDiv = await createUserIdDiv(userId);
-    autoOpenContainer.appendChild(userIdDiv);
-  }
-
-  const observer = new IntersectionObserver((entries) => {
-    entries.forEach(async (entry) => {
-      if (!entry.isIntersecting) {
-        return;
-      }
-      const userId = entry.target.getAttribute("user-id");
-      if (userId === null) {
-        return;
-      }
-      const text = entry.target.getElementsByClassName("user-name")[0] as HTMLSpanElement;
-      const userName = await (userId.startsWith("ch")
-        ? option.getChannelName(userId)
-        : option.getUserName(userId));
-      if (text === null || userName === null) {
-        return;
-      }
-      text.textContent = userName;
-      observer.unobserve(entry.target);
-    });
+  const userNameResolver = async (userId: string) =>
+    await (userId.startsWith("ch") ? option.getChannelName(userId) : option.getUserName(userId));
+  const userIdButtons = userIds.map((userId) => {
+    const buttonCallback = async () => {
+      await option.disableAutoOpen(userId);
+    };
+    return (
+      <AutoOpenUser
+        userId={userId}
+        userNameResolver={userNameResolver}
+        onClick={buttonCallback}
+        key={userId}
+      />
+    );
   });
-  [...autoOpenContainer.children].forEach((userDiv) => observer.observe(userDiv));
-}
-
-async function createUserIdDiv(userId: string): Promise<HTMLElement> {
-  const option = container.resolve<Option>(InjectTokens.Option);
-
-  const div = document.createElement("div");
-  div.className = "auto-open-user-div";
-  div.setAttribute("user-id", userId);
-
-  const button = document.createElement("button");
-  button.className = "remove-button";
-  button.textContent = "[削除]";
-  button.addEventListener("click", async () => {
-    // console.log("remove", userId);
-    await option.disableAutoOpen(userId);
-    div.remove();
-  });
-  div.appendChild(button);
-
-  const text = document.createElement("span");
-  text.className = "user-name";
-  text.textContent = ".....";
-  div.appendChild(text);
-
-  const link = document.createElement("a");
-  link.className = "user-link";
-  link.text = `(${userId})`;
-  link.href = userId.startsWith("ch")
-    ? `https://ch.nicovideo.jp/${userId}`
-    : `https://www.nicovideo.jp/user/${userId}`;
-  link.target = "_blank";
-  div.appendChild(link);
-
-  // console.log(div);
-  return div;
+  createRoot(autoOpenContainer).render(userIdButtons);
 }
 
 function addEventListeners() {
