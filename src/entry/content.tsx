@@ -3,16 +3,16 @@ import { container } from "tsyringe";
 import { InjectTokens } from "../di/inject-tokens";
 import { Content } from "../domain/usecase/content";
 import { configureDefaultContainer } from "../di/register";
+import { createRoot } from "react-dom/client";
+import AutoOpenToggleButton, {
+  autoOpenButtonTag,
+  AutoOpenButtonType,
+} from "./component/AutoOpenToggleButton";
+import React from "react";
 
 const MY_FOLLOW_PAGE_URL = "https://www.nicovideo.jp/my/follow";
 const USER_PAGE_URL = "https://www.nicovideo.jp/user";
 const CHANNEL_PAGE_URL = "https://ch.nicovideo.jp/";
-
-const autoOpenButtonTag = "auto-open";
-enum AutoOpenButtonType {
-  FollowPage = "follow-page",
-  UserPage = "user-page",
-}
 
 let fixingFollowPage = false;
 
@@ -85,12 +85,16 @@ async function fixMyFollowPage() {
       continue;
     }
     const userId = content.extractUserIdFromUrl(userItemLink.href);
-    const autoOpenSettingButton = await createAutoOpenSettingButton(
-      userId,
-      content,
-      AutoOpenButtonType.FollowPage,
+    const div = document.createElement("div");
+    userItem.appendChild(div);
+    createRoot(div).render(
+      <AutoOpenToggleButton
+        userId={userId}
+        buttonType={AutoOpenButtonType.FollowPage}
+        isOn={await content.isAutoOpenUser(userId)}
+        onClick={() => onToggleAutoOpen(userId)}
+      />,
     );
-    userItem.appendChild(autoOpenSettingButton);
   }
 
   fixingFollowPage = false;
@@ -108,8 +112,23 @@ async function fixUserPage() {
     return;
   }
   const userId = content.extractUserIdFromUrl(window.location.href);
-  const button = await createAutoOpenSettingButton(userId, content, AutoOpenButtonType.UserPage);
-  userPageButtonContainer.appendChild(button);
+  const div = document.createElement("div");
+  userPageButtonContainer.appendChild(div);
+  createRoot(div).render(
+    <AutoOpenToggleButton
+      userId={userId}
+      buttonType={AutoOpenButtonType.UserPage}
+      isOn={await content.isAutoOpenUser(userId)}
+      onClick={() => onToggleAutoOpen(userId)}
+    />,
+  );
+}
+
+async function onToggleAutoOpen(userId: string): Promise<boolean> {
+  const content = container.resolve<Content>(InjectTokens.Content);
+  const targetOnOff = !(await content.isAutoOpenUser(userId));
+  await content.setAutoOpenUser(userId, targetOnOff);
+  return targetOnOff;
 }
 
 async function fixChannelPage() {
@@ -129,42 +148,16 @@ async function fixChannelPage() {
     // console.log("channelId is undefined");
     return;
   }
-  const button = await createAutoOpenSettingButton(channelId, content, AutoOpenButtonType.UserPage);
-  channelPageHeader.appendChild(button);
-}
-
-async function createAutoOpenSettingButton(
-  userId: string,
-  content: Content,
-  buttonType: AutoOpenButtonType,
-): Promise<HTMLButtonElement> {
-  const button = document.createElement("button");
-  button.dataset.tag = autoOpenButtonTag;
-  const currentOnOff = await content.isAutoOpenUser(userId);
-  updateButtonStyle(button, buttonType, currentOnOff);
-  button.onclick = async () => {
-    const targetOnOff = !(await content.isAutoOpenUser(userId));
-    await content.setAutoOpenUser(userId, targetOnOff);
-    updateButtonStyle(button, buttonType, targetOnOff);
-  };
-  return button;
-}
-
-function updateButtonStyle(
-  button: HTMLButtonElement,
-  buttonType: AutoOpenButtonType,
-  isOn: boolean,
-) {
-  const onOffString = isOn ? "on" : "off";
-  button.className = (() => {
-    switch (buttonType) {
-      case AutoOpenButtonType.FollowPage:
-        return `follow-page-auto-open-${onOffString}-button`;
-      case AutoOpenButtonType.UserPage:
-        return `user-page-auto-open-${onOffString}-button`;
-    }
-  })();
-  button.innerHTML = isOn ? "自動入場設定中" : "自動入場する";
+  const div = document.createElement("div");
+  channelPageHeader.appendChild(div);
+  createRoot(div).render(
+    <AutoOpenToggleButton
+      userId={channelId}
+      buttonType={AutoOpenButtonType.UserPage}
+      isOn={await content.isAutoOpenUser(channelId)}
+      onClick={() => onToggleAutoOpen(channelId)}
+    />,
+  );
 }
 
 configureDefaultContainer();
