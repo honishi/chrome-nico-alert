@@ -1,7 +1,11 @@
 import React from "react";
 import { Program } from "../../domain/model/program";
 
-export default function GridItem(props: { program: Program; elapsedTime: string; rank?: number }) {
+export default function ProgramGridItem(props: {
+  program: Program;
+  elapsedTime: string;
+  rank?: number;
+}) {
   const onClick = async function () {
     console.log("onclick");
     await chrome.tabs.create({ active: true, url: props.program.watchPageUrl });

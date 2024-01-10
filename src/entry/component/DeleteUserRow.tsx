@@ -1,6 +1,6 @@
 import React, { useEffect, useRef } from "react";
 
-export default function AutoOpenUser(props: {
+export default function DeleteUserRow(props: {
   userId: string;
   userNameResolver: (userId: string) => Promise<string>;
   onClick: () => Promise<void>;

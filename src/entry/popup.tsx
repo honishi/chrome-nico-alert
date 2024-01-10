@@ -4,7 +4,7 @@ import { InjectTokens } from "../di/inject-tokens";
 import { Program } from "../domain/model/program";
 import { Popup } from "../domain/usecase/popup";
 import { configureDefaultContainer } from "../di/register";
-import GridItem from "./component/GridItem";
+import ProgramGridItem from "./component/ProgramGridItem";
 import { createRoot } from "react-dom/client";
 import React from "react";
 
@@ -28,23 +28,25 @@ async function renderPage() {
   const [followingPrograms, rankingPrograms] = await popup.getPrograms();
 
   const followingContainer = document.getElementById("following");
-  if (followingContainer != null) {
-    const items = followingPrograms.map((p) => {
-      const rank = rankOf(p, rankingPrograms);
-      return <GridItem program={p} elapsedTime={popup.toElapsedTime(p)} rank={rank} key={p.id} />;
-    });
-    createRoot(followingContainer).render(items);
-    setElementVisibility("following-no-programs", followingPrograms.length === 0);
+  const rankingContainer = document.getElementById("ranking");
+  if (followingContainer === null || rankingContainer === null) {
+    return;
   }
 
-  const rankingContainer = document.getElementById("ranking");
-  if (rankingContainer != null) {
-    const items = rankingPrograms.map((p, index) => {
-      const rank = index + 1;
-      return <GridItem program={p} elapsedTime={popup.toElapsedTime(p)} rank={rank} key={p.id} />;
-    });
-    createRoot(rankingContainer).render(items);
-  }
+  const followingItems = followingPrograms.map((p) => {
+    const elapsed = popup.toElapsedTime(p);
+    const rank = rankOf(p, rankingPrograms);
+    return <ProgramGridItem program={p} elapsedTime={elapsed} rank={rank} key={p.id} />;
+  });
+  createRoot(followingContainer).render(followingItems);
+  setElementVisibility("following-no-programs", followingPrograms.length === 0);
+
+  const rankingItems = rankingPrograms.map((p, index) => {
+    const elapsed = popup.toElapsedTime(p);
+    const rank = index + 1;
+    return <ProgramGridItem program={p} elapsedTime={elapsed} rank={rank} key={p.id} />;
+  });
+  createRoot(rankingContainer).render(rankingItems);
 
   await popup.setBadgeNumber(followingPrograms.length);
 }

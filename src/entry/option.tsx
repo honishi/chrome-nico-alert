@@ -4,7 +4,7 @@ import { container } from "tsyringe";
 import { InjectTokens } from "../di/inject-tokens";
 import { Option } from "../domain/usecase/option";
 import React from "react";
-import AutoOpenUser from "./component/AutoOpenUser";
+import DeleteUserRow from "./component/DeleteUserRow";
 import { createRoot } from "react-dom/client";
 
 async function renderPage() {
@@ -71,7 +71,7 @@ async function renderAutoOpen() {
       await option.disableAutoOpen(userId);
     };
     return (
-      <AutoOpenUser
+      <DeleteUserRow
         userId={userId}
         userNameResolver={userNameResolver}
         onClick={buttonCallback}
