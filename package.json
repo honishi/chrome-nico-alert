@@ -14,6 +14,8 @@
   "dependencies": {
     "html-entities": "^2.4.0",
     "node-fetch": "^3.3.2",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
     "reflect-metadata": "^0.1.13",
     "tsyringe": "^4.8.0"
   },
@@ -21,6 +23,8 @@
     "@types/chrome": "^0.0.243",
     "@types/jest": "^29.5.3",
     "@types/node": "^18.17.3",
+    "@types/react": "^18.2.47",
+    "@types/react-dom": "^18.2.18",
     "@typescript-eslint/eslint-plugin": "^6.2.1",
     "@typescript-eslint/parser": "^6.2.1",
     "copy-webpack-plugin": "^11.0.0",
