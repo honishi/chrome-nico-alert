@@ -59,7 +59,7 @@ export class NiconamaApiImpl implements NiconamaApi {
 
   private extractRecentProgramsFromJson(json: string): Program[] {
     const parsedJson = JSON.parse(json);
-    return parsedJson.data.map(this.toDomainProgram);
+    return parsedJson.data.programs.map(this.toDomainProgram);
   }
 
   private extractUserProgramRankingFromHtml(html: string): Program[] {
@@ -84,10 +84,7 @@ export class NiconamaApiImpl implements NiconamaApi {
       title: responseProgram.title,
       listingThumbnail: responseProgram.listingThumbnail,
       screenshotThumbnail: {
-        // Seems channel lives have `responseProgram.thumbnailUrl`, but community lives have not.
-        liveScreenshotThumbnailUrl:
-          responseProgram.thumbnailUrl ??
-          responseProgram.screenshotThumbnail.liveScreenshotThumbnailUrl,
+        liveScreenshotThumbnailUrl: responseProgram.listingThumbnail,
       },
       watchPageUrl: responseProgram.watchPageUrl,
       programProvider: responseProgram.programProvider && {
