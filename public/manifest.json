@@ -1,6 +1,6 @@
 {
   "name": "ニコ生アラート",
-  "version": "2.2.0",
+  "version": "2.2.1",
   "manifest_version": 3,
   "description": "ニコニコ生放送の放送アラートと自動入場が可能になります。",
   "icons": {
