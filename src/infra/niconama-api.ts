@@ -59,7 +59,7 @@ export class NiconamaApiImpl implements NiconamaApi {
 
   private extractRecentProgramsFromJson(json: string): Program[] {
     const parsedJson = JSON.parse(json);
-    return parsedJson.data.programs.map(this.toDomainProgram);
+    return parsedJson.data.map(this.toDomainProgram);
   }
 
   private extractUserProgramRankingFromHtml(html: string): Program[] {
