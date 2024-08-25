@@ -167,7 +167,7 @@ export class BackgroundImpl implements Background {
   private showNotification(program: Program): void {
     this.browserApi.showNotification(
       `${program.programProvider?.name ?? program.socialGroup.name}が放送開始`,
-      `「${program.title}」`,
+      program.title,
       program.programProvider?.icon ?? program.socialGroup.thumbnailUrl,
       (notificationId) => {
         console.log(`Background checkAndPlaySounds: notificationId: ${notificationId}`);
