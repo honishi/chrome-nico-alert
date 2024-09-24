@@ -169,7 +169,7 @@ export class BackgroundImpl implements Background {
     );
   }
 
-  private async showNotification(program: Program): Promise<void> {
+  private showNotification(program: Program): void {
     this.browserApi.showNotification(
       `${program.programProvider?.name ?? program.socialGroup.name}が放送開始`,
       program.title,
