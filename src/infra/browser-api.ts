@@ -2,6 +2,7 @@ import { SoundType } from "../domain/model/sound-type";
 import { BrowserApi } from "../domain/infra-interface/browser-api";
 import { ChromeMessage, ChromeMessageType } from "./chrome_message/message";
 
+const SHOW_NOTIFICATION_KEY = "showNotification";
 const SOUND_VOLUME_KEY = "soundVolume";
 const SUSPEND_FROM_DATE_KEY = "suspendFromDate";
 const AUTO_OPEN_USERS_KEY = "autoOpenUsers";
@@ -19,6 +20,15 @@ export class BrowserApiImpl implements BrowserApi {
 
   async setBadgeBackgroundColor(hex: string): Promise<void> {
     await chrome.action.setBadgeBackgroundColor({ color: hex });
+  }
+
+  async getShowNotification(): Promise<boolean> {
+    const result = await chrome.storage.local.get([SHOW_NOTIFICATION_KEY]);
+    return result[SHOW_NOTIFICATION_KEY] ?? true;
+  }
+
+  async setShowNotification(value: boolean): Promise<void> {
+    await chrome.storage.local.set({ [SHOW_NOTIFICATION_KEY]: value });
   }
 
   async getSoundVolume(): Promise<number> {

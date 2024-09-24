@@ -4,6 +4,8 @@ export interface BrowserApi {
   startSendingKeepAliveFromOffscreen(): Promise<void>;
   setBadgeNumber(number: number): Promise<void>;
   setBadgeBackgroundColor(hex: string): Promise<void>;
+  getShowNotification(): Promise<boolean>;
+  setShowNotification(value: boolean): Promise<void>;
   getSoundVolume(): Promise<number>;
   setSoundVolume(value: number): Promise<void>;
   playSound(sound: SoundType): Promise<void>;

@@ -95,6 +95,7 @@ export class BackgroundImpl implements Background {
     }
     this.lastProgramCheckTime = new Date();
 
+    const showNotification = await this.browserApi.getShowNotification();
     const isSuspended = (await this.browserApi.getSuspendFromDate()) !== undefined;
 
     let openedAnyPrograms = false;
@@ -108,7 +109,9 @@ export class BackgroundImpl implements Background {
         console.log(`wait: ${DELAY_AFTER_OPEN} ms`);
         await this.delay(DELAY_AFTER_OPEN);
       }
-      this.showNotification(program);
+      if (showNotification) {
+        this.showNotification(program);
+      }
       if (isSuspended) {
         console.log("Suspended", program.id);
         continue;
@@ -116,10 +119,10 @@ export class BackgroundImpl implements Background {
       const shouldAutoOpen = await this.shouldAutoOpenProgram(program);
       if (shouldAutoOpen) {
         await this.browserApi.openTab(program.watchPageUrl);
+        await this.browserApi.playSound(SoundType.NEW_LIVE_MAIN);
+      } else if (showNotification) {
+        await this.browserApi.playSound(SoundType.NEW_LIVE_SUB);
       }
-      await this.browserApi.playSound(
-        shouldAutoOpen ? SoundType.NEW_LIVE_MAIN : SoundType.NEW_LIVE_SUB,
-      );
       openedAnyPrograms = true;
     }
 
@@ -137,7 +140,9 @@ export class BackgroundImpl implements Background {
         console.log(`wait: ${DELAY_AFTER_OPEN} ms`);
         await this.delay(DELAY_AFTER_OPEN);
       }
-      this.showNotification(program);
+      if (showNotification) {
+        this.showNotification(program);
+      }
       if (isSuspended) {
         console.log("Suspended", program.id);
         continue;

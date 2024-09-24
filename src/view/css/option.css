@@ -8,12 +8,22 @@
 }
 
 .section-content {
-    margin: 0 0 0 16px;
+    margin: 0 0 8px 16px;
+}
+
+.show-notification-checkbox-container {
+    display: flex;
+    align-items: center;
+    gap: 8px;
 }
 
 .volume-slider-container {
     display: flex;
     align-items: center;
+}
+
+.volume-slider-label {
+    margin: 0 8px 0 0;
 }
 
 .volume-slider {
