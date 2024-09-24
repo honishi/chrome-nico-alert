@@ -108,7 +108,7 @@ export class BackgroundImpl implements Background {
         console.log(`wait: ${DELAY_AFTER_OPEN} ms`);
         await this.delay(DELAY_AFTER_OPEN);
       }
-      this.showNotification(program);
+      this.showNotificationIfEnabled(program);
       if (isSuspended) {
         console.log("Suspended", program.id);
         continue;
@@ -137,7 +137,7 @@ export class BackgroundImpl implements Background {
         console.log(`wait: ${DELAY_AFTER_OPEN} ms`);
         await this.delay(DELAY_AFTER_OPEN);
       }
-      this.showNotification(program);
+      this.showNotificationIfEnabled(program);
       if (isSuspended) {
         console.log("Suspended", program.id);
         continue;
@@ -164,7 +164,11 @@ export class BackgroundImpl implements Background {
     );
   }
 
-  private showNotification(program: Program): void {
+  private async showNotificationIfEnabled(program: Program): Promise<void> {
+    const showNotification = await this.browserApi.getShowNotification();
+    if (!showNotification) {
+      return;
+    }
     this.browserApi.showNotification(
       `${program.programProvider?.name ?? program.socialGroup.name}が放送開始`,
       program.title,
