@@ -3,7 +3,6 @@ import { container } from "tsyringe";
 import { InjectTokens } from "../di/inject-tokens";
 import { Program } from "../domain/model/program";
 import { Popup } from "../domain/usecase/popup";
-import { BrowserApi } from "../domain/infra-interface/browser-api";
 import { configureDefaultContainer } from "../di/register";
 import ProgramGridItem from "./component/ProgramGridItem";
 import { createRoot } from "react-dom/client";
@@ -13,7 +12,6 @@ const SUSPEND_BUTTON_ID = "suspend-button";
 
 async function renderPage() {
   const popup = container.resolve<Popup>(InjectTokens.Popup);
-  const browserApi = container.resolve<BrowserApi>(InjectTokens.BrowserApi);
 
   const suspendButton = document.getElementById(SUSPEND_BUTTON_ID) as HTMLButtonElement;
   suspendButton.onclick = async () => {
@@ -43,16 +41,13 @@ async function renderPage() {
   createRoot(followingContainer).render(followingItems);
   setElementVisibility("following-no-programs", followingPrograms.length === 0);
 
-  const showRanking = await browserApi.getShowRanking();
-  setElementVisibility("ranking-section", showRanking);
-  if (showRanking) {
-    const rankingItems = rankingPrograms.map((p, index) => {
-      const elapsed = popup.toElapsedTime(p);
-      const rank = index + 1;
-      return <ProgramGridItem program={p} elapsedTime={elapsed} rank={rank} key={p.id} />;
-    });
-    createRoot(rankingContainer).render(rankingItems);
-  }
+  const rankingItems = rankingPrograms.map((p, index) => {
+    const elapsed = popup.toElapsedTime(p);
+    const rank = index + 1;
+    return <ProgramGridItem program={p} elapsedTime={elapsed} rank={rank} key={p.id} />;
+  });
+  createRoot(rankingContainer).render(rankingItems);
+  setElementVisibility("ranking-section", rankingPrograms.length > 0);
 
   await popup.setBadgeNumber(followingPrograms.length);
 }
