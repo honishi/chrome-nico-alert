@@ -11,7 +11,7 @@
     margin: 0 0 8px 16px;
 }
 
-.show-notification-checkbox-container {
+.checkbox-container {
     display: flex;
     align-items: center;
     gap: 8px;

@@ -8,9 +8,29 @@ import DeleteUserRow from "./component/DeleteUserRow";
 import { createRoot } from "react-dom/client";
 
 async function renderPage() {
+  await renderShowRankingCheckbox();
   await renderShowNotificationCheckbox();
   await renderSoundVolume();
   await renderAutoOpen();
+}
+
+async function renderShowRankingCheckbox() {
+  const showRankingCheckbox = document.getElementById("show-ranking-checkbox") as HTMLInputElement;
+  showRankingCheckbox.checked = await getShowRanking();
+  showRankingCheckbox.addEventListener("change", async () => {
+    const checked = showRankingCheckbox.checked;
+    await setShowRanking(checked);
+  });
+}
+
+async function getShowRanking(): Promise<boolean> {
+  const option = container.resolve<Option>(InjectTokens.Option);
+  return await option.getShowRanking();
+}
+
+async function setShowRanking(value: boolean): Promise<void> {
+  const option = container.resolve<Option>(InjectTokens.Option);
+  await option.setShowRanking(value);
 }
 
 async function renderShowNotificationCheckbox() {
