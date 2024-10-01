@@ -47,6 +47,7 @@ async function renderPage() {
     return <ProgramGridItem program={p} elapsedTime={elapsed} rank={rank} key={p.id} />;
   });
   createRoot(rankingContainer).render(rankingItems);
+  setElementVisibility("ranking-section", rankingPrograms.length > 0);
 
   await popup.setBadgeNumber(followingPrograms.length);
 }

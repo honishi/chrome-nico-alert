@@ -22,9 +22,10 @@ export class PopupImpl implements Popup {
   ) {}
 
   async getPrograms(): Promise<[Program[], Program[]]> {
+    const showRanking = await this.browserApi.getShowRanking();
     const [following, ranking] = await Promise.all([
       this.niconamaApi.getFollowingPrograms(),
-      this.niconamaApi.getRankingPrograms(),
+      showRanking ? this.niconamaApi.getRankingPrograms() : [],
     ]);
     return [
       following.map(this.fixScreenshotThumbnailUrlIfTooEarly),

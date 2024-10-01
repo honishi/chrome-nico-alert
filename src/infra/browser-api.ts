@@ -2,6 +2,7 @@ import { SoundType } from "../domain/model/sound-type";
 import { BrowserApi } from "../domain/infra-interface/browser-api";
 import { ChromeMessage, ChromeMessageType } from "./chrome_message/message";
 
+const SHOW_RANKING_KEY = "showRanking";
 const SHOW_NOTIFICATION_KEY = "showNotification";
 const SOUND_VOLUME_KEY = "soundVolume";
 const SUSPEND_FROM_DATE_KEY = "suspendFromDate";
@@ -20,6 +21,15 @@ export class BrowserApiImpl implements BrowserApi {
 
   async setBadgeBackgroundColor(hex: string): Promise<void> {
     await chrome.action.setBadgeBackgroundColor({ color: hex });
+  }
+
+  async getShowRanking(): Promise<boolean> {
+    const result = await chrome.storage.local.get([SHOW_RANKING_KEY]);
+    return result[SHOW_RANKING_KEY] ?? true;
+  }
+
+  async setShowRanking(value: boolean): Promise<void> {
+    await chrome.storage.local.set({ [SHOW_RANKING_KEY]: value });
   }
 
   async getShowNotification(): Promise<boolean> {
