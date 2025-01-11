@@ -6,7 +6,7 @@ import { BrowserApi } from "../infra-interface/browser-api";
 import { defaultBadgeBackgroundColor, suspendedBadgeBackgroundColor } from "./colors";
 
 export interface Popup {
-  getPrograms(): Promise<[Program[], Program[]]>; // [followingPrograms, rankingPrograms]
+  getPrograms(): Promise<[Program[], Program[], Program[]]>; // [followingPrograms, comingPrograms, rankingPrograms]
   toElapsedTime(program: Program): string;
   setBadgeNumber(number: number): Promise<void>;
   isSuspended(): Promise<boolean>;
@@ -21,14 +21,17 @@ export class PopupImpl implements Popup {
     @inject(InjectTokens.BrowserApi) private browserApi: BrowserApi,
   ) {}
 
-  async getPrograms(): Promise<[Program[], Program[]]> {
+  async getPrograms(): Promise<[Program[], Program[], Program[]]> {
+    const showComing = true;
     const showRanking = await this.browserApi.getShowRanking();
-    const [following, ranking] = await Promise.all([
+    const [following, coming, ranking] = await Promise.all([
       this.niconamaApi.getFollowingPrograms(),
+      showComing ? this.niconamaApi.getComingPrograms() : [],
       showRanking ? this.niconamaApi.getRankingPrograms() : [],
     ]);
     return [
       following.map(this.fixScreenshotThumbnailUrlIfTooEarly),
+      coming.map(this.fixScreenshotThumbnailUrlIfTooEarly),
       ranking.map(this.maskProgramIfMuted),
     ];
   }

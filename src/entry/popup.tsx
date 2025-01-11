@@ -25,11 +25,12 @@ async function renderPage() {
     popup.openOptionsPage();
   };
 
-  const [followingPrograms, rankingPrograms] = await popup.getPrograms();
+  const [followingPrograms, comingPrograms, rankingPrograms] = await popup.getPrograms();
 
   const followingContainer = document.getElementById("following");
+  const comingContainer = document.getElementById("coming");
   const rankingContainer = document.getElementById("ranking");
-  if (followingContainer === null || rankingContainer === null) {
+  if (followingContainer === null || comingContainer === null || rankingContainer === null) {
     return;
   }
 
@@ -40,6 +41,13 @@ async function renderPage() {
   });
   createRoot(followingContainer).render(followingItems);
   setElementVisibility("following-no-programs", followingPrograms.length === 0);
+
+  const comingItems = comingPrograms.map((p) => {
+    const elapsed = popup.toElapsedTime(p);
+    return <ProgramGridItem program={p} elapsedTime={elapsed} rank={undefined} key={p.id} />;
+  });
+  createRoot(comingContainer).render(comingItems);
+  setElementVisibility("coming-no-programs", comingPrograms.length === 0);
 
   const rankingItems = rankingPrograms.map((p, index) => {
     const elapsed = popup.toElapsedTime(p);
