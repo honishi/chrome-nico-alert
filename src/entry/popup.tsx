@@ -26,6 +26,7 @@ async function renderPage() {
   };
 
   const [followingPrograms, comingPrograms, rankingPrograms] = await popup.getPrograms();
+  const showComing = await popup.showComing();
 
   const followingContainer = document.getElementById("following");
   const comingContainer = document.getElementById("coming");
@@ -48,6 +49,7 @@ async function renderPage() {
   });
   createRoot(comingContainer).render(comingItems);
   setElementVisibility("coming-no-programs", comingPrograms.length === 0);
+  setElementVisibility("coming-section", showComing);
 
   const rankingItems = rankingPrograms.map((p, index) => {
     const elapsed = popup.toElapsedTime(p);

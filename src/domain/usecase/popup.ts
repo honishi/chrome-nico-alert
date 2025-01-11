@@ -7,6 +7,7 @@ import { defaultBadgeBackgroundColor, suspendedBadgeBackgroundColor } from "./co
 
 export interface Popup {
   getPrograms(): Promise<[Program[], Program[], Program[]]>; // [followingPrograms, comingPrograms, rankingPrograms]
+  showComing(): Promise<boolean>;
   toElapsedTime(program: Program): string;
   setBadgeNumber(number: number): Promise<void>;
   isSuspended(): Promise<boolean>;
@@ -22,7 +23,7 @@ export class PopupImpl implements Popup {
   ) {}
 
   async getPrograms(): Promise<[Program[], Program[], Program[]]> {
-    const showComing = true;
+    const showComing = await this.showComing();
     const showRanking = await this.browserApi.getShowRanking();
     const [following, coming, ranking] = await Promise.all([
       this.niconamaApi.getFollowingPrograms(),
@@ -34,6 +35,10 @@ export class PopupImpl implements Popup {
       coming.map(this.fixScreenshotThumbnailUrlIfTooEarly),
       ranking.map(this.maskProgramIfMuted),
     ];
+  }
+
+  async showComing(): Promise<boolean> {
+    return true;
   }
 
   toElapsedTime(program: Program): string {
