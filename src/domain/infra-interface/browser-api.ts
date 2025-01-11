@@ -4,6 +4,8 @@ export interface BrowserApi {
   startSendingKeepAliveFromOffscreen(): Promise<void>;
   setBadgeNumber(number: number): Promise<void>;
   setBadgeBackgroundColor(hex: string): Promise<void>;
+  getShowComing(): Promise<boolean>;
+  setShowComing(value: boolean): Promise<void>;
   getShowRanking(): Promise<boolean>;
   setShowRanking(value: boolean): Promise<void>;
   getShowNotification(): Promise<boolean>;

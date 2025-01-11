@@ -38,7 +38,7 @@ export class PopupImpl implements Popup {
   }
 
   async showComing(): Promise<boolean> {
-    return true;
+    return await this.browserApi.getShowComing();
   }
 
   toElapsedTime(program: Program): string {
