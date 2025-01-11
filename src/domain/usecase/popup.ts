@@ -43,7 +43,15 @@ export class PopupImpl implements Popup {
 
   toElapsedTime(program: Program): string {
     if (program.isMute) return "(非表示)";
-    const elapsedMinutes = (new Date().getTime() - program.beginAt.getTime()) / 1000 / 60;
+    const isComing = program.beginAt.getTime() > new Date().getTime();
+    if (isComing) {
+      const remainingMinutes = ((program.beginAt.getTime() - new Date().getTime()) / 1000 / 60);
+      const days = Math.floor(remainingMinutes / (60 * 24));
+      const hours = Math.floor((remainingMinutes % (60 * 24)) / 60);
+      const minutes = Math.floor(remainingMinutes % 60);
+      return `${days ? days + " 日 " : ""}${hours ? hours + " 時間 " : ""}${minutes} 分後`;
+    }
+    const elapsedMinutes = ((new Date().getTime() - program.beginAt.getTime()) / 1000 / 60);
     const hours = Math.floor(elapsedMinutes / 60);
     const minutes = Math.floor(elapsedMinutes % 60);
     return `${hours ? hours + " 時間 " : ""}${minutes} 分経過`;
