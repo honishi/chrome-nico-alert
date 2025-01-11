@@ -5,6 +5,8 @@ import { BrowserApi } from "../infra-interface/browser-api";
 import { SoundType } from "../model/sound-type";
 
 export interface Option {
+  getShowComing(): Promise<boolean>;
+  setShowComing(value: boolean): Promise<void>;
   getShowRanking(): Promise<boolean>;
   setShowRanking(value: boolean): Promise<void>;
   getShowNotification(): Promise<boolean>;
@@ -24,6 +26,14 @@ export class OptionImpl implements Option {
     @inject(InjectTokens.NiconamaApi) private niconamaApi: NiconamaApi,
     @inject(InjectTokens.BrowserApi) private browserApi: BrowserApi,
   ) {}
+
+  async getShowComing(): Promise<boolean> {
+    return await this.browserApi.getShowComing();
+  }
+
+  async setShowComing(value: boolean): Promise<void> {
+    await this.browserApi.setShowComing(value);
+  }
 
   async getShowRanking(): Promise<boolean> {
     return await this.browserApi.getShowRanking();

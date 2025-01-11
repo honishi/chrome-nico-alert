@@ -4,6 +4,8 @@ import { decode } from "html-entities";
 
 const FOLLOW_PROGRAMS_API_URL =
   "https://live.nicovideo.jp/front/api/pages/follow/v1/programs?status=onair&offset=0";
+const COMING_PROGRAMS_API_URL =
+  "https://live.nicovideo.jp/front/api/pages/follow/v1/programs?status=comingsoon&offset=0";
 const RECENT_PROGRAMS_API_URL = "https://live.nicovideo.jp/front/api/pages/recent/v1/programs";
 const RANKING_HTML_PAGE_URL = "https://live.nicovideo.jp/ranking";
 const USER_NICKNAME_API_URL = "https://api.live2.nicovideo.jp/api/v1/user/nickname";
@@ -14,7 +16,14 @@ export class NiconamaApiImpl implements NiconamaApi {
     const response = await fetch(FOLLOW_PROGRAMS_API_URL);
     const json = await response.text();
     // console.log(json);
-    return this.extractFollowingProgramsFromJson(json);
+    return this.extractFollowProgramsFromJson(json);
+  }
+
+  async getComingPrograms(): Promise<Program[]> {
+    const response = await fetch(COMING_PROGRAMS_API_URL);
+    const json = await response.text();
+    // console.log(json);
+    return this.extractFollowProgramsFromJson(json);
   }
 
   async getRecentPrograms(): Promise<Program[]> {
@@ -52,7 +61,7 @@ export class NiconamaApiImpl implements NiconamaApi {
     return match === null ? "" : match[1];
   }
 
-  private extractFollowingProgramsFromJson(json: string): Program[] {
+  private extractFollowProgramsFromJson(json: string): Program[] {
     const parsedJson = JSON.parse(json);
     return parsedJson.data.programs.map(this.toDomainProgram);
   }

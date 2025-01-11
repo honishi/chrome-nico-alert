@@ -6,7 +6,8 @@ import { BrowserApi } from "../infra-interface/browser-api";
 import { defaultBadgeBackgroundColor, suspendedBadgeBackgroundColor } from "./colors";
 
 export interface Popup {
-  getPrograms(): Promise<[Program[], Program[]]>; // [followingPrograms, rankingPrograms]
+  getPrograms(): Promise<[Program[], Program[], Program[]]>; // [followingPrograms, comingPrograms, rankingPrograms]
+  showComing(): Promise<boolean>;
   toElapsedTime(program: Program): string;
   setBadgeNumber(number: number): Promise<void>;
   isSuspended(): Promise<boolean>;
@@ -21,21 +22,36 @@ export class PopupImpl implements Popup {
     @inject(InjectTokens.BrowserApi) private browserApi: BrowserApi,
   ) {}
 
-  async getPrograms(): Promise<[Program[], Program[]]> {
+  async getPrograms(): Promise<[Program[], Program[], Program[]]> {
+    const showComing = await this.showComing();
     const showRanking = await this.browserApi.getShowRanking();
-    const [following, ranking] = await Promise.all([
+    const [following, coming, ranking] = await Promise.all([
       this.niconamaApi.getFollowingPrograms(),
+      showComing ? this.niconamaApi.getComingPrograms() : [],
       showRanking ? this.niconamaApi.getRankingPrograms() : [],
     ]);
     return [
       following.map(this.fixScreenshotThumbnailUrlIfTooEarly),
+      coming.map(this.fixScreenshotThumbnailUrlIfTooEarly),
       ranking.map(this.maskProgramIfMuted),
     ];
   }
 
+  async showComing(): Promise<boolean> {
+    return await this.browserApi.getShowComing();
+  }
+
   toElapsedTime(program: Program): string {
     if (program.isMute) return "(非表示)";
-    const elapsedMinutes = (new Date().getTime() - program.beginAt.getTime()) / 1000 / 60;
+    const isComing = program.beginAt.getTime() > new Date().getTime();
+    if (isComing) {
+      const remainingMinutes = ((program.beginAt.getTime() - new Date().getTime()) / 1000 / 60);
+      const days = Math.floor(remainingMinutes / (60 * 24));
+      const hours = Math.floor((remainingMinutes % (60 * 24)) / 60);
+      const minutes = Math.floor(remainingMinutes % 60);
+      return `${days ? days + " 日 " : ""}${hours ? hours + " 時間 " : ""}${minutes} 分後`;
+    }
+    const elapsedMinutes = ((new Date().getTime() - program.beginAt.getTime()) / 1000 / 60);
     const hours = Math.floor(elapsedMinutes / 60);
     const minutes = Math.floor(elapsedMinutes % 60);
     return `${hours ? hours + " 時間 " : ""}${minutes} 分経過`;
