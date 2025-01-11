@@ -13,7 +13,7 @@ test("Parse programs_onair.json", async () => {
   const nicoapi = container.resolve<NiconamaApi>(InjectTokens.NiconamaApi);
   const json = fs.readFileSync("test/json/programs_onair.json", "utf8");
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const programs = (nicoapi as any).extractFollowingProgramsFromJson(json);
+  const programs = (nicoapi as any).extractFollowProgramsFromJson(json);
   // console.log(programs);
   expect(programs.length).toBeGreaterThan(0);
 });
