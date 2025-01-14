@@ -6,10 +6,16 @@ import { Popup } from "../../domain/usecase/popup";
 interface ComingProgramsProps {
   programs: Program[];
   popup: Popup;
+  showComponent: boolean;
+  useShowMoreButton: boolean;
 }
 
-const ComingPrograms: React.FC<ComingProgramsProps> = ({ programs, popup }) => {
-  const [showAll, setShowAll] = useState(false);
+const ComingPrograms: React.FC<ComingProgramsProps> = ({ programs, popup, showComponent, useShowMoreButton }) => {
+  if (!showComponent) {
+    return null;
+  }
+
+  const [showAll, setShowAll] = useState(!useShowMoreButton);
   const programCountPerRow = 5;
   const displayedPrograms = showAll ? programs : programs.slice(0, programCountPerRow);
 

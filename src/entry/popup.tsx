@@ -44,8 +44,14 @@ async function renderPage() {
   createRoot(followingContainer).render(followingItems);
   setElementVisibility("following-no-programs", followingPrograms.length === 0);
 
-  createRoot(comingContainer).render(<ComingPrograms programs={comingPrograms} popup={popup} />);
-  setElementVisibility("coming-section", showComing);
+  createRoot(comingContainer).render(
+    <ComingPrograms
+      programs={comingPrograms}
+      popup={popup}
+      showComponent={showComing}
+      useShowMoreButton={rankingPrograms.length > 0}
+    />,
+  );
 
   const rankingItems = rankingPrograms.map((p, index) => {
     const elapsed = popup.toElapsedTime(p);
