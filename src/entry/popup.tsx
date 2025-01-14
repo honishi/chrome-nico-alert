@@ -53,13 +53,16 @@ async function renderPage() {
     />,
   );
 
-  const rankingItems = rankingPrograms.map((p, index) => {
-    const elapsed = popup.toElapsedTime(p);
-    const rank = index + 1;
-    return <ProgramGridItem program={p} elapsedTime={elapsed} rank={rank} key={p.id} />;
-  });
-  createRoot(rankingContainer).render(rankingItems);
-  setElementVisibility("ranking-section", rankingPrograms.length > 0);
+  const showRanking = rankingPrograms.length > 0;
+  if (showRanking) {
+    const rankingItems = rankingPrograms.map((p, index) => {
+      const elapsed = popup.toElapsedTime(p);
+      const rank = index + 1;
+      return <ProgramGridItem program={p} elapsedTime={elapsed} rank={rank} key={p.id} />;
+    });
+    createRoot(rankingContainer).render(rankingItems);
+  }
+  setElementVisibility("ranking-section", showRanking);
 
   await popup.setBadgeNumber(followingPrograms.length);
 }
