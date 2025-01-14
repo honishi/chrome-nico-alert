@@ -228,3 +228,35 @@ body {
   color: #f0f0f0;
   background-color: #2aa198;
 }
+
+.show-more-container {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: -10px;
+}
+
+.show-more-button {
+  background: none;
+  border: none;
+  color: #121212;
+  cursor: pointer;
+  font-family: 'M PLUS Rounded 1c', sans-serif;
+  font-size: 14px;
+  padding: 5px 10px;
+  text-decoration: underline;
+  transition: color 0.3s;
+}
+
+.show-more-button:hover {
+  color: #626262;
+}
+
+@media (prefers-color-scheme: dark) {
+  .show-more-button {
+    color: #f0f0f0;
+  }
+
+  .show-more-button:hover {
+    color: #a0a0a0;
+  }
+}
