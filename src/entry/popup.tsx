@@ -7,6 +7,7 @@ import { configureDefaultContainer } from "../di/register";
 import ProgramGridItem from "./component/ProgramGridItem";
 import { createRoot } from "react-dom/client";
 import React from "react";
+import ComingPrograms from "./component/ComingPrograms";
 
 const SUSPEND_BUTTON_ID = "suspend-button";
 
@@ -43,12 +44,7 @@ async function renderPage() {
   createRoot(followingContainer).render(followingItems);
   setElementVisibility("following-no-programs", followingPrograms.length === 0);
 
-  const comingItems = comingPrograms.map((p) => {
-    const elapsed = popup.toElapsedTime(p);
-    return <ProgramGridItem program={p} elapsedTime={elapsed} rank={undefined} key={p.id} />;
-  });
-  createRoot(comingContainer).render(comingItems);
-  setElementVisibility("coming-no-programs", comingPrograms.length === 0);
+  createRoot(comingContainer).render(<ComingPrograms programs={comingPrograms} popup={popup} />);
   setElementVisibility("coming-section", showComing);
 
   const rankingItems = rankingPrograms.map((p, index) => {
