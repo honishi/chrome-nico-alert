@@ -19,7 +19,7 @@ const ComingPrograms: React.FC<ComingProgramsProps> = ({ programs, popup }) => {
         <span className="section-title"> 予約番組 </span>
       </div>
       {programs.length === 0 ? (
-        <div className="no-programs-container" id="coming-no-programs">
+        <div className="no-programs-container" style={{ display: "block" }} id="coming-no-programs">
           <span className="no-programs-text">現在、予約番組はありません。</span>
         </div>
       ) : (
