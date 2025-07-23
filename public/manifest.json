@@ -4,8 +4,8 @@
   "manifest_version": 3,
   "description": "ニコニコ生放送の放送アラートと自動入場が可能になります。",
   "icons": {
-    "48": "./icons/icon48.png",
-    "128": "./icons/icon128.png"
+    "48": "icons/icon48.png",
+    "128": "icons/icon128.png"
   },
   "permissions": [
     "storage",
