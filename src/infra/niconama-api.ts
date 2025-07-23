@@ -91,7 +91,7 @@ export class NiconamaApiImpl implements NiconamaApi {
     return {
       id: responseProgram.id,
       title: responseProgram.title,
-      listingThumbnail: responseProgram.listingThumbnail,
+      listingThumbnail: responseProgram.flippedListingThumbnail ?? responseProgram.listingThumbnail,
       screenshotThumbnail: {
         liveScreenshotThumbnailUrl: responseProgram.listingThumbnail,
       },
