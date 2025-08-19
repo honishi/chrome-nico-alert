@@ -116,11 +116,11 @@ export class NiconamaApiImpl implements NiconamaApi {
         },
       },
       isFollowerOnly: responseProgram.isFollowerOnly,
-      beginAt: new Date(responseProgram.beginAt ?? (responseProgram.beginTime * 1000)),
+      beginAt: new Date(responseProgram.beginAt ?? responseProgram.beginTime * 1000),
       isMute:
-        responseProgram.programProvider &&
+        responseProgram.supplier &&
         Array.isArray(muteUserIds) &&
-        muteUserIds.includes(responseProgram.programProvider.id),
+        muteUserIds.includes(responseProgram.supplier.programProviderId),
     };
   }
 }
