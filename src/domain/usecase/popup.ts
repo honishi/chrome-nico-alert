@@ -101,11 +101,13 @@ export class PopupImpl implements Popup {
           ...program,
           title: "(非表示に設定されています)",
           listingThumbnail: muteIconUrl,
-          programProvider: {
-            id: "",
+          supplier: {
             name: "(非表示)",
-            icon: muteIconUrl,
-            iconSmall: muteIconUrl,
+            programProviderId: "",
+            icons: {
+              uri50x50: muteIconUrl,
+              uri150x150: muteIconUrl,
+            },
           },
         }
       : program;

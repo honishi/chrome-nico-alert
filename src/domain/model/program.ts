@@ -6,6 +6,7 @@ export type Program = {
   watchPageUrl: string;
   programProvider?: ProgramProvider;
   socialGroup: SocialGroup;
+  supplier?: Supplier;
   isFollowerOnly: boolean;
   beginAt: Date;
   isMute: boolean;
@@ -27,3 +28,14 @@ type SocialGroup = {
   name: string;
   thumbnailUrl: string;
 };
+
+type Supplier = {
+  name: string;
+  programProviderId: string;
+  icons: Icons;
+};
+
+type Icons = {
+  uri50x50: string;
+  uri150x150: string;
+}

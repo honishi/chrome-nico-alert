@@ -89,7 +89,7 @@ export class NiconamaApiImpl implements NiconamaApi {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   private toDomainProgram(responseProgram: any, muteUserIds: string[] = []): Program {
     return {
-      id: responseProgram.id,
+      id: responseProgram.id ?? responseProgram.nicoliveProgramId,
       title: responseProgram.title,
       listingThumbnail: responseProgram.flippedListingThumbnail ?? responseProgram.listingThumbnail,
       screenshotThumbnail: {
@@ -107,12 +107,20 @@ export class NiconamaApiImpl implements NiconamaApi {
         name: responseProgram.socialGroup.name,
         thumbnailUrl: responseProgram.socialGroup.thumbnailUrl,
       },
+      supplier: responseProgram.supplier && {
+        name: responseProgram.supplier.name,
+        programProviderId: responseProgram.supplier.programProviderId,
+        icons: {
+          uri50x50: responseProgram.supplier.icons.uri50x50,
+          uri150x150: responseProgram.supplier.icons.uri150x150,
+        },
+      },
       isFollowerOnly: responseProgram.isFollowerOnly,
-      beginAt: new Date(responseProgram.beginAt),
+      beginAt: new Date(responseProgram.beginAt ?? responseProgram.beginTime * 1000),
       isMute:
-        responseProgram.programProvider &&
+        responseProgram.supplier &&
         Array.isArray(muteUserIds) &&
-        muteUserIds.includes(responseProgram.programProvider.id),
+        muteUserIds.includes(responseProgram.supplier.programProviderId),
     };
   }
 }
