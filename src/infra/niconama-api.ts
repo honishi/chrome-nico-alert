@@ -89,7 +89,7 @@ export class NiconamaApiImpl implements NiconamaApi {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   private toDomainProgram(responseProgram: any, muteUserIds: string[] = []): Program {
     return {
-      id: responseProgram.id,
+      id: responseProgram.id ?? responseProgram.nicoliveProgramId,
       title: responseProgram.title,
       listingThumbnail: responseProgram.flippedListingThumbnail ?? responseProgram.listingThumbnail,
       screenshotThumbnail: {
