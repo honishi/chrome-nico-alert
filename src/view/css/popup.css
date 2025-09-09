@@ -28,19 +28,19 @@ body {
   cursor: pointer;
   font-family: "M PLUS Rounded 1c", sans-serif;
   font-weight: 900;
-  font-size: 14px;
-  margin-right: 16px;
+  font-size: 13px;
+  margin-right: 12px;
 }
 
 .menu-item a {
   color: inherit;
+  text-decoration: none;
 }
 
 .menu-item-button {
   cursor: pointer;
   background: none;
   border: none;
-  text-decoration: underline;
   color: inherit;
   font: inherit;
   outline: none;
