@@ -88,39 +88,41 @@ export class NiconamaApiImpl implements NiconamaApi {
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   private toDomainProgram(responseProgram: any, muteUserIds: string[] = []): Program {
+    // Handle ranking API response structure where data is wrapped in { type, value, key }
+    const program = responseProgram.value ?? responseProgram;
     return {
-      id: responseProgram.id ?? responseProgram.nicoliveProgramId,
-      title: responseProgram.title,
-      listingThumbnail: responseProgram.flippedListingThumbnail ?? responseProgram.listingThumbnail,
+      id: program.id ?? program.nicoliveProgramId,
+      title: program.title,
+      listingThumbnail: program.flippedListingThumbnail ?? program.listingThumbnail,
       screenshotThumbnail: {
-        liveScreenshotThumbnailUrl: responseProgram.listingThumbnail,
+        liveScreenshotThumbnailUrl: program.listingThumbnail,
       },
-      watchPageUrl: responseProgram.watchPageUrl,
-      programProvider: responseProgram.programProvider && {
-        id: responseProgram.programProvider.id,
-        name: responseProgram.programProvider.name,
-        icon: responseProgram.programProvider.icon,
-        iconSmall: responseProgram.programProvider.iconSmall,
+      watchPageUrl: program.watchPageUrl,
+      programProvider: program.programProvider && {
+        id: program.programProvider.id,
+        name: program.programProvider.name,
+        icon: program.programProvider.icon,
+        iconSmall: program.programProvider.iconSmall,
       },
       socialGroup: {
-        id: responseProgram.socialGroup.id,
-        name: responseProgram.socialGroup.name,
-        thumbnailUrl: responseProgram.socialGroup.thumbnailUrl,
+        id: program.socialGroup.id,
+        name: program.socialGroup.name,
+        thumbnailUrl: program.socialGroup.thumbnailUrl,
       },
-      supplier: responseProgram.supplier && {
-        name: responseProgram.supplier.name,
-        programProviderId: responseProgram.supplier.programProviderId,
+      supplier: program.supplier && {
+        name: program.supplier.name,
+        programProviderId: program.supplier.programProviderId,
         icons: {
-          uri50x50: responseProgram.supplier.icons.uri50x50,
-          uri150x150: responseProgram.supplier.icons.uri150x150,
+          uri50x50: program.supplier.icons.uri50x50,
+          uri150x150: program.supplier.icons.uri150x150,
         },
       },
-      isFollowerOnly: responseProgram.isFollowerOnly,
-      beginAt: new Date(responseProgram.beginAt ?? responseProgram.beginTime * 1000),
+      isFollowerOnly: program.isFollowerOnly,
+      beginAt: new Date(program.beginAt ?? program.beginTime * 1000),
       isMute:
-        responseProgram.supplier &&
+        program.supplier &&
         Array.isArray(muteUserIds) &&
-        muteUserIds.includes(responseProgram.supplier.programProviderId),
+        muteUserIds.includes(program.supplier.programProviderId),
     };
   }
 }
