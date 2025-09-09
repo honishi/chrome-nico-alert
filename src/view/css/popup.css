@@ -37,6 +37,12 @@ body {
   text-decoration: none;
 }
 
+.menu-item i {
+  font-size: 13px;
+  margin-right: 2px;
+  vertical-align: middle;
+}
+
 .menu-item-button {
   cursor: pointer;
   background: none;
@@ -63,13 +69,18 @@ body {
 
 .section-title::before,
 .section-title::after {
-  content: "⚫";
+  font-family: "Font Awesome 6 Free";
+  font-weight: 900;
+  content: "\f111"; /* fa-circle */
+  font-size: 12px;
+  vertical-align: middle;
 }
 
 @media (prefers-color-scheme: dark) {
   .section-title::before,
   .section-title::after {
-    content: "⚪";
+    font-weight: 400;
+    content: "\f111"; /* far fa-circle for outline */
   }
 }
 
@@ -138,6 +149,11 @@ body {
   text-overflow: ellipsis;
   border-bottom: 1px solid #ddd;
   margin-bottom: 8px;
+}
+
+.elapsed-time i {
+  font-size: 10px;
+  margin-right: 2px;
 }
 
 @media (prefers-color-scheme: dark) {

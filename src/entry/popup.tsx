@@ -78,7 +78,9 @@ async function updateSuspendButton() {
   const isSuspended = await popup.isSuspended();
   const suspendEmoji = document.getElementById("suspend-emoji") as HTMLSpanElement;
   const suspendButton = document.getElementById(SUSPEND_BUTTON_ID) as HTMLButtonElement;
-  suspendEmoji.textContent = isSuspended ? "✋" : "👍";
+  suspendEmoji.innerHTML = isSuspended 
+    ? '<i class="fas fa-hand-paper"></i>' 
+    : '<i class="fas fa-thumbs-up"></i>';
   suspendButton.textContent = `自動入場${isSuspended ? "停止" : "動作"}中`;
 }
 
