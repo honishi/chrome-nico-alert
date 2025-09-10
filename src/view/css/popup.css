@@ -29,8 +29,8 @@ body {
   cursor: pointer;
   font-family: "M PLUS Rounded 1c", sans-serif;
   font-weight: 900;
-  font-size: 13px;
-  margin-right: 12px;
+  font-size: 12px;
+  margin-right: 16px;
   line-height: 1.5;
 }
 
@@ -73,22 +73,26 @@ body {
   font-family: "M PLUS Rounded 1c", sans-serif;
   font-weight: 900;
   font-size: 16px;
+  display: inline-flex;
+  align-items: center;
+  line-height: 1;
 }
 
 .section-title::before,
 .section-title::after {
-  font-family: "Font Awesome 6 Free";
+  font-family: "Font Awesome 7 Free";
   font-weight: 900;
   content: "\f111"; /* fa-circle */
-  font-size: 12px;
-  vertical-align: middle;
+  font-size: 14px;
+  display: inline-flex;
+  align-items: center;
+  margin: 0 8px;
 }
 
 @media (prefers-color-scheme: dark) {
   .section-title::before,
   .section-title::after {
-    font-weight: 400;
-    content: "\f111"; /* far fa-circle for outline */
+    color: #ffffff;
   }
 }
 
