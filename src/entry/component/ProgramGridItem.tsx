@@ -34,7 +34,7 @@ export default function ProgramGridItem(props: {
       <a href={props.program.watchPageUrl} onClick={onClick}>
         <img src={programImageSrc} alt="" />
         <span className="elapsed-time">
-          <i className="fas fa-stopwatch"></i> {props.elapsedTime}
+          <i className="fa-solid fa-clock"></i> {props.elapsedTime}
         </span>
         <span className="title-span">{title}</span>
         <div className="user-div">
