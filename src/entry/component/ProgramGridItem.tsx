@@ -33,7 +33,9 @@ export default function ProgramGridItem(props: {
       {rankElement}
       <a href={props.program.watchPageUrl} onClick={onClick}>
         <img src={programImageSrc} alt="" />
-        <span className="elapsed-time">{"⏱️" + props.elapsedTime}</span>
+        <span className="elapsed-time">
+          <i className="fa-solid fa-clock"></i> {props.elapsedTime}
+        </span>
         <span className="title-span">{title}</span>
         <div className="user-div">
           <img src={userImageSrc} alt="" />
