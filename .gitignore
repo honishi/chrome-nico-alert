@@ -2,5 +2,6 @@
 node_modules/
 dist/
 dist*.zip
+temp/
 .claude/
 .serena/
