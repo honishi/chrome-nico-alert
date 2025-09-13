@@ -10,12 +10,12 @@
   "permissions": [
     "storage",
     "offscreen",
-    "notifications"
+    "notifications",
+    "cookies"
   ],
   "host_permissions": [
-    "https://live.nicovideo.jp/watch/*",
-    "https://secure-dcdn.cdn.nimg.jp/*",
-    "https://api.live2.nicovideo.jp/*"
+    "https://*.nicovideo.jp/*",
+    "https://secure-dcdn.cdn.nimg.jp/*"
   ],
   "content_scripts": [
     {
@@ -29,7 +29,8 @@
         "https://live.nicovideo.jp/watch/*",
         "https://www.nicovideo.jp/my/follow*",
         "https://www.nicovideo.jp/user/*",
-        "https://ch.nicovideo.jp/*"
+        "https://ch.nicovideo.jp/*",
+        "https://account.nicovideo.jp/*"
       ]
     }
   ],

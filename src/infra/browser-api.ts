@@ -8,6 +8,7 @@ const SHOW_NOTIFICATION_KEY = "showNotification";
 const SOUND_VOLUME_KEY = "soundVolume";
 const SUSPEND_FROM_DATE_KEY = "suspendFromDate";
 const AUTO_OPEN_USERS_KEY = "autoOpenUsers";
+const RECEIVE_PUSH_NOTIFICATION_KEY = "receivePushNotification";
 
 const OFFSCREEN_HTML = "html/offscreen.html";
 
@@ -78,6 +79,15 @@ export class BrowserApiImpl implements BrowserApi {
     } finally {
       console.log(`sent message: ${message}`);
     }
+  }
+
+  async getReceivePushNotification(): Promise<boolean> {
+    const result = await chrome.storage.local.get([RECEIVE_PUSH_NOTIFICATION_KEY]);
+    return result[RECEIVE_PUSH_NOTIFICATION_KEY] ?? false;
+  }
+
+  async setReceivePushNotification(value: boolean): Promise<void> {
+    await chrome.storage.local.set({ [RECEIVE_PUSH_NOTIFICATION_KEY]: value });
   }
 
   private async createOffscreen(): Promise<void> {

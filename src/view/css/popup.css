@@ -1,3 +1,4 @@
+/* ==================== Base Styles ==================== */
 body {
   font-family: sans-serif;
   font-size: 12px;
@@ -12,6 +13,7 @@ body {
   }
 }
 
+/* ==================== Header Section ==================== */
 .setting-container {
   display: flex;
   flex-direction: column;
@@ -61,6 +63,161 @@ body {
   align-items: center;
 }
 
+/* ==================== Push Status Section ==================== */
+.push-status-container {
+  margin-bottom: 16px;
+  padding: 8px 12px;
+  background-color: #f8f9fa;
+  border-radius: 4px;
+  border: 1px solid #dee2e6;
+}
+
+@media (prefers-color-scheme: dark) {
+  .push-status-container {
+    background-color: #1e1e1e;
+    border-color: #343a40;
+  }
+}
+
+.push-status {
+  font-size: 12px;
+  font-weight: 500;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.push-status-left-group {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  min-width: 0;  /* Allow flex item to shrink */
+  flex: 1;       /* Use available width */
+}
+
+.push-status-loading {
+  color: #6c757d;
+  font-style: italic;
+}
+
+/* Status states */
+.push-status-connected {
+  white-space: nowrap;
+  display: inline-flex;
+  align-items: center;
+}
+
+.push-status-connected .push-status-icon {
+  color: #28a745;
+}
+
+.push-status-disconnected {
+  white-space: nowrap;
+  display: inline-flex;
+  align-items: center;
+}
+
+.push-status-disconnected .push-status-icon {
+  color: #ffc107;
+}
+
+.push-status-disabled {
+  white-space: nowrap;
+  display: inline-flex;
+  align-items: center;
+}
+
+.push-status-disabled .push-status-icon {
+  color: #6c757d;
+}
+
+.push-status-error {
+  color: #dc3545;
+  white-space: nowrap;
+  display: inline-flex;
+  align-items: center;
+}
+
+.push-status-icon {
+  font-size: 10px;
+  margin-right: 8px;
+  display: inline-flex;
+  align-items: center;
+}
+
+/* Last program info */
+.push-last-program {
+  color: #6c757d;
+  font-size: 12px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  min-width: 0;  /* Allow shrinking (important for ellipsis) */
+  flex: 1;       /* Take remaining width in the flex container */
+  display: flex;
+  align-items: center;
+}
+
+@media (prefers-color-scheme: dark) {
+  .push-last-program {
+    color: #adb5bd;
+  }
+}
+
+.push-program-icon {
+  font-size: 11px;
+  margin-right: 8px;
+  flex-shrink: 0;
+}
+
+.push-program-text {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  min-width: 0;
+}
+
+/* Control button */
+.push-control-button {
+  padding: 4px 12px;
+  font-size: 11px;
+  font-weight: 500;
+  border: 1px solid #dee2e6;
+  border-radius: 3px;
+  background-color: #ffffff;
+  color: #212529;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  white-space: nowrap;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.push-control-button:hover:not(:disabled) {
+  background-color: #f8f9fa;
+  border-color: #adb5bd;
+}
+
+.push-control-button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+@media (prefers-color-scheme: dark) {
+  .push-control-button {
+    background-color: #2b2b2b;
+    color: #f0f0f0;
+    border-color: #495057;
+  }
+
+  .push-control-button:hover:not(:disabled) {
+    background-color: #3a3a3a;
+    border-color: #6c757d;
+  }
+}
+
+/* ==================== Content Sections ==================== */
 .section-container {
   margin-bottom: 32px;
 }
@@ -107,6 +264,7 @@ body {
   font-size: 14px;
 }
 
+/* ==================== Grid & Program Items ==================== */
 .grid-container {
   display: grid;
   grid-template-columns: repeat(5, 140px);
@@ -209,6 +367,7 @@ body {
   text-overflow: ellipsis;
 }
 
+/* Rank badges */
 .rank-number {
   position: absolute;
   top: 2px;
@@ -257,6 +416,7 @@ body {
   background-color: #2aa198;
 }
 
+/* ==================== Additional Components ==================== */
 .show-more-container {
   display: flex;
   justify-content: flex-end;

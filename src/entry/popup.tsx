@@ -11,8 +11,239 @@ import ComingPrograms from "./component/ComingPrograms";
 
 const SUSPEND_BUTTON_ID = "suspend-button";
 
+interface PushStatus {
+  enabled: boolean;
+  connected: boolean;
+  connectionState: string;
+  lastReceivedProgram?: {
+    program: {
+      body: string;
+      icon: string;
+      title: string;
+      createdAt?: string;
+      onClick?: string;
+    };
+    receivedAt: string;
+  };
+  channelId?: string;
+  uaid?: string;
+}
+
+async function getPushStatus(): Promise<PushStatus> {
+  return new Promise((resolve) => {
+    chrome.runtime.sendMessage(
+      { type: 'GET_PUSH_STATUS' },
+      (response) => {
+        resolve(response);
+      }
+    );
+  });
+}
+
+async function startPushNotification(): Promise<void> {
+  return new Promise((resolve, reject) => {
+    chrome.runtime.sendMessage(
+      { type: 'START_PUSH' },
+      (response) => {
+        if (response && response.success) {
+          resolve();
+        } else {
+          reject(new Error(response?.error || 'Failed to start push notification'));
+        }
+      }
+    );
+  });
+}
+
+async function stopPushNotification(): Promise<void> {
+  return new Promise((resolve, reject) => {
+    chrome.runtime.sendMessage(
+      { type: 'STOP_PUSH' },
+      (response) => {
+        if (response && response.success) {
+          resolve();
+        } else {
+          reject(new Error(response?.error || 'Failed to stop push notification'));
+        }
+      }
+    );
+  });
+}
+
+async function updatePushStatusDisplay() {
+  const statusContainer = document.querySelector('.push-status-container') as HTMLElement;
+  const statusElement = document.getElementById('push-status');
+  const controlButton = document.getElementById('push-control-button') as HTMLButtonElement;
+  if (!statusElement || !statusContainer) return;
+
+  try {
+    const status = await getPushStatus();
+
+    // Hide container entirely if push notifications are disabled
+    if (!status.enabled) {
+      statusContainer.style.display = 'none';
+      return;
+    }
+
+    // Show container if push notifications are enabled
+    statusContainer.style.display = 'block';
+
+    let statusText = 'プッシュ通知: 無効';
+    let statusClass = 'push-status-disabled';
+
+    if (status.enabled && status.connected) {
+      statusText = 'プッシュ通知: 接続中';
+      statusClass = 'push-status-connected';
+    } else if (status.enabled && !status.connected) {
+      statusText = 'プッシュ通知: 未接続';
+      statusClass = 'push-status-disconnected';
+    }
+
+    // Clear and rebuild status content
+    statusElement.innerHTML = '';
+
+    // Create left group container for status and program info
+    const leftGroup = document.createElement('div');
+    leftGroup.className = 'push-status-left-group';
+
+    // Create status text span
+    const statusSpan = document.createElement('span');
+    statusSpan.className = statusClass;
+
+    // Create icon element
+    const iconElement = document.createElement('i');
+    iconElement.className = 'fa-solid fa-circle push-status-icon';
+    statusSpan.appendChild(iconElement);
+
+    // Add status text
+    const textNode = document.createTextNode(` ${statusText}`);
+    statusSpan.appendChild(textNode);
+
+    leftGroup.appendChild(statusSpan);
+
+    // Add last received program info or "no program received" message
+    const programDiv = document.createElement('div');
+    programDiv.className = 'push-last-program';
+
+    // Create TV icon
+    const tvIcon = document.createElement('i');
+    tvIcon.className = 'fa-solid fa-satellite-dish push-program-icon';
+    programDiv.appendChild(tvIcon);
+
+    if (status.lastReceivedProgram) {
+      const lastReceived = new Date(status.lastReceivedProgram.receivedAt);
+      const now = new Date();
+      const diffMs = now.getTime() - lastReceived.getTime();
+      const diffMinutes = Math.floor(diffMs / 60000);
+
+      let timeText = '';
+      if (diffMinutes < 60) {
+        timeText = `${diffMinutes}分前`;
+      } else {
+        const diffHours = Math.floor(diffMinutes / 60);
+        timeText = `${diffHours}時間前`;
+      }
+
+      // Extract broadcaster name from title (format: "XXXさんが生放送を開始")
+      const titleMatch = status.lastReceivedProgram.program.title.match(/(.+)さんが生放送を開始/);
+      const displayTitle = titleMatch ? titleMatch[1] : status.lastReceivedProgram.program.title;
+
+      const programTextSpan = document.createElement('span');
+      programTextSpan.className = 'push-program-text';
+      const fullText = ` 最新:【${displayTitle}】${status.lastReceivedProgram.program.body} (${timeText})`;
+      programTextSpan.textContent = fullText;
+
+      // Format full date/time for tooltip
+      const year = lastReceived.getFullYear();
+      const month = String(lastReceived.getMonth() + 1).padStart(2, '0');
+      const day = String(lastReceived.getDate()).padStart(2, '0');
+      const hours = String(lastReceived.getHours()).padStart(2, '0');
+      const minutes = String(lastReceived.getMinutes()).padStart(2, '0');
+      const seconds = String(lastReceived.getSeconds()).padStart(2, '0');
+      const fullDateTime = `${year}/${month}/${day} ${hours}:${minutes}:${seconds}`;
+
+      programTextSpan.title = `最新:【${displayTitle}】${status.lastReceivedProgram.program.body}\n日時: ${fullDateTime}`;
+      programDiv.appendChild(programTextSpan);
+    } else {
+      const programTextSpan = document.createElement('span');
+      programTextSpan.className = 'push-program-text';
+      programTextSpan.textContent = ` 最新: なし`;
+      programDiv.appendChild(programTextSpan);
+    }
+
+    leftGroup.appendChild(programDiv);
+    statusElement.appendChild(leftGroup);
+
+    // Re-add the control button (will be positioned to the right)
+    statusElement.appendChild(controlButton);
+
+    // Update control button
+    if (controlButton) {
+      controlButton.style.display = 'inline-block';
+      controlButton.disabled = false;
+
+      if (status.connected) {
+        controlButton.innerHTML = '<i class="fa-solid fa-stop"></i> 切断';
+        controlButton.onclick = async () => {
+          controlButton.disabled = true;
+          controlButton.innerHTML = '<i class="fa-solid fa-stop"></i> 切断中...';
+          try {
+            await stopPushNotification();
+            await updatePushStatusDisplay();
+          } catch (error) {
+            console.error('Failed to stop push notification:', error);
+            alert('Failed to stop push notification');
+            controlButton.disabled = false;
+            controlButton.innerHTML = '<i class="fa-solid fa-stop"></i> 切断';
+          }
+        };
+      } else {
+        controlButton.innerHTML = '<i class="fa-solid fa-play"></i> 接続';
+        controlButton.onclick = async () => {
+          controlButton.disabled = true;
+          controlButton.innerHTML = '<i class="fa-solid fa-play"></i> 接続中...';
+          try {
+            await startPushNotification();
+            await updatePushStatusDisplay();
+          } catch (error) {
+            console.error('Failed to start push notification:', error);
+            alert('Failed to start push notification');
+            controlButton.disabled = false;
+            controlButton.innerHTML = '<i class="fa-solid fa-play"></i> 接続';
+          }
+        };
+      }
+    }
+
+    // Set detailed information as tooltip (without time info)
+    const details = [];
+    if (status.connectionState) {
+      details.push(`状態: ${status.connectionState}`);
+    }
+    if (status.uaid) {
+      details.push(`UAID: ${status.uaid}`);
+    }
+    if (status.channelId) {
+      details.push(`Channel ID: ${status.channelId}`);
+    }
+
+    if (details.length > 0) {
+      statusSpan.title = details.join('\n');
+    }
+  } catch (error) {
+    console.error('Failed to get push status:', error);
+    statusElement.innerHTML = '<span class="push-status-error">⚠️ プッシュ通知: エラー</span>';
+  }
+}
+
 async function renderPage() {
   const popup = container.resolve<Popup>(InjectTokens.Popup);
+
+  // Display push notification status
+  await updatePushStatusDisplay();
+
+  // Update status every 5 seconds
+  setInterval(updatePushStatusDisplay, 5000);
 
   const suspendButton = document.getElementById(SUSPEND_BUTTON_ID) as HTMLButtonElement;
   suspendButton.onclick = async () => {

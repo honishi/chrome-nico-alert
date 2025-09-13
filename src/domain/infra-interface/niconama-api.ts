@@ -8,4 +8,5 @@ export interface NiconamaApi {
   resolveUserName(userId: string): Promise<string>;
   resolveChannelId(channelUrl: string): Promise<string | undefined>;
   resolveChannelName(channelId: string): Promise<string>;
+  resolveProgram(programId: string): Promise<Program | undefined>;
 }

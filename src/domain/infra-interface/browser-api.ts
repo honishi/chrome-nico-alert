@@ -13,6 +13,8 @@ export interface BrowserApi {
   getSoundVolume(): Promise<number>;
   setSoundVolume(value: number): Promise<void>;
   playSound(sound: SoundType): Promise<void>;
+  getReceivePushNotification(): Promise<boolean>;
+  setReceivePushNotification(value: boolean): Promise<void>;
   showNotification(
     title: string,
     message: string,

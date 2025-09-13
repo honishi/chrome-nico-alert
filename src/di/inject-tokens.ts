@@ -5,4 +5,5 @@ export const InjectTokens = {
   NiconamaApi: Symbol.for("NiconamaApi"),
   Option: Symbol.for("Option"),
   Popup: Symbol.for("Popup"),
+  PushManager: Symbol.for("PushManager"),
 };

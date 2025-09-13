@@ -62,11 +62,11 @@ npm test
 - `storage` - Store user preferences and auto-open user lists
 - `offscreen` - Create offscreen documents for audio playback
 - `notifications` - Display desktop notifications for broadcasts
+- `cookies` - Access authentication cookies for API requests
 
 #### Host Permissions
-- `https://live.nicovideo.jp/watch/*` - Access broadcast pages
+- `https://*.nicovideo.jp/*` - Access all Niconico domains for API and content
 - `https://secure-dcdn.cdn.nimg.jp/*` - Fetch user icons
-- `https://api.live2.nicovideo.jp/*` - Fetch broadcast information
 
 #### Content Scripts
 Injected into the following URL patterns:
@@ -74,17 +74,30 @@ Injected into the following URL patterns:
 - `https://www.nicovideo.jp/my/follow*` - User follow pages
 - `https://www.nicovideo.jp/user/*` - User profile pages
 - `https://ch.nicovideo.jp/*` - Channel pages
+- `https://account.nicovideo.jp/*` - Account management pages
 
 ### Key Components
 - **Background Script** - Runs as Service Worker, uses `setInterval` for periodic broadcast checking (not Chrome Alarms API)
+  - Manages WebPush notifications via Mozilla AutoPush service
+  - Handles persistent WebSocket connections for real-time notifications
 - **Content Script** - Injected into Niconico Live pages, handles auto-entry and UI enhancements
 - **Popup** - Extension icon click interface showing current broadcasts
+  - Displays push notification status (connected/disconnected)
+  - Shows last received program information
+  - Provides connect/disconnect controls for push notifications
 - **Options** - Settings page for configuring notifications, sounds, and auto-open users
+  - Manages push notification settings
 - **Offscreen Document** - For background audio playback (workaround for Service Worker limitations)
+- **Push Notification System**
+  - **AutoPushClient** - WebSocket client for Mozilla Push Service
+  - **WebPushManager** - Manages push subscriptions and message decryption
+  - **RFC8291 Crypto** - Implements Web Push encryption standard
 
 ### API Endpoints
 - `api.live2.nicovideo.jp` - Fetch broadcast information
 - `secure-dcdn.cdn.nimg.jp` - Fetch icon images
+- `wss://push.services.mozilla.com/` - Mozilla AutoPush WebSocket endpoint for push notifications
+- `api.push.nicovideo.jp` - Niconico Push API for managing push subscriptions
 
 ### CI/CD
 - **GitHub Actions** workflow configured for:

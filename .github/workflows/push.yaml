@@ -28,10 +28,9 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       contents: write
+    env:
+      DIST_ZIP_FILE: dist-${{ github.ref_name }}-${{ github.sha }}.zip
     steps:
-      - name: Set Env Vars
-        run: |
-          echo "DIST_ZIP_FILE=dist-${{ github.ref_name }}-`echo ${{ github.sha }} | cut -c1-7`.zip" >> $GITHUB_ENV
       - name: Checkout
         uses: actions/checkout@v3
       - name: Setup Node.js
