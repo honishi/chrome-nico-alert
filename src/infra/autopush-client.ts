@@ -4,7 +4,6 @@ interface HelloResponse {
   status: number;
   uaid: string;
   use_webpush?: boolean;
-  needReRegister?: boolean;
 }
 
 interface RegisterMessage {
@@ -38,7 +37,6 @@ interface MessageData {
   version?: number;
   data?: string;
   headers?: Record<string, unknown>;
-  needReRegister?: boolean;
 }
 
 /**
@@ -159,7 +157,6 @@ export class AutoPushClient {
           console.log("[AutoPush] ✅ WebSocket OPENED");
           console.log("[AutoPush] Connected to:", this.endpoint);
           this.isConnected = true;
-          this.reconnectAttempts = 0;
 
           // Clear and reset state check timer
           if (this.stateCheckInterval) {
@@ -171,8 +168,6 @@ export class AutoPushClient {
               console.log(
                 `[AutoPush] WebSocket state check: ${state} (${new Date().toISOString()})`,
               );
-              // console.log(`  UAID: ${this.uaid || 'none'}`);
-              // console.log(`  Channel IDs: ${this.channelIds.join(', ') || 'none'}`);
             }
           }, 30000); // Every 30 seconds
 
@@ -429,25 +424,26 @@ export class AutoPushClient {
   private handleHello(message: HelloResponse): void {
     // If UAID is expired (409 Conflict or 410 Gone)
     if (message.status === 409 || message.status === 410) {
-      console.warn("[AutoPush] UAID is invalid/expired, status:", message.status);
-      console.warn("[AutoPush] Need to re-register with empty UAID");
+      console.warn(
+        "[AutoPush] UAID expired (status:",
+        message.status,
+        "), disconnecting. Please turn push notifications off and on again",
+      );
 
-      // Clear expired UAID
-      this.uaid = undefined;
-      this.channelIds = [];
-      this.pendingChannelIds = undefined;
-
-      // Pass error message to handler (re-registration required)
+      // Pass error message to handler before disconnecting
       const handler = this.messageHandlers.get("hello");
       if (handler) {
         // Return with error status
-        handler({ ...message, needReRegister: true });
+        handler(message);
       }
+
+      // Explicitly disconnect to prevent further connection attempts
+      this.disconnect();
       return;
     }
 
     if (message.status !== 200) {
-      console.error("[AutoPush] Hello failed:", message);
+      console.warn("[AutoPush] Hello failed:", message);
       this.pendingChannelIds = undefined;
       return;
     }
@@ -470,6 +466,9 @@ export class AutoPushClient {
         this.sendPing();
       }
     }, 1000);
+
+    // Consider the connection stable only after successful HELLO
+    this.reconnectAttempts = 0;
 
     console.log("[AutoPush] Hello successful");
     console.log("  UAID:", this.uaid);
@@ -619,22 +618,8 @@ export class AutoPushClient {
           if (this.isConnected && (savedUaid || savedChannelIds.length > 0)) {
             console.log("[AutoPush] Reconnected, restoring session with HELLO");
             try {
-              let helloResponse = await this.sendHello(savedUaid, savedChannelIds);
-
-              // If UAID is expired, retry as new registration
-              if (helloResponse.needReRegister) {
-                console.log("[AutoPush] UAID expired during disconnection, re-registering...");
-                helloResponse = await this.sendHello("", []);
-
-                if (helloResponse.status === 200) {
-                  console.log("[AutoPush] Re-registered with new UAID:", helloResponse.uaid);
-                  // New UAID will be automatically set in handleHello
-                } else {
-                  console.error("[AutoPush] Failed to re-register after UAID expiration");
-                }
-              } else {
-                console.log("[AutoPush] Session restored:", helloResponse);
-              }
+              const helloResponse = await this.sendHello(savedUaid, savedChannelIds);
+              console.log("[AutoPush] Session restored:", helloResponse);
 
               // Check if channel ID has been restored
               if (this.channelIds.length === 0 && savedChannelIds.length > 0) {

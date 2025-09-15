@@ -681,35 +681,28 @@ export class WebPushManager implements PushManager {
     // Connect
     await this.autoPush.connect();
 
-    // Handshake (including handling of expired UAID)
-    let hello = await this.autoPush.sendHello(existingUaid, existingChannelIds);
+    // Handshake
+    try {
+      const hello = await this.autoPush.sendHello(existingUaid, existingChannelIds);
+      console.log("AutoPush handshake completed, UAID:", hello.uaid);
+      return hello.uaid;
+    } catch (error) {
+      console.error("[WebPushManager] Failed to complete handshake:", error);
 
-    // If UAID is expired, retry as new registration
-    if (hello.needReRegister) {
-      console.log("[WebPushManager] UAID was invalid/expired, re-registering with empty UAID...");
-
-      // Clear old UAID and channel IDs from storage
-      await chrome.storage.local.remove(["autopush_uaid", "autopush_channel_ids"]);
-
-      // Send HELLO again with empty UAID (new registration)
-      hello = await this.autoPush.sendHello("", []);
-
-      if (hello.status === 200) {
-        console.log("[WebPushManager] ✅ Successfully re-registered with new UAID:", hello.uaid);
-
-        // Save new UAID
-        await chrome.storage.local.set({
-          autopush_uaid: hello.uaid,
-        });
-      } else {
-        console.error("[WebPushManager] ❌ Failed to re-register:", hello);
-        throw new Error("Failed to re-register after UAID expiration");
+      // If UAID is expired, the AutoPushClient will have already disconnected
+      // User needs to manually turn push notifications off and on again
+      if (
+        (error as Error).message?.includes("expired") ||
+        (error as Error).message?.includes("409") ||
+        (error as Error).message?.includes("410")
+      ) {
+        console.error(
+          "[WebPushManager] UAID expired. Please turn push notifications off and on again to re-initialize.",
+        );
       }
+
+      throw error;
     }
-
-    console.log("AutoPush handshake completed, UAID:", hello.uaid);
-
-    return hello.uaid;
   }
 
   // ========== Private Methods: Notification Handling ==========
@@ -754,7 +747,6 @@ export class WebPushManager implements PushManager {
         console.log("[WebPushManager] 🎉 Decrypted notification data:", data);
 
         // Notify existing processing system
-        // TODO: Integrate with BackgroundImpl
         await this.processNotificationData(data);
       } else {
         console.log("[WebPushManager] ⚠️ No data in notification");

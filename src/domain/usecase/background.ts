@@ -143,13 +143,13 @@ export class BackgroundImpl implements Background {
     this.logProgram("Found program from push notification:", program);
 
     // Check notification display settings
-    // const showNotification = await this.browserApi.getShowNotification();
+    const showNotification = await this.browserApi.getShowNotification();
     const isSuspended = (await this.browserApi.getSuspendFromDate()) !== undefined;
 
-    // // Display notification
-    // if (showNotification) {
-    //   this.showNotification(program);
-    // }
+    // Display notification
+    if (showNotification) {
+      this.showNotification(program, "⚡️");
+    }
 
     // Don't open tab if suspended
     if (isSuspended) {
@@ -162,10 +162,9 @@ export class BackgroundImpl implements Background {
     if (shouldAutoOpen) {
       await this.browserApi.openTab(program.watchPageUrl);
       await this.browserApi.playSound(SoundType.NEW_LIVE_MAIN);
+    } else if (showNotification) {
+      await this.browserApi.playSound(SoundType.NEW_LIVE_SUB);
     }
-    // else if (showNotification) {
-    //   await this.browserApi.playSound(SoundType.NEW_LIVE_SUB);
-    // }
   }
 
   async run(): Promise<void> {
@@ -241,7 +240,7 @@ export class BackgroundImpl implements Background {
         await this.delay(DELAY_AFTER_OPEN);
       }
       if (showNotification) {
-        this.showNotification(program);
+        this.showNotification(program, "🏠");
       }
       if (isSuspended) {
         console.log("Suspended", program.id);
@@ -272,7 +271,7 @@ export class BackgroundImpl implements Background {
         await this.delay(DELAY_AFTER_OPEN);
       }
       if (showNotification) {
-        this.showNotification(program);
+        this.showNotification(program, "🔎");
       }
       if (isSuspended) {
         console.log("Suspended", program.id);
@@ -300,10 +299,9 @@ export class BackgroundImpl implements Background {
     );
   }
 
-  private showNotification(program: Program): void {
-    // TODO: Get emoji
+  private showNotification(program: Program, prefix: string): void {
     this.browserApi.showNotification(
-      `⚡️ ${program.programProvider?.name ?? program.socialGroup.name}が放送開始`,
+      `${prefix} ${program.programProvider?.name ?? program.socialGroup.name}が放送開始`,
       program.title,
       program.programProvider?.icon ?? program.socialGroup.thumbnailUrl,
       (notificationId) => {
