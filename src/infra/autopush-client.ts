@@ -59,7 +59,7 @@ export class AutoPushClient {
   private reconnectTimer?: NodeJS.Timeout;
   private stateCheckInterval?: NodeJS.Timeout;
 
-  // Rate limiting for connect method
+  // Connect rate limiting
   private connectCallTimestamps: number[] = [];
   private readonly maxConnectCallsPerHour = 100;
 
@@ -138,9 +138,9 @@ export class AutoPushClient {
   }
 
   /**
-   * Get rate limit status
+   * Get connect rate limit status
    */
-  getRateLimitStatus(): {
+  getConnectRateLimitStatus(): {
     currentAttempts: number;
     maxAttempts: number;
     lastAttemptTime?: Date;
@@ -170,8 +170,8 @@ export class AutoPushClient {
    * Connect to Mozilla Push Service
    */
   async connect(): Promise<void> {
-    // Check rate limit before proceeding
-    this.checkAndEnforceRateLimit();
+    // Check connect rate limit before proceeding
+    this.checkAndEnforceConnectRateLimit();
 
     // Skip if already connecting or connected
     if (
@@ -647,10 +647,10 @@ export class AutoPushClient {
   // ==================== Private Methods (Connection Management) ====================
 
   /**
-   * Check and enforce rate limiting for connect method
-   * @throws Error if rate limit is exceeded
+   * Check and enforce connect rate limiting
+   * @throws Error if connect rate limit is exceeded
    */
-  private checkAndEnforceRateLimit(): void {
+  private checkAndEnforceConnectRateLimit(): void {
     const now = Date.now();
     const oneHourAgo = now - 60 * 60 * 1000;
 
@@ -664,15 +664,17 @@ export class AutoPushClient {
 
     // Debug logging
     console.log(
-      `[AutoPush] Rate limit check: ${this.connectCallTimestamps.length}/${this.maxConnectCallsPerHour} connect attempts in the last hour`,
+      `[AutoPush] Connect rate limit check: ${this.connectCallTimestamps.length}/${this.maxConnectCallsPerHour} connect attempts in the last hour`,
     );
     if (removedCount > 0) {
-      console.log(`[AutoPush] Cleaned up ${removedCount} old timestamp(s) from rate limit tracker`);
+      console.log(
+        `[AutoPush] Cleaned up ${removedCount} old timestamp(s) from connect rate limit tracker`,
+      );
     }
 
-    // Check if exceeding rate limit
+    // Check if exceeding connect rate limit
     if (this.connectCallTimestamps.length > this.maxConnectCallsPerHour) {
-      const errorMessage = `[AutoPush] Rate limit exceeded: More than ${this.maxConnectCallsPerHour} connect attempts in 1 hour`;
+      const errorMessage = `[AutoPush] Connect rate limit exceeded: More than ${this.maxConnectCallsPerHour} connect attempts in 1 hour`;
       console.error(errorMessage);
       throw new Error(errorMessage);
     }

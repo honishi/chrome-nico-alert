@@ -27,7 +27,7 @@ interface PushStatus {
   };
   channelId?: string;
   uaid?: string;
-  rateLimitStatus?: {
+  connectRateLimitStatus?: {
     currentAttempts: number;
     maxAttempts: number;
     lastAttemptTime?: string;
@@ -231,10 +231,10 @@ async function updatePushStatusDisplay() {
     if (status.channelId) {
       details.push(`Channel ID: ${status.channelId}`);
     }
-    if (status.rateLimitStatus) {
-      details.push(`Rate Limit: ${status.rateLimitStatus.currentAttempts}/${status.rateLimitStatus.maxAttempts}`);
-      if (status.rateLimitStatus.lastAttemptTime) {
-        const lastAttempt = new Date(status.rateLimitStatus.lastAttemptTime);
+    if (status.connectRateLimitStatus) {
+      details.push(`Connect Rate Limit: ${status.connectRateLimitStatus.currentAttempts}/${status.connectRateLimitStatus.maxAttempts}`);
+      if (status.connectRateLimitStatus.lastAttemptTime) {
+        const lastAttempt = new Date(status.connectRateLimitStatus.lastAttemptTime);
         details.push(`最終接続: ${lastAttempt.toLocaleString('ja-JP')}`);
       }
     }

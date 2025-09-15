@@ -58,9 +58,9 @@ export interface PushManager {
   getUaid(): string | undefined;
 
   /**
-   * Get rate limit status
+   * Get connect rate limit status
    */
-  getRateLimitStatus():
+  getConnectRateLimitStatus():
     | {
         currentAttempts: number;
         maxAttempts: number;
