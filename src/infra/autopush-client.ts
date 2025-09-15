@@ -59,6 +59,10 @@ export class AutoPushClient {
   private reconnectTimer?: NodeJS.Timeout;
   private stateCheckInterval?: NodeJS.Timeout;
 
+  // Rate limiting for connect method
+  private connectCallTimestamps: number[] = [];
+  private readonly maxConnectCallsPerHour = 100;
+
   // Test utilities
   private testAutoCloseTimer?: NodeJS.Timeout;
   private testAutoCloseMs?: number;
@@ -139,6 +143,9 @@ export class AutoPushClient {
    * Connect to Mozilla Push Service
    */
   async connect(): Promise<void> {
+    // Check rate limit before proceeding
+    this.checkAndEnforceRateLimit();
+
     // Skip if already connecting or connected
     if (
       this.ws &&
@@ -611,6 +618,38 @@ export class AutoPushClient {
   }
 
   // ==================== Private Methods (Connection Management) ====================
+
+  /**
+   * Check and enforce rate limiting for connect method
+   * @throws Error if rate limit is exceeded
+   */
+  private checkAndEnforceRateLimit(): void {
+    const now = Date.now();
+    const oneHourAgo = now - 60 * 60 * 1000;
+
+    // Remove timestamps older than 1 hour
+    const oldCount = this.connectCallTimestamps.length;
+    this.connectCallTimestamps = this.connectCallTimestamps.filter((ts) => ts > oneHourAgo);
+    const removedCount = oldCount - this.connectCallTimestamps.length;
+
+    // Add current timestamp
+    this.connectCallTimestamps.push(now);
+
+    // Debug logging
+    console.log(
+      `[AutoPush] Rate limit check: ${this.connectCallTimestamps.length}/${this.maxConnectCallsPerHour} connect attempts in the last hour`,
+    );
+    if (removedCount > 0) {
+      console.log(`[AutoPush] Cleaned up ${removedCount} old timestamp(s) from rate limit tracker`);
+    }
+
+    // Check if exceeding rate limit
+    if (this.connectCallTimestamps.length > this.maxConnectCallsPerHour) {
+      const errorMessage = `[AutoPush] Rate limit exceeded: More than ${this.maxConnectCallsPerHour} connect attempts in 1 hour`;
+      console.error(errorMessage);
+      throw new Error(errorMessage);
+    }
+  }
 
   /**
    * Handle disconnection
