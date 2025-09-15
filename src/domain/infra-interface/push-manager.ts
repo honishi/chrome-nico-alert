@@ -56,4 +56,15 @@ export interface PushManager {
    * Get current UAID
    */
   getUaid(): string | undefined;
+
+  /**
+   * Get rate limit status
+   */
+  getRateLimitStatus():
+    | {
+        currentAttempts: number;
+        maxAttempts: number;
+        lastAttemptTime?: Date;
+      }
+    | undefined;
 }

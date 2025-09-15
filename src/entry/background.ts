@@ -61,6 +61,7 @@ function configureMessageListener() {
       (async () => {
         const enabled = await browserApi.getReceivePushNotification();
         const lastProgram = pushManager.getLastReceivedProgram();
+        const rateLimitStatus = pushManager.getRateLimitStatus();
         const status = {
           enabled: enabled,
           connected: pushManager.isConnected(),
@@ -73,6 +74,13 @@ function configureMessageListener() {
             : undefined,
           channelId: pushManager.getChannelId(),
           uaid: pushManager.getUaid(),
+          rateLimitStatus: rateLimitStatus
+            ? {
+                currentAttempts: rateLimitStatus.currentAttempts,
+                maxAttempts: rateLimitStatus.maxAttempts,
+                lastAttemptTime: rateLimitStatus.lastAttemptTime?.toISOString(),
+              }
+            : undefined,
         };
         sendResponse(status);
       })();

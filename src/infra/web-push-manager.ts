@@ -185,6 +185,19 @@ export class WebPushManager implements PushManager {
     return this.autoPush?.getUaid();
   }
 
+  /**
+   * Get rate limit status from AutoPush client
+   */
+  getRateLimitStatus():
+    | {
+        currentAttempts: number;
+        maxAttempts: number;
+        lastAttemptTime?: Date;
+      }
+    | undefined {
+    return this.autoPush?.getRateLimitStatus();
+  }
+
   // ========== Private Methods: Initialization ==========
   /**
    * Restore saved subscription information (internal use)

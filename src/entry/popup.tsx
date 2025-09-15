@@ -27,6 +27,11 @@ interface PushStatus {
   };
   channelId?: string;
   uaid?: string;
+  rateLimitStatus?: {
+    currentAttempts: number;
+    maxAttempts: number;
+    lastAttemptTime?: string;
+  };
 }
 
 async function getPushStatus(): Promise<PushStatus> {
@@ -225,6 +230,13 @@ async function updatePushStatusDisplay() {
     }
     if (status.channelId) {
       details.push(`Channel ID: ${status.channelId}`);
+    }
+    if (status.rateLimitStatus) {
+      details.push(`Rate Limit: ${status.rateLimitStatus.currentAttempts}/${status.rateLimitStatus.maxAttempts}`);
+      if (status.rateLimitStatus.lastAttemptTime) {
+        const lastAttempt = new Date(status.rateLimitStatus.lastAttemptTime);
+        details.push(`最終接続: ${lastAttempt.toLocaleString('ja-JP')}`);
+      }
     }
 
     if (details.length > 0) {

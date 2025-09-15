@@ -137,6 +137,33 @@ export class AutoPushClient {
     return [...this.channelIds];
   }
 
+  /**
+   * Get rate limit status
+   */
+  getRateLimitStatus(): {
+    currentAttempts: number;
+    maxAttempts: number;
+    lastAttemptTime?: Date;
+  } {
+    const now = Date.now();
+    const oneHourAgo = now - 60 * 60 * 1000;
+
+    // Filter for attempts within the last hour
+    const recentAttempts = this.connectCallTimestamps.filter((ts) => ts > oneHourAgo);
+
+    // Get the most recent attempt time
+    const lastAttemptTime =
+      this.connectCallTimestamps.length > 0
+        ? new Date(Math.max(...this.connectCallTimestamps))
+        : undefined;
+
+    return {
+      currentAttempts: recentAttempts.length,
+      maxAttempts: this.maxConnectCallsPerHour,
+      lastAttemptTime,
+    };
+  }
+
   // ==================== Public Methods (Connection Management) ====================
 
   /**
