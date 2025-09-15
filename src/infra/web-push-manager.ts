@@ -679,6 +679,7 @@ export class WebPushManager implements PushManager {
     console.log("[WebPushManager] Notification handler set");
 
     // Connect
+    // this.autoPush.enableTestAutoClose(1);
     await this.autoPush.connect();
 
     // Handshake

@@ -59,6 +59,10 @@ export class AutoPushClient {
   private reconnectTimer?: NodeJS.Timeout;
   private stateCheckInterval?: NodeJS.Timeout;
 
+  // Test utilities
+  private testAutoCloseTimer?: NodeJS.Timeout;
+  private testAutoCloseMs?: number;
+
   // Authentication and channel management
   private uaid?: string;
   private channelIds: string[] = [];
@@ -93,6 +97,14 @@ export class AutoPushClient {
     if (!this.ws) return "NO_SOCKET";
     const states = ["CONNECTING", "OPEN", "CLOSING", "CLOSED"];
     return states[this.ws.readyState];
+  }
+
+  /**
+   * Enable test auto-close after given minutes (default: 1)
+   * Call before connect(). For testing only.
+   */
+  enableTestAutoClose(minutes = 1): void {
+    this.testAutoCloseMs = minutes * 60 * 1000;
   }
 
   /**
@@ -224,6 +236,10 @@ export class AutoPushClient {
     if (this.stateCheckInterval) {
       clearInterval(this.stateCheckInterval);
       this.stateCheckInterval = undefined;
+    }
+    if (this.testAutoCloseTimer) {
+      clearTimeout(this.testAutoCloseTimer);
+      this.testAutoCloseTimer = undefined;
     }
 
     if (this.ws) {
@@ -469,6 +485,25 @@ export class AutoPushClient {
 
     // Consider the connection stable only after successful HELLO
     this.reconnectAttempts = 0;
+
+    // Test: auto-close WebSocket after configured delay
+    if (this.testAutoCloseMs) {
+      if (this.testAutoCloseTimer) {
+        clearTimeout(this.testAutoCloseTimer);
+        this.testAutoCloseTimer = undefined;
+      }
+      this.testAutoCloseTimer = setTimeout(() => {
+        console.log(
+          `
+[AutoPush][TEST] Auto-closing WebSocket after ${this.testAutoCloseMs}ms (post-HELLO)`,
+        );
+        try {
+          this.ws?.close(1000, "Test auto-close");
+        } catch (e) {
+          console.error("[AutoPush][TEST] Failed to auto-close WebSocket:", e);
+        }
+      }, this.testAutoCloseMs);
+    }
 
     console.log("[AutoPush] Hello successful");
     console.log("  UAID:", this.uaid);
