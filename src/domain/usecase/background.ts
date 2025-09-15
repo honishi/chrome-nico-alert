@@ -23,6 +23,8 @@ export class BackgroundImpl implements Background {
   private lastProgramCheckTime?: Date;
   private processedProgramIds: string[] = [];
   private notifiedPrograms: { [key: string]: string } = {}; // key: notificationId, value: watchPageUrl
+  private lastSoundPlayedTime?: number; // Time when sound was last played (milliseconds)
+  private readonly soundThrottleMs = 1000; // Sound playback interval (1 second)
 
   constructor(
     @inject(InjectTokens.NiconamaApi) private niconamaApi: NiconamaApi,
@@ -161,9 +163,9 @@ export class BackgroundImpl implements Background {
     const shouldAutoOpen = await this.shouldAutoOpenProgram(program);
     if (shouldAutoOpen) {
       await this.browserApi.openTab(program.watchPageUrl);
-      await this.browserApi.playSound(SoundType.NEW_LIVE_MAIN);
+      await this.playSoundThrottled(SoundType.NEW_LIVE_MAIN);
     } else if (showNotification) {
-      await this.browserApi.playSound(SoundType.NEW_LIVE_SUB);
+      await this.playSoundThrottled(SoundType.NEW_LIVE_SUB);
     }
   }
 
@@ -249,9 +251,9 @@ export class BackgroundImpl implements Background {
       const shouldAutoOpen = await this.shouldAutoOpenProgram(program);
       if (shouldAutoOpen) {
         await this.browserApi.openTab(program.watchPageUrl);
-        await this.browserApi.playSound(SoundType.NEW_LIVE_MAIN);
+        await this.playSoundThrottled(SoundType.NEW_LIVE_MAIN);
       } else if (showNotification) {
-        await this.browserApi.playSound(SoundType.NEW_LIVE_SUB);
+        await this.playSoundThrottled(SoundType.NEW_LIVE_SUB);
       }
       openedAnyPrograms = true;
     }
@@ -278,7 +280,7 @@ export class BackgroundImpl implements Background {
         continue;
       }
       await this.browserApi.openTab(program.watchPageUrl);
-      await this.browserApi.playSound(SoundType.NEW_LIVE_MAIN);
+      await this.playSoundThrottled(SoundType.NEW_LIVE_MAIN);
       openedAnyPrograms = true;
     }
 
@@ -339,5 +341,31 @@ export class BackgroundImpl implements Background {
         return match[1];
       })
       .filter((id): id is string => id !== undefined);
+  }
+
+  /**
+   * Play sound with throttling to prevent rapid consecutive sounds
+   * Skips playback if a sound was played within the last 1 second
+   */
+  private async playSoundThrottled(soundType: SoundType): Promise<void> {
+    const now = Date.now();
+
+    // Check last playback time
+    if (this.lastSoundPlayedTime) {
+      const timeSinceLastSound = now - this.lastSoundPlayedTime;
+
+      if (timeSinceLastSound < this.soundThrottleMs) {
+        // Skip if sound was played within 1 second
+        console.log(
+          `Sound playback skipped: ${timeSinceLastSound}ms since last sound (threshold: ${this.soundThrottleMs}ms)`,
+        );
+        return;
+      }
+    }
+
+    // Play sound and record time
+    await this.browserApi.playSound(soundType);
+    this.lastSoundPlayedTime = now;
+    console.log(`Sound played: ${soundType} at ${new Date(now).toISOString()}`);
   }
 }
