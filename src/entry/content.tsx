@@ -164,7 +164,10 @@ async function fixChannelPage() {
  * Push通知エンドポイントをニコニコAPIに登録する
  * Background Scriptから呼び出される
  */
-async function registerPushEndpoint(endpoint: string, keys: { p256dh: string; auth: string }): Promise<{ success: boolean; status?: number; error?: string }> {
+async function registerPushEndpoint(
+  endpoint: string,
+  keys: { p256dh: string; auth: string },
+): Promise<{ success: boolean; status?: number; error?: string }> {
   try {
     console.log("[Content Script] Registering push endpoint to Niconico API");
     console.log("[Content Script] Endpoint:", endpoint);
@@ -178,17 +181,17 @@ async function registerPushEndpoint(endpoint: string, keys: { p256dh: string; au
       p256dh: p256dhBase64.substring(0, 20) + "...",
       auth: authBase64.substring(0, 20) + "...",
       p256dhLength: p256dhBase64.length,
-      authLength: authBase64.length
+      authLength: authBase64.length,
     });
 
     // Format according to Niconico API expectations
     const requestBody = {
-      destApp: "nico_account_webpush",  // Required field
+      destApp: "nico_account_webpush", // Required field
       endpoint: {
         endpoint: endpoint,
-        auth: authBase64,      // Standard Base64
-        p256dh: p256dhBase64   // Standard Base64 (uncompressed format 65 bytes)
-      }
+        auth: authBase64, // Standard Base64
+        p256dh: p256dhBase64, // Standard Base64 (uncompressed format 65 bytes)
+      },
     };
 
     // Log raw data for verification with curl
@@ -197,7 +200,12 @@ async function registerPushEndpoint(endpoint: string, keys: { p256dh: string; au
       -H 'Content-Type: application/json' \\
       -H 'X-Frontend-Id: 8' \\
       -H 'X-Request-With: https://account.nicovideo.jp/my/account' \\
-      -H 'Cookie: ${document.cookie.split(';').find(c => c.includes('user_session'))?.trim() || 'NO_SESSION'}' \\
+      -H 'Cookie: ${
+        document.cookie
+          .split(";")
+          .find((c) => c.includes("user_session"))
+          ?.trim() || "NO_SESSION"
+      }' \\
       --data '${JSON.stringify(requestBody)}'`);
 
     console.log("[Content Script] Request body:", JSON.stringify(requestBody, null, 2));
@@ -205,26 +213,32 @@ async function registerPushEndpoint(endpoint: string, keys: { p256dh: string; au
     // Debug: Check current page origin
     console.log("[Content Script] Current origin:", window.location.origin);
     console.log("[Content Script] Current URL:", window.location.href);
-    console.log("[Content Script] Document cookies:", document.cookie ? "Available (but httpOnly cookies not visible)" : "No cookies");
+    console.log(
+      "[Content Script] Document cookies:",
+      document.cookie ? "Available (but httpOnly cookies not visible)" : "No cookies",
+    );
 
     // Log request headers
     // Match Niconico's actual Service Worker implementation
     const headers = {
       "Content-Type": "application/json",
-      "X-Request-With": window.location.href,  // Niconico implementation uses location.href
-      "Accept": "application/json",
+      "X-Request-With": window.location.href, // Niconico implementation uses location.href
+      Accept: "application/json",
       "X-Frontend-Id": "8",
-      "Origin": "https://account.nicovideo.jp",  // Explicitly add Origin header
+      Origin: "https://account.nicovideo.jp", // Explicitly add Origin header
     };
     console.log("[Content Script] Request headers:", headers);
 
-    const response = await fetch("https://api.push.nicovideo.jp/v1/nicopush/webpush/endpoints.json", {
-      method: "POST",
-      credentials: "include", // Automatically send cookies
-      mode: "cors",  // Explicitly specify CORS mode
-      headers: headers,
-      body: JSON.stringify(requestBody)
-    });
+    const response = await fetch(
+      "https://api.push.nicovideo.jp/v1/nicopush/webpush/endpoints.json",
+      {
+        method: "POST",
+        credentials: "include", // Automatically send cookies
+        mode: "cors", // Explicitly specify CORS mode
+        headers: headers,
+        body: JSON.stringify(requestBody),
+      },
+    );
 
     if (response.ok) {
       console.log("[Content Script] Push endpoint registered successfully");
@@ -255,11 +269,11 @@ chrome.runtime.onMessage.addListener((message, _sender, sendResponse) => {
   if (message.type === "REGISTER_PUSH_ENDPOINT") {
     // Return true to keep sendResponse for async processing
     registerPushEndpoint(message.endpoint, message.keys)
-      .then(result => {
+      .then((result) => {
         console.log("[Content Script] Sending response:", result);
         sendResponse(result);
       })
-      .catch(error => {
+      .catch((error) => {
         console.error("[Content Script] Error:", error);
         sendResponse({ success: false, error: String(error) });
       });

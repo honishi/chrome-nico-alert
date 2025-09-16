@@ -26,8 +26,12 @@ export default function ProgramGridItem(props: {
   const title = [props.program.isFollowerOnly ? "【限】" : "", props.program.title].join(" ");
   const userImageSrc =
     props.program.supplier?.icons?.uri150x150 ??
-    props.program.programProvider?.iconSmall ?? props.program.socialGroup.thumbnailUrl;
-  const userName = props.program.supplier?.name ?? props.program.programProvider?.name ?? props.program.socialGroup.name;
+    props.program.programProvider?.iconSmall ??
+    props.program.socialGroup.thumbnailUrl;
+  const userName =
+    props.program.supplier?.name ??
+    props.program.programProvider?.name ??
+    props.program.socialGroup.name;
   return (
     <div className="grid-item">
       {rankElement}

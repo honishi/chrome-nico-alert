@@ -55,7 +55,9 @@ async function setShowRanking(value: boolean): Promise<void> {
 }
 
 async function renderShowNotificationCheckbox() {
-  const showNotificationCheckbox = document.getElementById("show-notification-checkbox") as HTMLInputElement;
+  const showNotificationCheckbox = document.getElementById(
+    "show-notification-checkbox",
+  ) as HTMLInputElement;
   showNotificationCheckbox.checked = await getShowNotification();
   showNotificationCheckbox.addEventListener("change", async () => {
     const checked = showNotificationCheckbox.checked;
@@ -116,7 +118,9 @@ async function playTestSound() {
 }
 
 async function renderReceivePushNotificationCheckbox() {
-  const receivePushNotificationCheckbox = document.getElementById("receive-push-notification-checkbox") as HTMLInputElement;
+  const receivePushNotificationCheckbox = document.getElementById(
+    "receive-push-notification-checkbox",
+  ) as HTMLInputElement;
   receivePushNotificationCheckbox.checked = await getReceivePushNotification();
   receivePushNotificationCheckbox.addEventListener("change", async () => {
     const checked = receivePushNotificationCheckbox.checked;
