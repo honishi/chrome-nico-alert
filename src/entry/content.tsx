@@ -161,8 +161,8 @@ async function fixChannelPage() {
 }
 
 /**
- * Push通知エンドポイントをニコニコAPIに登録する
- * Background Scriptから呼び出される
+ * Register push notification endpoint to Niconico API
+ * Called from Background Script
  */
 async function registerPushEndpoint(
   endpoint: string,
@@ -255,7 +255,7 @@ async function registerPushEndpoint(
 }
 
 /**
- * Background Scriptからのメッセージを処理
+ * Process messages from Background Script
  */
 chrome.runtime.onMessage.addListener((message, _sender, sendResponse) => {
   console.log("[Content Script] Received message:", message.type);

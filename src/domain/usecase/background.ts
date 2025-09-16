@@ -39,6 +39,11 @@ export class BackgroundImpl implements Background {
     await this.initializePushManager();
   }
 
+  async resetSuspended(): Promise<void> {
+    await this.browserApi.setSuspendFromDate(undefined);
+    await this.browserApi.setBadgeBackgroundColor(defaultBadgeBackgroundColor);
+  }
+
   private async initializePushManager(): Promise<void> {
     console.log("Initializing PushManager...");
     try {
@@ -62,11 +67,6 @@ export class BackgroundImpl implements Background {
     }
   }
 
-  async resetSuspended(): Promise<void> {
-    await this.browserApi.setSuspendFromDate(undefined);
-    await this.browserApi.setBadgeBackgroundColor(defaultBadgeBackgroundColor);
-  }
-
   async handlePushNotificationSettingChange(enabled: boolean): Promise<void> {
     console.log(`Push notification setting changed to: ${enabled}`);
 
@@ -88,7 +88,7 @@ export class BackgroundImpl implements Background {
   }
 
   /**
-   * プッシュ通知データからプログラムIDを抽出
+   * Extract program ID from push notification data
    */
   private extractProgramId(url?: string): string {
     if (!url) return "";
@@ -97,7 +97,7 @@ export class BackgroundImpl implements Background {
   }
 
   /**
-   * プッシュ通知で検知した放送を処理
+   * Process broadcast detected by push notification
    */
   async processPushProgram(pushProgram: PushProgram): Promise<void> {
     // Filter out old notifications (skip notifications older than 3 minutes)
