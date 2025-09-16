@@ -14,6 +14,8 @@ export interface Option {
   getSoundVolume(): Promise<number>;
   setSoundVolume(value: number): Promise<void>;
   playTestSound(): Promise<void>;
+  getReceivePushNotification(): Promise<boolean>;
+  setReceivePushNotification(value: boolean): Promise<void>;
   getAutoOpenUserIds(): Promise<string[]>;
   getUserName(userId: string): Promise<string>;
   getChannelName(channelId: string): Promise<string>;
@@ -61,6 +63,14 @@ export class OptionImpl implements Option {
 
   async playTestSound(): Promise<void> {
     await this.browserApi.playSound(SoundType.NEW_LIVE_MAIN);
+  }
+
+  async getReceivePushNotification(): Promise<boolean> {
+    return await this.browserApi.getReceivePushNotification();
+  }
+
+  async setReceivePushNotification(value: boolean): Promise<void> {
+    await this.browserApi.setReceivePushNotification(value);
   }
 
   async getAutoOpenUserIds(): Promise<string[]> {

@@ -38,4 +38,4 @@ type Supplier = {
 type Icons = {
   uri50x50: string;
   uri150x150: string;
-}
+};

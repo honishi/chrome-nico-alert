@@ -1,9 +1,11 @@
 import { Program } from "../model/program";
+import { PushProgram } from "../model/push-program";
 import { inject, injectable } from "tsyringe";
 import { InjectTokens } from "../../di/inject-tokens";
 import { SoundType } from "../model/sound-type";
 import { BrowserApi } from "../infra-interface/browser-api";
 import { NiconamaApi } from "../infra-interface/niconama-api";
+import { PushManager } from "../infra-interface/push-manager";
 import { defaultBadgeBackgroundColor } from "./colors";
 
 const RUN_INTERVAL = 1000 * 30; // 30 seconds
@@ -12,6 +14,7 @@ const DELAY_AFTER_OPEN = 1000 * 5; // 5 seconds
 export interface Background {
   run(): Promise<void>;
   openNotification(notificationId: string): Promise<void>;
+  handlePushNotificationSettingChange(enabled: boolean): Promise<void>;
 }
 
 @injectable()
@@ -20,21 +23,150 @@ export class BackgroundImpl implements Background {
   private lastProgramCheckTime?: Date;
   private processedProgramIds: string[] = [];
   private notifiedPrograms: { [key: string]: string } = {}; // key: notificationId, value: watchPageUrl
+  private lastSoundPlayedTime?: number; // Time when sound was last played (milliseconds)
+  private readonly soundThrottleMs = 1000; // Sound playback interval (1 second)
 
   constructor(
     @inject(InjectTokens.NiconamaApi) private niconamaApi: NiconamaApi,
     @inject(InjectTokens.BrowserApi) private browserApi: BrowserApi,
+    @inject(InjectTokens.PushManager) private pushManager: PushManager,
   ) {
     this.initialize().then(() => console.log("Background initialized"));
   }
 
   async initialize(): Promise<void> {
     await this.resetSuspended();
+    await this.initializePushManager();
   }
 
   async resetSuspended(): Promise<void> {
     await this.browserApi.setSuspendFromDate(undefined);
     await this.browserApi.setBadgeBackgroundColor(defaultBadgeBackgroundColor);
+  }
+
+  private async initializePushManager(): Promise<void> {
+    console.log("Initializing PushManager...");
+    try {
+      // Set callback for PushManager
+      this.pushManager.onProgramDetected = (pushProgram: PushProgram) =>
+        this.processPushProgram(pushProgram);
+
+      // Check push notification settings
+      const isPushEnabled = await this.browserApi.getReceivePushNotification();
+      console.log("Push notification setting:", isPushEnabled);
+
+      if (isPushEnabled) {
+        // Start PushManager if setting is ON
+        await this.pushManager.start();
+        console.log("PushManager started");
+      } else {
+        console.log("Push notification is disabled, not starting PushManager");
+      }
+    } catch (error) {
+      console.error("PushManager initialization failed:", error);
+    }
+  }
+
+  async handlePushNotificationSettingChange(enabled: boolean): Promise<void> {
+    console.log(`Push notification setting changed to: ${enabled}`);
+
+    try {
+      if (enabled) {
+        // Start PushManager when setting is turned ON
+        console.log("Starting push notifications...");
+        await this.pushManager.start();
+        console.log("Push notifications started");
+      } else {
+        // Reset PushManager when setting is turned OFF
+        console.log("Resetting push notifications...");
+        await this.pushManager.reset();
+        console.log("Push notifications reset");
+      }
+    } catch (error) {
+      console.error(`Failed to ${enabled ? "start" : "reset"} push notifications:`, error);
+    }
+  }
+
+  /**
+   * Extract program ID from push notification data
+   */
+  private extractProgramId(url?: string): string {
+    if (!url) return "";
+    const match = url.match(/watch\/(lv\d+)/);
+    return match?.[1] || "";
+  }
+
+  /**
+   * Process broadcast detected by push notification
+   */
+  async processPushProgram(pushProgram: PushProgram): Promise<void> {
+    // Filter out old notifications (skip notifications older than 3 minutes)
+    const MAX_NOTIFICATION_AGE_MINUTES = 3;
+    if (pushProgram.createdAt) {
+      const notificationTime = new Date(pushProgram.createdAt);
+      const now = new Date();
+      const ageMinutes = (now.getTime() - notificationTime.getTime()) / (1000 * 60);
+
+      if (ageMinutes > MAX_NOTIFICATION_AGE_MINUTES) {
+        console.log(
+          `Skipping stale notification (${ageMinutes.toFixed(1)} minutes old): ${
+            pushProgram.onClick
+          }`,
+        );
+        return;
+      }
+    }
+
+    // Extract programId from PushProgram
+    const programId = this.extractProgramId(pushProgram.onClick);
+    if (!programId) {
+      // Silently skip non-live notifications such as video upload notifications
+      console.log("Skipping non-live notification:", pushProgram.onClick);
+      return;
+    }
+
+    // Get Program information via resolveProgram API
+    const program = await this.niconamaApi.resolveProgram(programId);
+    if (!program) {
+      console.log(`Program not found (may have been deleted): ${programId}`);
+      return;
+    }
+
+    console.log("Processing push program:", program.id, program.title);
+
+    // Check if already processed
+    if (this.isProcessed(program)) {
+      console.log("Program already processed:", program.id);
+      return;
+    }
+
+    // Add to processed list
+    this.processedProgramIds.push(program.id);
+    this.logProgram("Found program from push notification:", program);
+
+    // Check notification display settings
+    const showNotification = await this.browserApi.getShowNotification();
+    const isSuspended = (await this.browserApi.getSuspendFromDate()) !== undefined;
+
+    // Display notification
+    if (showNotification) {
+      this.showNotification(program, "⚡️");
+    }
+
+    // Don't open tab if suspended
+    if (isSuspended) {
+      console.log("Suspended, not opening tab:", program.id);
+      return;
+    }
+
+    // Auto-open determination
+    const shouldAutoOpen = await this.shouldAutoOpenProgram(program);
+    if (shouldAutoOpen) {
+      await this.browserApi.openTab(program.watchPageUrl);
+      await this.playSoundThrottled(SoundType.NEW_LIVE_MAIN);
+    } else if (showNotification) {
+      await this.playSoundThrottled(SoundType.NEW_LIVE_SUB);
+    }
   }
 
   async run(): Promise<void> {
@@ -110,7 +242,7 @@ export class BackgroundImpl implements Background {
         await this.delay(DELAY_AFTER_OPEN);
       }
       if (showNotification) {
-        this.showNotification(program);
+        this.showNotification(program, "🏠");
       }
       if (isSuspended) {
         console.log("Suspended", program.id);
@@ -119,9 +251,9 @@ export class BackgroundImpl implements Background {
       const shouldAutoOpen = await this.shouldAutoOpenProgram(program);
       if (shouldAutoOpen) {
         await this.browserApi.openTab(program.watchPageUrl);
-        await this.browserApi.playSound(SoundType.NEW_LIVE_MAIN);
+        await this.playSoundThrottled(SoundType.NEW_LIVE_MAIN);
       } else if (showNotification) {
-        await this.browserApi.playSound(SoundType.NEW_LIVE_SUB);
+        await this.playSoundThrottled(SoundType.NEW_LIVE_SUB);
       }
       openedAnyPrograms = true;
     }
@@ -141,14 +273,14 @@ export class BackgroundImpl implements Background {
         await this.delay(DELAY_AFTER_OPEN);
       }
       if (showNotification) {
-        this.showNotification(program);
+        this.showNotification(program, "🔎");
       }
       if (isSuspended) {
         console.log("Suspended", program.id);
         continue;
       }
       await this.browserApi.openTab(program.watchPageUrl);
-      await this.browserApi.playSound(SoundType.NEW_LIVE_MAIN);
+      await this.playSoundThrottled(SoundType.NEW_LIVE_MAIN);
       openedAnyPrograms = true;
     }
 
@@ -169,9 +301,9 @@ export class BackgroundImpl implements Background {
     );
   }
 
-  private showNotification(program: Program): void {
+  private showNotification(program: Program, prefix: string): void {
     this.browserApi.showNotification(
-      `${program.programProvider?.name ?? program.socialGroup.name}が放送開始`,
+      `${prefix} ${program.programProvider?.name ?? program.socialGroup.name}が放送開始`,
       program.title,
       program.programProvider?.icon ?? program.socialGroup.thumbnailUrl,
       (notificationId) => {
@@ -209,5 +341,31 @@ export class BackgroundImpl implements Background {
         return match[1];
       })
       .filter((id): id is string => id !== undefined);
+  }
+
+  /**
+   * Play sound with throttling to prevent rapid consecutive sounds
+   * Skips playback if a sound was played within the last 1 second
+   */
+  private async playSoundThrottled(soundType: SoundType): Promise<void> {
+    const now = Date.now();
+
+    // Check last playback time
+    if (this.lastSoundPlayedTime) {
+      const timeSinceLastSound = now - this.lastSoundPlayedTime;
+
+      if (timeSinceLastSound < this.soundThrottleMs) {
+        // Skip if sound was played within 1 second
+        console.log(
+          `Sound playback skipped: ${timeSinceLastSound}ms since last sound (threshold: ${this.soundThrottleMs}ms)`,
+        );
+        return;
+      }
+    }
+
+    // Play sound and record time
+    await this.browserApi.playSound(soundType);
+    this.lastSoundPlayedTime = now;
+    console.log(`Sound played: ${soundType} at ${new Date(now).toISOString()}`);
   }
 }

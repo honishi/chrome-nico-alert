@@ -125,4 +125,76 @@ export class NiconamaApiImpl implements NiconamaApi {
         muteUserIds.includes(program.supplier.programProviderId),
     };
   }
+
+  async resolveProgram(programId: string): Promise<Program | undefined> {
+    const url = `https://live.nicovideo.jp/watch/${programId}`;
+    const response = await fetch(url);
+    const html = await response.text();
+    return this.extractProgramFromHtml(html);
+  }
+
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  private extractProgramFromHtml(html: string): Program | undefined {
+    // Find the embedded-data script tag and extract data-props attribute
+    const match = html.match(/<script[^>]*id="embedded-data"[^>]*data-props="([^"]+)"[^>]*>/);
+    if (!match) {
+      return undefined;
+    }
+
+    // Decode HTML entities in the JSON string
+    const propsJson = decode(match[1]);
+
+    try {
+      const props = JSON.parse(propsJson);
+      return this.convertEmbeddedDataToProgram(props);
+    } catch (error) {
+      console.error("Failed to parse embedded data:", error);
+      return undefined;
+    }
+  }
+
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  private convertEmbeddedDataToProgram(props: any): Program {
+    const program = props.program;
+    const supplier = program.supplier;
+    const socialGroup = props.socialGroup;
+
+    return {
+      id: program.nicoliveProgramId,
+      title: program.title,
+      watchPageUrl: program.watchPageUrl,
+      listingThumbnail: program.thumbnail?.huge?.s352x198,
+      screenshotThumbnail: {
+        liveScreenshotThumbnailUrl:
+          program.screenshot?.urlSet?.large || program.thumbnail?.huge?.s1280x720 || "",
+      },
+      programProvider:
+        supplier?.supplierType === "user"
+          ? {
+              id: supplier.programProviderId,
+              name: supplier.name,
+              icon: supplier.icons?.uri150x150 || "",
+              iconSmall: supplier.icons?.uri50x50 || "",
+            }
+          : undefined,
+      socialGroup: {
+        id: socialGroup.id,
+        name: socialGroup.name,
+        thumbnailUrl: socialGroup.thumbnailImageUrl || "",
+      },
+      supplier: supplier
+        ? {
+            name: supplier.name,
+            programProviderId: supplier.programProviderId,
+            icons: {
+              uri50x50: supplier.icons?.uri50x50 || "",
+              uri150x150: supplier.icons?.uri150x150 || "",
+            },
+          }
+        : undefined,
+      isFollowerOnly: program.isFollowerOnly || false,
+      beginAt: new Date(program.beginTime * 1000),
+      isMute: false,
+    };
+  }
 }

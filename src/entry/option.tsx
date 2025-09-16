@@ -12,6 +12,7 @@ async function renderPage() {
   await renderShowRankingCheckbox();
   await renderShowNotificationCheckbox();
   await renderSoundVolume();
+  await renderReceivePushNotificationCheckbox();
   await renderAutoOpen();
 }
 
@@ -54,7 +55,9 @@ async function setShowRanking(value: boolean): Promise<void> {
 }
 
 async function renderShowNotificationCheckbox() {
-  const showNotificationCheckbox = document.getElementById("show-notification-checkbox") as HTMLInputElement;
+  const showNotificationCheckbox = document.getElementById(
+    "show-notification-checkbox",
+  ) as HTMLInputElement;
   showNotificationCheckbox.checked = await getShowNotification();
   showNotificationCheckbox.addEventListener("change", async () => {
     const checked = showNotificationCheckbox.checked;
@@ -112,6 +115,27 @@ async function setSoundVolumeAsPercentInt(value: number): Promise<void> {
 async function playTestSound() {
   const option = container.resolve<Option>(InjectTokens.Option);
   await option.playTestSound();
+}
+
+async function renderReceivePushNotificationCheckbox() {
+  const receivePushNotificationCheckbox = document.getElementById(
+    "receive-push-notification-checkbox",
+  ) as HTMLInputElement;
+  receivePushNotificationCheckbox.checked = await getReceivePushNotification();
+  receivePushNotificationCheckbox.addEventListener("change", async () => {
+    const checked = receivePushNotificationCheckbox.checked;
+    await setReceivePushNotification(checked);
+  });
+}
+
+async function getReceivePushNotification(): Promise<boolean> {
+  const option = container.resolve<Option>(InjectTokens.Option);
+  return await option.getReceivePushNotification();
+}
+
+async function setReceivePushNotification(value: boolean): Promise<void> {
+  const option = container.resolve<Option>(InjectTokens.Option);
+  await option.setReceivePushNotification(value);
 }
 
 async function renderAutoOpen() {

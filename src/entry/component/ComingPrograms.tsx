@@ -10,7 +10,12 @@ interface ComingProgramsProps {
   useShowMoreButton: boolean;
 }
 
-const ComingPrograms: React.FC<ComingProgramsProps> = ({ programs, popup, showComponent, useShowMoreButton }) => {
+const ComingPrograms: React.FC<ComingProgramsProps> = ({
+  programs,
+  popup,
+  showComponent,
+  useShowMoreButton,
+}) => {
   if (!showComponent) {
     return null;
   }
