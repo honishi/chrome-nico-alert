@@ -36,49 +36,40 @@ interface PushStatus {
 
 async function getPushStatus(): Promise<PushStatus> {
   return new Promise((resolve) => {
-    chrome.runtime.sendMessage(
-      { type: 'GET_PUSH_STATUS' },
-      (response) => {
-        resolve(response);
-      }
-    );
+    chrome.runtime.sendMessage({ type: "GET_PUSH_STATUS" }, (response) => {
+      resolve(response);
+    });
   });
 }
 
 async function startPushNotification(): Promise<void> {
   return new Promise((resolve, reject) => {
-    chrome.runtime.sendMessage(
-      { type: 'START_PUSH' },
-      (response) => {
-        if (response && response.success) {
-          resolve();
-        } else {
-          reject(new Error(response?.error || 'Failed to start push notification'));
-        }
+    chrome.runtime.sendMessage({ type: "START_PUSH" }, (response) => {
+      if (response && response.success) {
+        resolve();
+      } else {
+        reject(new Error(response?.error || "Failed to start push notification"));
       }
-    );
+    });
   });
 }
 
 async function stopPushNotification(): Promise<void> {
   return new Promise((resolve, reject) => {
-    chrome.runtime.sendMessage(
-      { type: 'STOP_PUSH' },
-      (response) => {
-        if (response && response.success) {
-          resolve();
-        } else {
-          reject(new Error(response?.error || 'Failed to stop push notification'));
-        }
+    chrome.runtime.sendMessage({ type: "STOP_PUSH" }, (response) => {
+      if (response && response.success) {
+        resolve();
+      } else {
+        reject(new Error(response?.error || "Failed to stop push notification"));
       }
-    );
+    });
   });
 }
 
 async function updatePushStatusDisplay() {
-  const statusContainer = document.querySelector('.push-status-container') as HTMLElement;
-  const statusElement = document.getElementById('push-status');
-  const controlButton = document.getElementById('push-control-button') as HTMLButtonElement;
+  const statusContainer = document.querySelector(".push-status-container") as HTMLElement;
+  const statusElement = document.getElementById("push-status");
+  const controlButton = document.getElementById("push-control-button") as HTMLButtonElement;
   if (!statusElement || !statusContainer) return;
 
   try {
@@ -86,38 +77,38 @@ async function updatePushStatusDisplay() {
 
     // Hide container entirely if push notifications are disabled
     if (!status.enabled) {
-      statusContainer.style.display = 'none';
+      statusContainer.style.display = "none";
       return;
     }
 
     // Show container if push notifications are enabled
-    statusContainer.style.display = 'block';
+    statusContainer.style.display = "block";
 
-    let statusText = 'プッシュ通知: 無効';
-    let statusClass = 'push-status-disabled';
+    let statusText = "プッシュ通知: 無効";
+    let statusClass = "push-status-disabled";
 
     if (status.enabled && status.connected) {
-      statusText = 'プッシュ通知: 接続中';
-      statusClass = 'push-status-connected';
+      statusText = "プッシュ通知: 接続中";
+      statusClass = "push-status-connected";
     } else if (status.enabled && !status.connected) {
-      statusText = 'プッシュ通知: 未接続';
-      statusClass = 'push-status-disconnected';
+      statusText = "プッシュ通知: 未接続";
+      statusClass = "push-status-disconnected";
     }
 
     // Clear and rebuild status content
-    statusElement.innerHTML = '';
+    statusElement.innerHTML = "";
 
     // Create left group container for status and program info
-    const leftGroup = document.createElement('div');
-    leftGroup.className = 'push-status-left-group';
+    const leftGroup = document.createElement("div");
+    leftGroup.className = "push-status-left-group";
 
     // Create status text span
-    const statusSpan = document.createElement('span');
+    const statusSpan = document.createElement("span");
     statusSpan.className = statusClass;
 
     // Create icon element
-    const iconElement = document.createElement('i');
-    iconElement.className = 'fa-solid fa-circle push-status-icon';
+    const iconElement = document.createElement("i");
+    iconElement.className = "fa-solid fa-circle push-status-icon";
     statusSpan.appendChild(iconElement);
 
     // Add status text
@@ -127,12 +118,12 @@ async function updatePushStatusDisplay() {
     leftGroup.appendChild(statusSpan);
 
     // Add last received program info or "no program received" message
-    const programDiv = document.createElement('div');
-    programDiv.className = 'push-last-program';
+    const programDiv = document.createElement("div");
+    programDiv.className = "push-last-program";
 
     // Create TV icon
-    const tvIcon = document.createElement('i');
-    tvIcon.className = 'fa-solid fa-satellite-dish push-program-icon';
+    const tvIcon = document.createElement("i");
+    tvIcon.className = "fa-solid fa-satellite-dish push-program-icon";
     programDiv.appendChild(tvIcon);
 
     if (status.lastReceivedProgram) {
@@ -141,7 +132,7 @@ async function updatePushStatusDisplay() {
       const diffMs = now.getTime() - lastReceived.getTime();
       const diffMinutes = Math.floor(diffMs / 60000);
 
-      let timeText = '';
+      let timeText = "";
       if (diffMinutes < 60) {
         timeText = `${diffMinutes}分前`;
       } else {
@@ -153,25 +144,25 @@ async function updatePushStatusDisplay() {
       const titleMatch = status.lastReceivedProgram.program.title.match(/(.+)さんが生放送を開始/);
       const displayTitle = titleMatch ? titleMatch[1] : status.lastReceivedProgram.program.title;
 
-      const programTextSpan = document.createElement('span');
-      programTextSpan.className = 'push-program-text';
+      const programTextSpan = document.createElement("span");
+      programTextSpan.className = "push-program-text";
       const fullText = ` 最新:【${displayTitle}】${status.lastReceivedProgram.program.body} (${timeText})`;
       programTextSpan.textContent = fullText;
 
       // Format full date/time for tooltip
       const year = lastReceived.getFullYear();
-      const month = String(lastReceived.getMonth() + 1).padStart(2, '0');
-      const day = String(lastReceived.getDate()).padStart(2, '0');
-      const hours = String(lastReceived.getHours()).padStart(2, '0');
-      const minutes = String(lastReceived.getMinutes()).padStart(2, '0');
-      const seconds = String(lastReceived.getSeconds()).padStart(2, '0');
+      const month = String(lastReceived.getMonth() + 1).padStart(2, "0");
+      const day = String(lastReceived.getDate()).padStart(2, "0");
+      const hours = String(lastReceived.getHours()).padStart(2, "0");
+      const minutes = String(lastReceived.getMinutes()).padStart(2, "0");
+      const seconds = String(lastReceived.getSeconds()).padStart(2, "0");
       const fullDateTime = `${year}/${month}/${day} ${hours}:${minutes}:${seconds}`;
 
       programTextSpan.title = `最新:【${displayTitle}】${status.lastReceivedProgram.program.body}\n日時: ${fullDateTime}`;
       programDiv.appendChild(programTextSpan);
     } else {
-      const programTextSpan = document.createElement('span');
-      programTextSpan.className = 'push-program-text';
+      const programTextSpan = document.createElement("span");
+      programTextSpan.className = "push-program-text";
       programTextSpan.textContent = ` 最新: なし`;
       programDiv.appendChild(programTextSpan);
     }
@@ -184,7 +175,7 @@ async function updatePushStatusDisplay() {
 
     // Update control button
     if (controlButton) {
-      controlButton.style.display = 'inline-block';
+      controlButton.style.display = "inline-block";
       controlButton.disabled = false;
 
       if (status.connected) {
@@ -196,8 +187,8 @@ async function updatePushStatusDisplay() {
             await stopPushNotification();
             await updatePushStatusDisplay();
           } catch (error) {
-            console.error('Failed to stop push notification:', error);
-            alert('Failed to stop push notification');
+            console.error("Failed to stop push notification:", error);
+            alert("Failed to stop push notification");
             controlButton.disabled = false;
             controlButton.innerHTML = '<i class="fa-solid fa-stop"></i> 切断';
           }
@@ -211,8 +202,8 @@ async function updatePushStatusDisplay() {
             await startPushNotification();
             await updatePushStatusDisplay();
           } catch (error) {
-            console.error('Failed to start push notification:', error);
-            alert('Failed to start push notification');
+            console.error("Failed to start push notification:", error);
+            alert("Failed to start push notification");
             controlButton.disabled = false;
             controlButton.innerHTML = '<i class="fa-solid fa-play"></i> 接続';
           }
@@ -223,7 +214,7 @@ async function updatePushStatusDisplay() {
     // Set detailed information as tooltip (without time info)
     const details = [];
     if (status.connectionState) {
-      details.push(`状態: ${status.connectionState}`);
+      details.push(`Status: ${status.connectionState}`);
     }
     if (status.uaid) {
       details.push(`UAID: ${status.uaid}`);
@@ -232,18 +223,20 @@ async function updatePushStatusDisplay() {
       details.push(`Channel ID: ${status.channelId}`);
     }
     if (status.connectRateLimitStatus) {
-      details.push(`Connect Rate Limit: ${status.connectRateLimitStatus.currentAttempts}/${status.connectRateLimitStatus.maxAttempts}`);
+      details.push(
+        `Connect Rate Limit: ${status.connectRateLimitStatus.currentAttempts}/${status.connectRateLimitStatus.maxAttempts}`,
+      );
       if (status.connectRateLimitStatus.lastAttemptTime) {
         const lastAttempt = new Date(status.connectRateLimitStatus.lastAttemptTime);
-        details.push(`最終接続: ${lastAttempt.toLocaleString('ja-JP')}`);
+        details.push(`Last Connection: ${lastAttempt.toLocaleString("ja-JP")}`);
       }
     }
 
     if (details.length > 0) {
-      statusSpan.title = details.join('\n');
+      statusSpan.title = details.join("\n");
     }
   } catch (error) {
-    console.error('Failed to get push status:', error);
+    console.error("Failed to get push status:", error);
     statusElement.innerHTML = '<span class="push-status-error">⚠️ プッシュ通知: エラー</span>';
   }
 }
@@ -321,8 +314,8 @@ async function updateSuspendButton() {
   const isSuspended = await popup.isSuspended();
   const suspendEmoji = document.getElementById("suspend-emoji") as HTMLSpanElement;
   const suspendButton = document.getElementById(SUSPEND_BUTTON_ID) as HTMLButtonElement;
-  suspendEmoji.innerHTML = isSuspended 
-    ? '<i class="fa-solid fa-play"></i>' 
+  suspendEmoji.innerHTML = isSuspended
+    ? '<i class="fa-solid fa-play"></i>'
     : '<i class="fa-solid fa-pause"></i>';
   suspendButton.textContent = `自動入場${isSuspended ? "停止" : "動作"}中`;
 }
