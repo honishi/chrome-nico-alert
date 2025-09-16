@@ -7,8 +7,8 @@
     "build-dev-once": "rimraf dist && webpack --config webpack/webpack.dev.js",
     "build-prod": "rimraf dist && webpack --config webpack/webpack.prod.js",
     "clean": "rimraf dist",
-    "lint-fix": "eslint --fix './src/**/*.{js,ts}' && prettier --write './src/**/*.{js,ts}'",
-    "prettier": "prettier --write './src/**/*.{js,ts}'",
+    "lint-fix": "eslint --fix './src/**/*.{js,ts,tsx}' && prettier --write './src/**/*.{js,ts,tsx}'",
+    "prettier": "prettier --write './src/**/*.{js,ts,tsx}'",
     "test": "jest"
   },
   "author": "",
