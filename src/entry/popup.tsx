@@ -88,7 +88,7 @@ async function updatePushStatusDisplay() {
     let statusClass = "push-status-disabled";
 
     if (status.enabled && status.connected) {
-      statusText = "プッシュ通知: 接続中";
+      statusText = "プッシュ通知: 接続済み";
       statusClass = "push-status-connected";
     } else if (status.enabled && !status.connected) {
       statusText = "プッシュ通知: 未接続";
