@@ -214,8 +214,8 @@ async function hkdf(
   const saltKey = await crypto.subtle.importKey(
     "raw",
     actualSalt.buffer instanceof ArrayBuffer
-      ? actualSalt.buffer.slice(actualSalt.byteOffset, actualSalt.byteOffset + actualSalt.byteLength)
-      : actualSalt,
+      ? (actualSalt.buffer.slice(actualSalt.byteOffset, actualSalt.byteOffset + actualSalt.byteLength) as ArrayBuffer)
+      : (actualSalt as unknown as ArrayBuffer),
     { name: "HMAC", hash: "SHA-256" },
     false,
     ["sign"],
@@ -226,8 +226,8 @@ async function hkdf(
       "HMAC",
       saltKey,
       ikm.buffer instanceof ArrayBuffer
-        ? ikm.buffer.slice(ikm.byteOffset, ikm.byteOffset + ikm.byteLength)
-        : ikm,
+        ? (ikm.buffer.slice(ikm.byteOffset, ikm.byteOffset + ikm.byteLength) as ArrayBuffer)
+        : (ikm as unknown as ArrayBuffer),
     ),
   );
 
@@ -302,7 +302,7 @@ export async function decryptNotification(
       payload.publicKey.buffer.slice(
         payload.publicKey.byteOffset,
         payload.publicKey.byteOffset + payload.publicKey.byteLength,
-      ),
+      ) as ArrayBuffer,
       {
         name: "ECDH",
         namedCurve: "P-256",
@@ -341,8 +341,8 @@ export async function decryptNotification(
     // Decrypt with AES-GCM
     const cekBuffer =
       cek.buffer instanceof ArrayBuffer
-        ? cek.buffer.slice(cek.byteOffset, cek.byteOffset + cek.byteLength)
-        : cek;
+        ? (cek.buffer.slice(cek.byteOffset, cek.byteOffset + cek.byteLength) as ArrayBuffer)
+        : (cek as unknown as ArrayBuffer);
     const key = await crypto.subtle.importKey(
       "raw",
       cekBuffer,
@@ -359,11 +359,11 @@ export async function decryptNotification(
       },
       key,
       payload.ciphertext.buffer instanceof ArrayBuffer
-        ? payload.ciphertext.buffer.slice(
+        ? (payload.ciphertext.buffer.slice(
             payload.ciphertext.byteOffset,
             payload.ciphertext.byteOffset + payload.ciphertext.byteLength,
-          )
-        : payload.ciphertext,
+          ) as ArrayBuffer)
+        : (payload.ciphertext as unknown as ArrayBuffer),
     );
 
     // Process decrypted data
