@@ -62,6 +62,7 @@ export class AutoPushClient {
   // Connect rate limiting
   private connectCallTimestamps: number[] = [];
   private readonly maxConnectCallsPerHour = 100;
+  private lastConnectedAt?: Date;
 
   // Test utilities
   private testAutoCloseTimer?: NodeJS.Timeout;
@@ -112,9 +113,9 @@ export class AutoPushClient {
   }
 
   /**
-   * Get detailed connection status
+   * Get WebSocket connection status label
    */
-  getConnectionStatus(): string {
+  getConnectionStatusLabel(): string {
     if (!this.ws) return "NO_SOCKET";
     if (this.ws.readyState === WebSocket.OPEN && this.uaid) return "AUTHENTICATED";
     if (this.ws.readyState === WebSocket.OPEN) return "CONNECTED";
@@ -138,12 +139,13 @@ export class AutoPushClient {
   }
 
   /**
-   * Get connect rate limit status
+   * Get connection metrics including rate limit info
    */
-  getConnectRateLimitStatus(): {
+  getConnectionStatus(): {
     currentAttempts: number;
     maxAttempts: number;
     lastAttemptTime?: Date;
+    lastConnectedTime?: Date;
   } {
     const now = Date.now();
     const oneHourAgo = now - 60 * 60 * 1000;
@@ -161,6 +163,7 @@ export class AutoPushClient {
       currentAttempts: recentAttempts.length,
       maxAttempts: this.maxConnectCallsPerHour,
       lastAttemptTime,
+      lastConnectedTime: this.lastConnectedAt,
     };
   }
 
@@ -203,6 +206,7 @@ export class AutoPushClient {
           console.log("[AutoPush] ✅ WebSocket OPENED");
           console.log("[AutoPush] Connected to:", this.endpoint);
           this.isConnected = true;
+          this.lastConnectedAt = new Date();
 
           // Clear and reset state check timer
           if (this.stateCheckInterval) {

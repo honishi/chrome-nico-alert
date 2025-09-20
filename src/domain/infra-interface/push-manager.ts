@@ -58,13 +58,14 @@ export interface PushManager {
   getUaid(): string | undefined;
 
   /**
-   * Get connect rate limit status
+   * Get detailed connection metrics (rate limit, timestamps, etc.)
    */
-  getConnectRateLimitStatus():
+  getConnectionStatus():
     | {
         currentAttempts: number;
         maxAttempts: number;
         lastAttemptTime?: Date;
+        lastConnectedTime?: Date;
       }
     | undefined;
 }

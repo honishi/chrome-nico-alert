@@ -27,10 +27,11 @@ interface PushStatus {
   };
   channelId?: string;
   uaid?: string;
-  connectRateLimitStatus?: {
+  connectionStatus?: {
     currentAttempts: number;
     maxAttempts: number;
     lastAttemptTime?: string;
+    lastConnectedTime?: string;
   };
 }
 
@@ -88,7 +89,7 @@ async function updatePushStatusDisplay() {
     let statusClass = "push-status-disabled";
 
     if (status.enabled && status.connected) {
-      statusText = "プッシュ通知: 接続中";
+      statusText = "プッシュ通知: 接続済み";
       statusClass = "push-status-connected";
     } else if (status.enabled && !status.connected) {
       statusText = "プッシュ通知: 未接続";
@@ -222,13 +223,17 @@ async function updatePushStatusDisplay() {
     if (status.channelId) {
       details.push(`Channel ID: ${status.channelId}`);
     }
-    if (status.connectRateLimitStatus) {
+    if (status.connectionStatus) {
       details.push(
-        `Connect Rate Limit: ${status.connectRateLimitStatus.currentAttempts}/${status.connectRateLimitStatus.maxAttempts}`,
+        `Connect Rate Limit: ${status.connectionStatus.currentAttempts}/${status.connectionStatus.maxAttempts}`,
       );
-      if (status.connectRateLimitStatus.lastAttemptTime) {
-        const lastAttempt = new Date(status.connectRateLimitStatus.lastAttemptTime);
-        details.push(`Last Connection: ${lastAttempt.toLocaleString("ja-JP")}`);
+      if (status.connectionStatus.lastAttemptTime) {
+        const lastAttempt = new Date(status.connectionStatus.lastAttemptTime);
+        details.push(`Last Attempt: ${lastAttempt.toLocaleString("ja-JP")}`);
+      }
+      if (status.connectionStatus.lastConnectedTime) {
+        const lastConnection = new Date(status.connectionStatus.lastConnectedTime);
+        details.push(`Last Connection: ${lastConnection.toLocaleString("ja-JP")}`);
       }
     }
 

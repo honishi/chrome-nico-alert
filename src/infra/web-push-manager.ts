@@ -188,14 +188,15 @@ export class WebPushManager implements PushManager {
   /**
    * Get connect rate limit status from AutoPush client
    */
-  getConnectRateLimitStatus():
+  getConnectionStatus():
     | {
         currentAttempts: number;
         maxAttempts: number;
         lastAttemptTime?: Date;
+        lastConnectedTime?: Date;
       }
     | undefined {
-    return this.autoPush?.getConnectRateLimitStatus();
+    return this.autoPush?.getConnectionStatus();
   }
 
   // ========== Private Methods: Initialization ==========

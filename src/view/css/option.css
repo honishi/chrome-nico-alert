@@ -17,6 +17,23 @@
     gap: 8px;
 }
 
+.checkbox-with-note {
+    display: grid;
+    grid-template-columns: auto 1fr;
+    column-gap: 8px;
+    row-gap: 2px;
+    align-items: center;
+}
+
+.checkbox-with-note label {
+    grid-column: 2;
+}
+
+.checkbox-with-note .checkbox-note {
+    grid-column: 2;
+    font-size: 0.9em;
+}
+
 .volume-slider-container {
     display: flex;
     align-items: center;

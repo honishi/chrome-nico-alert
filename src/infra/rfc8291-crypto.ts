@@ -7,8 +7,8 @@
 /**
  * Base64 encode (URL-safe)
  */
-export function base64UrlEncode(buffer: ArrayBuffer): string {
-  const bytes = new Uint8Array(buffer);
+export function base64UrlEncode(buffer: ArrayBuffer | Uint8Array): string {
+  const bytes = buffer instanceof Uint8Array ? buffer : new Uint8Array(buffer);
   let binary = "";
   for (let i = 0; i < bytes.byteLength; i++) {
     binary += String.fromCharCode(bytes[i]);
@@ -35,8 +35,8 @@ export function base64UrlDecode(str: string): Uint8Array {
 /**
  * Standard Base64 encode (with padding)
  */
-export function base64Encode(buffer: ArrayBuffer): string {
-  const bytes = new Uint8Array(buffer);
+export function base64Encode(buffer: ArrayBuffer | Uint8Array): string {
+  const bytes = buffer instanceof Uint8Array ? buffer : new Uint8Array(buffer);
   let binary = "";
   for (let i = 0; i < bytes.byteLength; i++) {
     binary += String.fromCharCode(bytes[i]);
@@ -213,13 +213,23 @@ async function hkdf(
 
   const saltKey = await crypto.subtle.importKey(
     "raw",
-    actualSalt,
+    actualSalt.buffer instanceof ArrayBuffer
+      ? (actualSalt.buffer.slice(actualSalt.byteOffset, actualSalt.byteOffset + actualSalt.byteLength) as ArrayBuffer)
+      : (actualSalt as unknown as ArrayBuffer),
     { name: "HMAC", hash: "SHA-256" },
     false,
     ["sign"],
   );
 
-  const prkBytes = new Uint8Array(await crypto.subtle.sign("HMAC", saltKey, ikm));
+  const prkBytes = new Uint8Array(
+    await crypto.subtle.sign(
+      "HMAC",
+      saltKey,
+      ikm.buffer instanceof ArrayBuffer
+        ? (ikm.buffer.slice(ikm.byteOffset, ikm.byteOffset + ikm.byteLength) as ArrayBuffer)
+        : (ikm as unknown as ArrayBuffer),
+    ),
+  );
 
   // Expand: OKM = T(1) | T(2) | ... | T(N)
   const prkKey = await crypto.subtle.importKey(
@@ -289,7 +299,10 @@ export async function decryptNotification(
     // Import application server's public key
     const asPublicKey = await crypto.subtle.importKey(
       "raw",
-      payload.publicKey,
+      payload.publicKey.buffer.slice(
+        payload.publicKey.byteOffset,
+        payload.publicKey.byteOffset + payload.publicKey.byteLength,
+      ) as ArrayBuffer,
       {
         name: "ECDH",
         namedCurve: "P-256",
@@ -326,7 +339,17 @@ export async function decryptNotification(
     // XOR for record index 0 is unnecessary (already 0)
 
     // Decrypt with AES-GCM
-    const key = await crypto.subtle.importKey("raw", cek, { name: "AES-GCM" }, false, ["decrypt"]);
+    const cekBuffer =
+      cek.buffer instanceof ArrayBuffer
+        ? (cek.buffer.slice(cek.byteOffset, cek.byteOffset + cek.byteLength) as ArrayBuffer)
+        : (cek as unknown as ArrayBuffer);
+    const key = await crypto.subtle.importKey(
+      "raw",
+      cekBuffer,
+      { name: "AES-GCM" },
+      false,
+      ["decrypt"],
+    );
 
     const decrypted = await crypto.subtle.decrypt(
       {
@@ -335,7 +358,12 @@ export async function decryptNotification(
         tagLength: 128, // 16 bytes = 128 bits
       },
       key,
-      payload.ciphertext,
+      payload.ciphertext.buffer instanceof ArrayBuffer
+        ? (payload.ciphertext.buffer.slice(
+            payload.ciphertext.byteOffset,
+            payload.ciphertext.byteOffset + payload.ciphertext.byteLength,
+          ) as ArrayBuffer)
+        : (payload.ciphertext as unknown as ArrayBuffer),
     );
 
     // Process decrypted data
