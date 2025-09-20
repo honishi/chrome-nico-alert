@@ -30,8 +30,11 @@ jobs:
       contents: write
     steps:
       - name: Set Env Vars
+        id: set_env
         run: |
-          echo "DIST_ZIP_FILE=dist-${{ github.ref_name }}-`echo ${{ github.sha }} | cut -c1-7`.zip" >> $GITHUB_ENV
+          dist_zip_file="dist-${GITHUB_REF_NAME}-${GITHUB_SHA:0:7}.zip"
+          echo "DIST_ZIP_FILE=${dist_zip_file}" >> "$GITHUB_ENV"
+          echo "dist_zip_file=${dist_zip_file}" >> "$GITHUB_OUTPUT"
       - name: Checkout
         uses: actions/checkout@v3
       - name: Setup Node.js
@@ -43,10 +46,10 @@ jobs:
       - name: Build for Production
         run: |
           npm run build-prod
-          zip -r ${{ env.DIST_ZIP_FILE }} dist
+          zip -r "$DIST_ZIP_FILE" dist
           ls -la
       - name: Release Build
         uses: softprops/action-gh-release@v1
         if: startsWith(github.ref, 'refs/tags/')
         with:
-          files: ${{ env.DIST_ZIP_FILE }}
+          files: ${{ steps.set_env.outputs.dist_zip_file }}
