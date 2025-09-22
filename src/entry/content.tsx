@@ -254,6 +254,62 @@ async function registerPushEndpoint(
   }
 }
 
+async function unregisterPushEndpoint(
+  endpoint: string,
+): Promise<{ success: boolean; status?: number; error?: string }> {
+  try {
+    console.log("[Content Script] Unregistering push endpoint from Niconico API");
+    console.log("[Content Script] Endpoint:", endpoint);
+
+    // Format request body according to Niconico API expectations
+    const requestBody = {
+      destApp: "nico_account_webpush", // Required field
+      endpoint: {
+        endpoint: endpoint,
+      },
+    };
+
+    console.log("[Content Script] Request body:", JSON.stringify(requestBody, null, 2));
+
+    // Debug: Check current page origin
+    console.log("[Content Script] Current origin:", window.location.origin);
+    console.log("[Content Script] Current URL:", window.location.href);
+
+    // Match Niconico's actual implementation
+    const headers = {
+      "Content-Type": "application/json",
+      "X-Request-With": window.location.href,
+      Accept: "application/json",
+      "X-Frontend-Id": "8",
+      Origin: "https://account.nicovideo.jp",
+    };
+    console.log("[Content Script] Request headers:", headers);
+
+    const response = await fetch(
+      "https://api.push.nicovideo.jp/v1/nicopush/webpush/endpoints.json",
+      {
+        method: "DELETE",
+        credentials: "include", // Automatically send cookies
+        mode: "cors", // Explicitly specify CORS mode
+        headers: headers,
+        body: JSON.stringify(requestBody),
+      },
+    );
+
+    if (response.ok) {
+      console.log("[Content Script] Push endpoint unregistered successfully");
+      return { success: true, status: response.status };
+    } else {
+      const errorText = await response.text();
+      console.error("[Content Script] Failed to unregister:", response.status, errorText);
+      return { success: false, status: response.status, error: errorText };
+    }
+  } catch (error) {
+    console.error("[Content Script] Unregistration error:", error);
+    return { success: false, error: error instanceof Error ? error.message : String(error) };
+  }
+}
+
 /**
  * Process messages from Background Script
  */
@@ -275,6 +331,20 @@ chrome.runtime.onMessage.addListener((message, _sender, sendResponse) => {
       })
       .catch((error) => {
         console.error("[Content Script] Error:", error);
+        sendResponse({ success: false, error: String(error) });
+      });
+    return true; // Required for async response
+  }
+
+  if (message.type === "UNREGISTER_PUSH_ENDPOINT") {
+    // Return true to keep sendResponse for async processing
+    unregisterPushEndpoint(message.endpoint)
+      .then((result) => {
+        console.log("[Content Script] Sending unregister response:", result);
+        sendResponse(result);
+      })
+      .catch((error) => {
+        console.error("[Content Script] Unregister error:", error);
         sendResponse({ success: false, error: String(error) });
       });
     return true; // Required for async response
