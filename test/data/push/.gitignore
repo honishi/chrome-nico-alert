@@ -1,0 +1,7 @@
+# Real test data with credentials - NEVER commit these!
+datasets/
+
+# Legacy single file format (for backward compatibility)
+test-keys.json
+test-payload.json
+expected-output.json
