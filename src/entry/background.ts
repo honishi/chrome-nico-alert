@@ -33,34 +33,28 @@ function configureRuntimeListener(background: Background) {
   console.log("configureRuntimeListener: done");
 }
 
-async function sendCompletionMessageToOptionPage(
-  success: boolean,
-  newValue?: boolean,
-  error?: unknown,
-) {
-  const tabs = await chrome.tabs.query({});
-  for (const tab of tabs) {
-    if (tab.id && tab.url?.includes("option.html")) {
-      const message = {
-        type: "PUSH_NOTIFICATION_SETTING_COMPLETE",
-        success,
-        ...(success
-          ? { enabled: newValue }
-          : { error: error instanceof Error ? error.message : String(error) }),
-      };
+function sendCompletionMessageToOptionPage(success: boolean, newValue?: boolean, error?: unknown) {
+  const message = {
+    type: "PUSH_NOTIFICATION_SETTING_COMPLETE",
+    success,
+    ...(success
+      ? { enabled: newValue }
+      : { error: error instanceof Error ? error.message : String(error) }),
+  };
 
-      console.log(
-        `[Background] Sending ${success ? "completion" : "error"} message to option.html tab (ID: ${
-          tab.id
-        })`,
-      );
+  console.log(
+    `[Background] Broadcasting ${
+      success ? "completion" : "error"
+    } message to all extension contexts`,
+  );
 
-      chrome.tabs.sendMessage(tab.id, message).catch((sendError) => {
-        // Ignore error if tab is closed or not available
-        console.log(`[Background] Could not send message to tab ${tab.id}:`, sendError.message);
-      });
-    }
-  }
+  // Broadcast to all extension contexts (option page, popup, etc.)
+  chrome.runtime.sendMessage(message).catch(() => {
+    // This is expected if no listeners are active
+    console.log(
+      "[Background] No active listeners for completion message (this is normal if option page is closed)",
+    );
+  });
 }
 
 function configureStorageListener(background: Background) {
@@ -81,12 +75,12 @@ function configureStorageListener(background: Background) {
           console.log("[Background] handlePushNotificationSettingChange completed successfully");
 
           // Send success notification to option page
-          await sendCompletionMessageToOptionPage(true, newValue);
+          sendCompletionMessageToOptionPage(true, newValue);
         } catch (error) {
           console.error("[Background] Failed to handle push notification setting change:", error);
 
           // Send error notification to option page
-          await sendCompletionMessageToOptionPage(false, undefined, error);
+          sendCompletionMessageToOptionPage(false, undefined, error);
         }
       }
     }

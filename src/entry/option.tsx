@@ -155,6 +155,8 @@ async function renderReceivePushNotificationCheckbox() {
             chrome.runtime.onMessage.removeListener(listener);
             resolve();
           }
+          // Return false to indicate we're not sending a response
+          return false;
         };
         chrome.runtime.onMessage.addListener(listener);
 
