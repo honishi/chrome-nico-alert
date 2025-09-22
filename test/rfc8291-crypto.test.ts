@@ -32,7 +32,9 @@ function loadTestData<T>(filename: string): T | null {
     const exampleFilePath = path.join(testDataDir, filename.replace(".json", ".example.json"));
     if (fs.existsSync(exampleFilePath)) {
       console.warn(`Using example file: ${filename.replace(".json", ".example.json")}`);
-      console.warn(`To use real data, copy ${filename.replace(".json", ".example.json")} to ${filename}`);
+      console.warn(
+        `To use real data, copy ${filename.replace(".json", ".example.json")} to ${filename}`,
+      );
       return JSON.parse(fs.readFileSync(exampleFilePath, "utf8"));
     }
     return null;
