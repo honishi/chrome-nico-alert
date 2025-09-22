@@ -6,32 +6,25 @@ This directory contains test data for Web Push (RFC8291) encryption/decryption t
 
 ```
 test/data/push/
-├── datasets/           # Real test data (gitignored)
-│   ├── default/       # Default dataset
-│   │   ├── keys.json
-│   │   ├── payload.json
-│   │   └── expected.json
-│   └── case1/         # Additional test cases
-│       └── ...
+├── datasets/          # Real test data (gitignored)
+│   ├── case1.json    # Test dataset 1
+│   └── case2.json    # Test dataset 2
 ├── examples/          # Example data (committed to repo)
-│   └── default/
-│       ├── keys.json
-│       ├── payload.json
-│       └── expected.json
+│   └── example.json  # Example dataset with dummy data
 └── README.md
 ```
 
 ## Setup Instructions
 
-### For single dataset (default):
+### Creating test datasets:
 
-1. **Copy example files to create test dataset:**
+1. **Copy example file to create a new dataset:**
    ```bash
-   cp -r examples/default datasets/default
+   cp examples/example.json datasets/my-test.json
    ```
 
 2. **Replace dummy values with real test data**
-   - Edit files in `datasets/default/`
+   - Edit `datasets/my-test.json`
    - Get real keys and payload from Chrome extension console logs
 
 3. **Run tests:**
@@ -39,20 +32,17 @@ test/data/push/
    npm test rfc8291-crypto
    ```
 
-### For multiple datasets:
+### Adding multiple datasets:
 
-1. **Create additional dataset directories:**
-   ```bash
-   mkdir -p datasets/case1
-   mkdir -p datasets/case2
-   ```
+Simply add more JSON files to the `datasets/` directory:
+```bash
+datasets/case1.json
+datasets/case2.json
+datasets/user-broadcast.json
+datasets/channel-broadcast.json
+```
 
-2. **Add test data files to each dataset:**
-   - `keys.json` - Encryption keys
-   - `payload.json` - Encrypted payload
-   - `expected.json` - Expected decrypted output
-
-3. **Tests will automatically run for all datasets**
+All `.json` files in `datasets/` will be automatically tested.
 
 ## Important Security Notes
 
@@ -60,35 +50,26 @@ test/data/push/
 
 The `datasets/` directory is listed in `.gitignore` to prevent accidental commits of sensitive data.
 
-- `datasets/*/keys.json` - Contains private keys and auth secrets
-- `datasets/*/payload.json` - Contains encrypted payload
-- `datasets/*/expected.json` - Contains decrypted notification data
+- `datasets/*.json` - Contains private keys, encrypted payloads, and expected outputs
 
 ## File Format
 
-Each dataset consists of three JSON files:
+Each dataset is a single JSON file with the following structure:
 
-### keys.json
 ```json
 {
-  "authSecret": "Base64 URL-safe encoded auth secret",
-  "publicKey": "Base64 URL-safe encoded public key",
-  "privateKey": "Base64 URL-safe encoded private key"
-}
-```
-
-### payload.json
-```json
-{
-  "encryptedPayload": "Base64 URL-safe encoded encrypted payload"
-}
-```
-
-### expected.json
-```json
-{
-  "decryptedJson": {
-    // Expected decrypted JSON structure
+  "keys": {
+    "authSecret": "Base64 URL-safe encoded auth secret",
+    "publicKey": "Base64 URL-safe encoded public key",
+    "privateKey": "Base64 URL-safe encoded private key"
+  },
+  "payload": {
+    "encryptedPayload": "Base64 URL-safe encoded encrypted payload"
+  },
+  "expected": {
+    "decryptedJson": {
+      // Expected decrypted JSON structure
+    }
   }
 }
 ```
