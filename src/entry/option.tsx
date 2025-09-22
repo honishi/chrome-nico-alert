@@ -121,13 +121,21 @@ async function renderReceivePushNotificationCheckbox() {
   const receivePushNotificationCheckbox = document.getElementById(
     "receive-push-notification-checkbox",
   ) as HTMLInputElement;
+  const receivePushNotificationLabel = document.querySelector(
+    'label[for="receive-push-notification-checkbox"]',
+  ) as HTMLLabelElement;
+
   receivePushNotificationCheckbox.checked = await getReceivePushNotification();
   receivePushNotificationCheckbox.addEventListener("change", async () => {
     const checked = receivePushNotificationCheckbox.checked;
 
-    // Disable checkbox immediately
+    // Disable checkbox and update label style immediately
     console.log("[Option] Disabling push notification checkbox...");
     receivePushNotificationCheckbox.disabled = true;
+    if (receivePushNotificationLabel) {
+      receivePushNotificationLabel.style.opacity = "0.5";
+      receivePushNotificationLabel.style.cursor = "not-allowed";
+    }
 
     try {
       // Save the setting (this triggers the background script)
@@ -166,9 +174,13 @@ async function renderReceivePushNotificationCheckbox() {
       // Revert checkbox on error
       receivePushNotificationCheckbox.checked = !checked;
     } finally {
-      // Always re-enable checkbox
+      // Always re-enable checkbox and reset label style
       console.log("[Option] Re-enabling push notification checkbox");
       receivePushNotificationCheckbox.disabled = false;
+      if (receivePushNotificationLabel) {
+        receivePushNotificationLabel.style.opacity = "";
+        receivePushNotificationLabel.style.cursor = "";
+      }
     }
   });
 }
