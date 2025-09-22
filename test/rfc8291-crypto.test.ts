@@ -245,17 +245,16 @@ describe("Decryption with Real Data", () => {
     // Here we just verify the functions work together
     expect(keyPair.publicKeyBytes).toBeDefined();
     expect(authSecret).toBeDefined();
-
-    console.log("Integration test placeholder - add real encrypted data to test/data/push/");
   });
 });
 
 // ========== Helper function for debugging ==========
 describe("Debug Helpers", () => {
-  test("should provide debug output format for captured data", () => {
-    // This test helps developers capture and format real data
+  test("should provide instructions for capturing new test data", () => {
+    // This test provides instructions for capturing NEW test data
+    // (Useful when you need to update test data or test with different scenarios)
     const captureInstructions = `
-To capture real push notification data for testing:
+To capture NEW push notification data for testing:
 
 1. In web-push-manager.ts, add logging:
    console.log('Keys for testing:', {
