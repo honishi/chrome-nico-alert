@@ -25,6 +25,76 @@ import {
 // ========== Test Data Loading ==========
 const testDataDir = path.join(__dirname, "data", "push");
 
+interface TestDataSet {
+  keys: any;
+  payload: any;
+  expected: any;
+}
+
+function loadDataset(datasetName: string = "default"): TestDataSet | null {
+  // Try to load from datasets directory first (real data)
+  const datasetDir = path.join(testDataDir, "datasets", datasetName);
+  if (fs.existsSync(datasetDir)) {
+    try {
+      return {
+        keys: JSON.parse(fs.readFileSync(path.join(datasetDir, "keys.json"), "utf8")),
+        payload: JSON.parse(fs.readFileSync(path.join(datasetDir, "payload.json"), "utf8")),
+        expected: JSON.parse(fs.readFileSync(path.join(datasetDir, "expected.json"), "utf8")),
+      };
+    } catch (e) {
+      console.warn(`Error loading dataset "${datasetName}":`, e);
+    }
+  }
+
+  // Fall back to examples directory
+  const exampleDir = path.join(testDataDir, "examples", datasetName);
+  if (fs.existsSync(exampleDir)) {
+    console.warn(`Using example dataset: ${datasetName}`);
+    console.warn(
+      `To use real data, copy files from examples/${datasetName}/ to datasets/${datasetName}/`,
+    );
+    try {
+      return {
+        keys: JSON.parse(fs.readFileSync(path.join(exampleDir, "keys.json"), "utf8")),
+        payload: JSON.parse(fs.readFileSync(path.join(exampleDir, "payload.json"), "utf8")),
+        expected: JSON.parse(fs.readFileSync(path.join(exampleDir, "expected.json"), "utf8")),
+      };
+    } catch (e) {
+      console.warn(`Error loading example dataset "${datasetName}":`, e);
+    }
+  }
+
+  return null;
+}
+
+function getAvailableDatasets(): string[] {
+  const datasets: string[] = [];
+
+  // Check datasets directory
+  const datasetsDir = path.join(testDataDir, "datasets");
+  if (fs.existsSync(datasetsDir)) {
+    const dirs = fs
+      .readdirSync(datasetsDir, { withFileTypes: true })
+      .filter((dirent) => dirent.isDirectory())
+      .map((dirent) => dirent.name);
+    datasets.push(...dirs);
+  }
+
+  // Check examples directory (only add if not already in datasets)
+  const examplesDir = path.join(testDataDir, "examples");
+  if (fs.existsSync(examplesDir)) {
+    const dirs = fs
+      .readdirSync(examplesDir, { withFileTypes: true })
+      .filter((dirent) => dirent.isDirectory())
+      .map((dirent) => dirent.name)
+      .filter((name) => !datasets.includes(name));
+    datasets.push(...dirs);
+  }
+
+  return datasets.length > 0 ? datasets : ["default"];
+}
+
+// For backward compatibility - load single files
 function loadTestData<T>(filename: string): T | null {
   const filePath = path.join(testDataDir, filename);
   if (!fs.existsSync(filePath)) {
@@ -188,12 +258,50 @@ describe("Payload Parsing", () => {
   });
 });
 
-// ========== Main Decryption Tests (with placeholder for real data) ==========
+// ========== Main Decryption Tests (with real/example data) ==========
 describe("Decryption with Real Data", () => {
-  test("decryptNotification should decrypt real Niconico push notification", async () => {
-    // Test with real data
+  // Test all available datasets
+  const availableDatasets = getAvailableDatasets();
 
-    // Load test data
+  availableDatasets.forEach((datasetName) => {
+    test(`decryptNotification with dataset: ${datasetName}`, async () => {
+      // Load dataset
+      const dataset = loadDataset(datasetName);
+
+      // Check if dataset exists
+      if (!dataset) {
+        console.warn(`Dataset "${datasetName}" not found. Skipping.`);
+        return;
+      }
+
+      // Check if we have real data (not dummy data)
+      if (dataset.keys.authSecret === "AAAAAAAAAAAAAAAAAAAAAA") {
+        console.warn(`Dataset "${datasetName}" contains dummy data. Skipping.`);
+        return;
+      }
+
+      // Import keys
+      const keys = await importKeys({
+        authSecret: dataset.keys.authSecret,
+        publicKey: dataset.keys.publicKey,
+        privateKey: dataset.keys.privateKey,
+      });
+
+      // Parse payload
+      const payload = parseAutoPushPayload(dataset.payload.encryptedPayload);
+
+      // Decrypt
+      const decrypted = await decryptNotification(payload, keys);
+      const decryptedJson = JSON.parse(decrypted);
+
+      // Verify
+      expect(decryptedJson).toEqual(dataset.expected.decryptedJson);
+    });
+  });
+
+  // Keep backward compatibility test for single files
+  test("decryptNotification with legacy single files", async () => {
+    // Load test data using old method
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const keysData = loadTestData<any>("test-keys.json");
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -203,8 +311,9 @@ describe("Decryption with Real Data", () => {
 
     // Check if test data files exist
     if (!keysData || !payloadData || !expectedOutput) {
-      console.warn("Real test data files not found. Skipping real data test.");
-      console.warn("To run this test, copy *.example.json files to *.json and add real data.");
+      console.warn(
+        "Legacy test data files not found. This is expected if using new dataset structure.",
+      );
       return;
     }
 

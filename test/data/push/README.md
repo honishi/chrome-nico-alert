@@ -2,47 +2,96 @@
 
 This directory contains test data for Web Push (RFC8291) encryption/decryption tests.
 
+## Directory Structure
+
+```
+test/data/push/
+├── datasets/           # Real test data (gitignored)
+│   ├── default/       # Default dataset
+│   │   ├── keys.json
+│   │   ├── payload.json
+│   │   └── expected.json
+│   └── case1/         # Additional test cases
+│       └── ...
+├── examples/          # Example data (committed to repo)
+│   └── default/
+│       ├── keys.json
+│       ├── payload.json
+│       └── expected.json
+└── README.md
+```
+
 ## Setup Instructions
 
-To run tests with real data:
+### For single dataset (default):
 
-1. **Copy example files to create test data files:**
+1. **Copy example files to create test dataset:**
    ```bash
-   cp test-keys.example.json test-keys.json
-   cp test-payload.example.json test-payload.json
-   cp expected-output.example.json expected-output.json
+   cp -r examples/default datasets/default
    ```
 
 2. **Replace dummy values with real test data**
+   - Edit files in `datasets/default/`
    - Get real keys and payload from Chrome extension console logs
-   - See instructions in each example file for details
 
 3. **Run tests:**
    ```bash
    npm test rfc8291-crypto
    ```
 
+### For multiple datasets:
+
+1. **Create additional dataset directories:**
+   ```bash
+   mkdir -p datasets/case1
+   mkdir -p datasets/case2
+   ```
+
+2. **Add test data files to each dataset:**
+   - `keys.json` - Encryption keys
+   - `payload.json` - Encrypted payload
+   - `expected.json` - Expected decrypted output
+
+3. **Tests will automatically run for all datasets**
+
 ## Important Security Notes
 
 ⚠️ **NEVER commit real test data files to the repository!**
 
-- `test-keys.json` - Contains private keys and auth secrets
-- `test-payload.json` - Contains encrypted payload
-- `expected-output.json` - Contains decrypted notification data
+The `datasets/` directory is listed in `.gitignore` to prevent accidental commits of sensitive data.
 
-These files are listed in `.gitignore` to prevent accidental commits.
+- `datasets/*/keys.json` - Contains private keys and auth secrets
+- `datasets/*/payload.json` - Contains encrypted payload
+- `datasets/*/expected.json` - Contains decrypted notification data
 
-## File Descriptions
+## File Format
 
-### Example Files (safe to commit)
-- `test-keys.example.json` - Example structure for encryption keys
-- `test-payload.example.json` - Example structure for encrypted payload
-- `expected-output.example.json` - Example structure for expected decrypted output
+Each dataset consists of three JSON files:
 
-### Test Data Files (DO NOT commit)
-- `test-keys.json` - Real encryption keys (authSecret, publicKey, privateKey)
-- `test-payload.json` - Real encrypted payload from Push notification
-- `expected-output.json` - Real decrypted JSON output
+### keys.json
+```json
+{
+  "authSecret": "Base64 URL-safe encoded auth secret",
+  "publicKey": "Base64 URL-safe encoded public key",
+  "privateKey": "Base64 URL-safe encoded private key"
+}
+```
+
+### payload.json
+```json
+{
+  "encryptedPayload": "Base64 URL-safe encoded encrypted payload"
+}
+```
+
+### expected.json
+```json
+{
+  "decryptedJson": {
+    // Expected decrypted JSON structure
+  }
+}
+```
 
 ## How to Obtain Real Test Data
 
