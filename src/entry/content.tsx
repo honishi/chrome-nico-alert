@@ -161,10 +161,6 @@ async function fixChannelPage() {
 }
 
 /**
- * Register push notification endpoint to Niconico API
- * Called from Background Script
- */
-/**
  * Constants for Push API
  */
 const PUSH_API_ENDPOINT = "https://api.push.nicovideo.jp/v1/nicopush/webpush/endpoints.json";
@@ -238,6 +234,10 @@ function handlePushApiResponse(
   }
 }
 
+/**
+ * Register push notification endpoint to Niconico API
+ * Called from Background Script
+ */
 async function registerPushEndpoint(
   endpoint: string,
   keys: { p256dh: string; auth: string },
@@ -281,6 +281,10 @@ async function registerPushEndpoint(
   }
 }
 
+/**
+ * Unregister push notification endpoint from Niconico API
+ * Called from Background Script
+ */
 async function unregisterPushEndpoint(
   endpoint: string,
 ): Promise<{ success: boolean; status?: number; error?: string }> {
