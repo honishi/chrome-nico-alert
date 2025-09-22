@@ -1,0 +1,19 @@
+{
+  "_comment": "Test keys for rfc8291-crypto.test.ts - Replace with actual keys for integration testing",
+  "_instructions": {
+    "how_to_get_real_data": [
+      "1. Enable console logging in web-push-manager.ts",
+      "2. Turn ON push notifications in the extension options",
+      "3. Check Chrome DevTools console for the generated keys",
+      "4. Copy the keys here (Base64 URL-safe format)"
+    ],
+    "format": {
+      "authSecret": "16 bytes, Base64 URL-safe encoded",
+      "publicKey": "65 bytes (uncompressed P-256), Base64 URL-safe encoded",
+      "privateKey": "32 bytes, Base64 URL-safe encoded"
+    }
+  },
+  "authSecret": "AAAAAAAAAAAAAAAAAAAAAA",
+  "publicKey": "BDummy_PublicKey_65bytes_P256_Uncompressed_Format_0x04_Prefix_XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX",
+  "privateKey": "Dummy_PrivateKey_32bytes_XXXXXX"
+}
