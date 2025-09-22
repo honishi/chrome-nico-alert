@@ -23,6 +23,5 @@
       ]
     }
   },
-  "encryptedPayload": "DummyBase64URLSafeEncodedPayloadDataHere_ThisIsJustAPlaceholder",
-  "applicationServerPublicKey": "Extracted from payload automatically during parsing"
+  "encryptedPayload": "DummyBase64URLSafeEncodedPayloadDataHere_ThisIsJustAPlaceholder"
 }
