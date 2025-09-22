@@ -214,7 +214,10 @@ async function hkdf(
   const saltKey = await crypto.subtle.importKey(
     "raw",
     actualSalt.buffer instanceof ArrayBuffer
-      ? (actualSalt.buffer.slice(actualSalt.byteOffset, actualSalt.byteOffset + actualSalt.byteLength) as ArrayBuffer)
+      ? (actualSalt.buffer.slice(
+          actualSalt.byteOffset,
+          actualSalt.byteOffset + actualSalt.byteLength,
+        ) as ArrayBuffer)
       : (actualSalt as unknown as ArrayBuffer),
     { name: "HMAC", hash: "SHA-256" },
     false,
@@ -343,13 +346,9 @@ export async function decryptNotification(
       cek.buffer instanceof ArrayBuffer
         ? (cek.buffer.slice(cek.byteOffset, cek.byteOffset + cek.byteLength) as ArrayBuffer)
         : (cek as unknown as ArrayBuffer);
-    const key = await crypto.subtle.importKey(
-      "raw",
-      cekBuffer,
-      { name: "AES-GCM" },
-      false,
-      ["decrypt"],
-    );
+    const key = await crypto.subtle.importKey("raw", cekBuffer, { name: "AES-GCM" }, false, [
+      "decrypt",
+    ]);
 
     const decrypted = await crypto.subtle.decrypt(
       {

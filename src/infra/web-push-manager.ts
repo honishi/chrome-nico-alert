@@ -116,7 +116,13 @@ export class WebPushManager implements PushManager {
   async reset(): Promise<void> {
     console.log("Resetting PushManager...");
 
-    // 1. Disconnect from AutoPush and unsubscribe
+    // 1. Unregister from Niconico Push API first
+    if (this.subscriptionInfo?.endpoint) {
+      console.log("Unregistering from Niconico Push API...");
+      await this.unregisterFromNiconico(this.subscriptionInfo.endpoint);
+    }
+
+    // 2. Disconnect from AutoPush and unsubscribe
     if (this.autoPush && this.subscriptionInfo) {
       try {
         const channelIdMatch = this.subscriptionInfo.endpoint.match(/([a-f0-9-]{36})$/);
@@ -131,12 +137,12 @@ export class WebPushManager implements PushManager {
       this.autoPush = undefined;
     }
 
-    // 2. Clear data from memory
+    // 3. Clear data from memory
     this.subscriptionInfo = undefined;
     this.cryptoKeys = undefined;
     this.vapidKey = undefined;
 
-    // 3. Delete saved data
+    // 4. Delete saved data
     await chrome.storage.local.remove([
       "pushSubscription",
       "pushKeys",
@@ -482,6 +488,168 @@ export class WebPushManager implements PushManager {
 
   // ========== Private Methods: Niconico Registration ==========
   /**
+   * Common helper: Create and prepare a tab for Content Script communication
+   */
+  private async createAndPrepareNiconicoTab(): Promise<chrome.tabs.Tab> {
+    const newTabUrl = "https://account.nicovideo.jp/my/account";
+    console.log("[DEBUG] Creating new tab with URL:", newTabUrl);
+
+    const targetTab = await chrome.tabs.create({
+      url: newTabUrl,
+      active: false, // Open in background
+    });
+
+    console.log("[DEBUG] New tab created, ID:", targetTab.id, "URL:", targetTab.url);
+
+    // Wait for page to load
+    await new Promise((resolve) => {
+      const listener = (
+        tabId: number,
+        changeInfo: chrome.tabs.TabChangeInfo,
+        tab: chrome.tabs.Tab,
+      ) => {
+        console.log("[DEBUG] Tab update:", tabId, changeInfo, tab.url);
+        if (tabId === targetTab!.id && changeInfo.status === "complete") {
+          chrome.tabs.onUpdated.removeListener(listener);
+          resolve(undefined);
+        }
+      };
+      chrome.tabs.onUpdated.addListener(listener);
+    });
+
+    console.log("Niconico tab created and loaded");
+
+    if (!targetTab.id) {
+      throw new Error("No valid tab ID");
+    }
+
+    return targetTab;
+  }
+
+  /**
+   * Common helper: Ensure Content Script is loaded in the tab
+   */
+  private async ensureContentScriptLoaded(tabId: number): Promise<boolean> {
+    console.log("[DEBUG] Checking if Content Script is loaded...");
+
+    // First check if Content Script responds
+    try {
+      const pingResponse = await chrome.tabs.sendMessage(tabId, { type: "PING" });
+      console.log("[DEBUG] PING response:", pingResponse);
+      console.log("Content Script is already loaded");
+      return true;
+    } catch (error) {
+      console.log("[DEBUG] PING failed:", error);
+      console.log("Content Script not loaded, waiting 2 seconds for it to load...");
+    }
+
+    // Wait a bit and retry
+    await new Promise((resolve) => setTimeout(resolve, 2000));
+
+    try {
+      const retryPing = await chrome.tabs.sendMessage(tabId, { type: "PING" });
+      console.log("[DEBUG] Retry PING response:", retryPing);
+      console.log("Content Script loaded after waiting");
+      return true;
+    } catch (retryError) {
+      console.log("[DEBUG] Retry PING failed:", retryError);
+      console.log("Content Script still not loaded, reloading tab...");
+    }
+
+    // Reload tab to load Content Script
+    await chrome.tabs.reload(tabId);
+
+    // Wait for reload to complete
+    await new Promise((resolve) => {
+      const listener = (reloadTabId: number, changeInfo: chrome.tabs.TabChangeInfo) => {
+        console.log("[DEBUG] Tab reload status:", reloadTabId, changeInfo);
+        if (reloadTabId === tabId && changeInfo.status === "complete") {
+          chrome.tabs.onUpdated.removeListener(listener);
+          resolve(undefined);
+        }
+      };
+      chrome.tabs.onUpdated.addListener(listener);
+    });
+
+    console.log("Tab reloaded, waiting 2 more seconds for Content Script...");
+    await new Promise((resolve) => setTimeout(resolve, 2000));
+
+    // Final check
+    try {
+      const finalPing = await chrome.tabs.sendMessage(tabId, { type: "PING" });
+      console.log("[DEBUG] Final PING response:", finalPing);
+      return true;
+    } catch (finalError) {
+      console.error("[DEBUG] Final PING failed:", finalError);
+      console.error("Content Script could not be loaded even after reload");
+      return false;
+    }
+  }
+
+  /**
+   * Common helper: Check if user is logged in to Niconico
+   */
+  private async checkNiconicoLogin(): Promise<boolean> {
+    const cookies = await chrome.cookies.getAll({
+      domain: ".nicovideo.jp",
+      name: "user_session",
+    });
+    return cookies.length > 0;
+  }
+
+  /**
+   * Common helper: Execute operation via Content Script
+   */
+  private async executeViaContentScript<T>(
+    operation: "register" | "unregister",
+    payload: unknown,
+  ): Promise<T> {
+    // Check login status
+    const isLoggedIn = await this.checkNiconicoLogin();
+    if (!isLoggedIn) {
+      if (operation === "register") {
+        throw new Error("Not logged in to Niconico");
+      } else {
+        console.log("Not logged in to Niconico, skipping unregistration");
+        return { success: true } as T;
+      }
+    }
+
+    console.log(`User session found, proceeding with Content Script ${operation}...`);
+
+    // Create and prepare tab
+    const targetTab = await this.createAndPrepareNiconicoTab();
+
+    try {
+      // Ensure Content Script is loaded
+      const contentScriptReady = await this.ensureContentScriptLoaded(targetTab.id!);
+      if (!contentScriptReady) {
+        throw new Error("Content Script could not be loaded");
+      }
+
+      // Send message to Content Script
+      console.log(`[DEBUG] Sending ${operation} request to Content Script...`);
+      console.log("[DEBUG] Target tab ID:", targetTab.id);
+      console.log("[DEBUG] Payload:", payload);
+
+      const messageType =
+        operation === "register" ? "REGISTER_PUSH_ENDPOINT" : "UNREGISTER_PUSH_ENDPOINT";
+
+      const message = Object.assign({ type: messageType }, payload as Record<string, unknown>);
+      const response = await chrome.tabs.sendMessage(targetTab.id!, message);
+
+      console.log(`Content Script ${operation} response:`, response);
+      return response as T;
+    } finally {
+      // Always close the tab
+      if (targetTab.id) {
+        console.log("Closing temporary tab");
+        await chrome.tabs.remove(targetTab.id);
+      }
+    }
+  }
+
+  /**
    * Register subscription info to Niconico Push API (internal use)
    * Register to Niconico API via Content Script (avoiding CORS restrictions)
    */
@@ -489,117 +657,14 @@ export class WebPushManager implements PushManager {
     console.log("Registering to Niconico Push API via Content Script...");
 
     try {
-      // Check if user is logged in
-      const cookies = await chrome.cookies.getAll({
-        domain: ".nicovideo.jp",
-        name: "user_session",
-      });
+      const payload = {
+        endpoint: subscription.endpoint,
+        keys: {
+          p256dh: subscription.keys.p256dh,
+          auth: subscription.keys.auth,
+        },
+      };
 
-      if (cookies.length === 0) {
-        throw new Error("Not logged in to Niconico");
-      }
-
-      console.log("User session found, proceeding with Content Script registration");
-
-      // Always open a new tab
-      console.log("Creating new Niconico tab for registration...");
-
-      // Use URL where Content Script works (defined in manifest.json content_scripts)
-      const newTabUrl = "https://account.nicovideo.jp/my/account";
-      console.log("[DEBUG] Creating new tab with URL:", newTabUrl);
-
-      const targetTab = await chrome.tabs.create({
-        url: newTabUrl,
-        active: false, // Open in background
-      });
-
-      console.log("[DEBUG] New tab created, ID:", targetTab.id, "URL:", targetTab.url);
-
-      // Wait for page to load
-      await new Promise((resolve) => {
-        const listener = (
-          tabId: number,
-          changeInfo: chrome.tabs.TabChangeInfo,
-          tab: chrome.tabs.Tab,
-        ) => {
-          console.log("[DEBUG] Tab update:", tabId, changeInfo, tab.url);
-          if (tabId === targetTab!.id && changeInfo.status === "complete") {
-            chrome.tabs.onUpdated.removeListener(listener);
-            resolve(undefined);
-          }
-        };
-        chrome.tabs.onUpdated.addListener(listener);
-      });
-
-      console.log("Niconico tab created and loaded");
-
-      if (!targetTab.id) {
-        throw new Error("No valid tab ID");
-      }
-
-      // Check if Content Script is loaded and reload if necessary
-      console.log("[DEBUG] Checking if Content Script is loaded...");
-      let contentScriptReady = false;
-
-      try {
-        // First check if Content Script responds
-        const pingResponse = await chrome.tabs.sendMessage(targetTab.id, { type: "PING" });
-        console.log("[DEBUG] PING response:", pingResponse);
-        console.log("Content Script is already loaded");
-        contentScriptReady = true;
-      } catch (error) {
-        console.log("[DEBUG] PING failed:", error);
-        console.log("Content Script not loaded, waiting 2 seconds for it to load...");
-
-        // Wait a bit and retry
-        await new Promise((resolve) => setTimeout(resolve, 2000));
-
-        try {
-          const retryPing = await chrome.tabs.sendMessage(targetTab.id, { type: "PING" });
-          console.log("[DEBUG] Retry PING response:", retryPing);
-          console.log("Content Script loaded after waiting");
-          contentScriptReady = true;
-        } catch (retryError) {
-          console.log("[DEBUG] Retry PING failed:", retryError);
-          console.log("Content Script still not loaded, reloading tab...");
-
-          // Reload tab to load Content Script
-          await chrome.tabs.reload(targetTab.id);
-
-          // Wait for reload to complete
-          await new Promise((resolve) => {
-            const listener = (tabId: number, changeInfo: chrome.tabs.TabChangeInfo) => {
-              console.log("[DEBUG] Tab reload status:", tabId, changeInfo);
-              if (tabId === targetTab!.id && changeInfo.status === "complete") {
-                chrome.tabs.onUpdated.removeListener(listener);
-                resolve(undefined);
-              }
-            };
-            chrome.tabs.onUpdated.addListener(listener);
-          });
-
-          console.log("Tab reloaded, waiting 2 more seconds for Content Script...");
-          await new Promise((resolve) => setTimeout(resolve, 2000));
-
-          // Final check
-          try {
-            const finalPing = await chrome.tabs.sendMessage(targetTab.id, { type: "PING" });
-            console.log("[DEBUG] Final PING response:", finalPing);
-            contentScriptReady = true;
-          } catch (finalError) {
-            console.error("[DEBUG] Final PING failed:", finalError);
-            console.error("Content Script could not be loaded even after reload");
-          }
-        }
-      }
-
-      if (!contentScriptReady) {
-        throw new Error("Content Script could not be loaded");
-      }
-
-      // Send message to Content Script
-      console.log("[DEBUG] Sending registration request to Content Script...");
-      console.log("[DEBUG] Target tab ID:", targetTab.id);
       console.log("[DEBUG] Registration data:", {
         endpoint: subscription.endpoint.substring(0, 50) + "...",
         keys: {
@@ -608,16 +673,11 @@ export class WebPushManager implements PushManager {
         },
       });
 
-      const response = await chrome.tabs.sendMessage(targetTab.id, {
-        type: "REGISTER_PUSH_ENDPOINT",
-        endpoint: subscription.endpoint,
-        keys: {
-          p256dh: subscription.keys.p256dh,
-          auth: subscription.keys.auth,
-        },
-      });
-
-      console.log("Content Script response:", response);
+      const response = await this.executeViaContentScript<{
+        success: boolean;
+        status?: number;
+        error?: string;
+      }>("register", payload);
 
       if (response.success) {
         console.log("✅ Niconico Push API registration successful!");
@@ -636,15 +696,40 @@ export class WebPushManager implements PushManager {
           console.warn("Still getting 403 error even via Content Script");
         }
       }
-
-      // Close the newly created tab
-      if (targetTab.id) {
-        console.log("Closing temporary tab");
-        await chrome.tabs.remove(targetTab.id);
-      }
     } catch (error) {
       console.error("Failed to register to Niconico via Content Script:", error);
       subscription.niconicoRegistered = false;
+    }
+  }
+
+  /**
+   * Unregister from Niconico Push API via Content Script
+   */
+  private async unregisterFromNiconico(endpoint: string): Promise<void> {
+    console.log("Unregistering from Niconico Push API via Content Script...");
+
+    try {
+      const payload = { endpoint: endpoint };
+      console.log("[DEBUG] Endpoint to unregister:", endpoint);
+
+      const response = await this.executeViaContentScript<{
+        success: boolean;
+        status?: number;
+        error?: string;
+      }>("unregister", payload);
+
+      if (response.success) {
+        console.log("✅ Niconico Push API unregistration successful!");
+        console.log("[DEBUG] Unregistration details:");
+        console.log("  Endpoint:", endpoint);
+        console.log("  Niconico unregistered:", true);
+        console.log("  Time:", new Date().toISOString());
+      } else {
+        console.error("❌ Niconico unregistration failed:", response.status, response.error);
+      }
+    } catch (error) {
+      console.error("Failed to unregister from Niconico via Content Script:", error);
+      // Don't throw - continue with reset even if unregistration fails
     }
   }
 
