@@ -194,20 +194,6 @@ async function registerPushEndpoint(
       },
     };
 
-    // Log raw data for verification with curl
-    console.log("[Content Script] Raw request for curl test:");
-    console.log(`curl -X POST 'https://api.push.nicovideo.jp/v1/nicopush/webpush/endpoints.json' \\
-      -H 'Content-Type: application/json' \\
-      -H 'X-Frontend-Id: 8' \\
-      -H 'X-Request-With: https://account.nicovideo.jp/my/account' \\
-      -H 'Cookie: ${
-        document.cookie
-          .split(";")
-          .find((c) => c.includes("user_session"))
-          ?.trim() || "NO_SESSION"
-      }' \\
-      --data '${JSON.stringify(requestBody)}'`);
-
     console.log("[Content Script] Request body:", JSON.stringify(requestBody, null, 2));
 
     // Debug: Check current page origin
