@@ -33,6 +33,30 @@ function configureRuntimeListener(background: Background) {
   console.log("configureRuntimeListener: done");
 }
 
+function sendCompletionMessageToOptionPage(success: boolean, newValue?: boolean, error?: unknown) {
+  const message = {
+    type: "PUSH_NOTIFICATION_SETTING_COMPLETE",
+    success,
+    ...(success
+      ? { enabled: newValue }
+      : { error: error instanceof Error ? error.message : String(error) }),
+  };
+
+  console.log(
+    `[Background] Broadcasting ${
+      success ? "completion" : "error"
+    } message to all extension contexts`,
+  );
+
+  // Broadcast to all extension contexts (option page, popup, etc.)
+  chrome.runtime.sendMessage(message).catch(() => {
+    // This is expected if no listeners are active
+    console.log(
+      "[Background] No active listeners for completion message (this is normal if option page is closed)",
+    );
+  });
+}
+
 function configureStorageListener(background: Background) {
   chrome.storage.onChanged.addListener(async (changes, areaName) => {
     if (areaName === "local") {
@@ -40,10 +64,24 @@ function configureStorageListener(background: Background) {
       if (changes.receivePushNotification) {
         const newValue = changes.receivePushNotification.newValue;
         const oldValue = changes.receivePushNotification.oldValue;
-        console.log(`Push notification setting changed from ${oldValue} to ${newValue}`);
+        console.log(
+          `[Background] Push notification setting changed from ${oldValue} to ${newValue}`,
+        );
 
-        // Notify Background of setting changes
-        await background.handlePushNotificationSettingChange(newValue);
+        try {
+          // Execute the actual processing
+          console.log("[Background] Calling handlePushNotificationSettingChange...");
+          await background.handlePushNotificationSettingChange(newValue);
+          console.log("[Background] handlePushNotificationSettingChange completed successfully");
+
+          // Send success notification to option page
+          sendCompletionMessageToOptionPage(true, newValue);
+        } catch (error) {
+          console.error("[Background] Failed to handle push notification setting change:", error);
+
+          // Send error notification to option page
+          sendCompletionMessageToOptionPage(false, undefined, error);
+        }
       }
     }
   });

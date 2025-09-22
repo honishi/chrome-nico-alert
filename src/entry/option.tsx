@@ -121,10 +121,69 @@ async function renderReceivePushNotificationCheckbox() {
   const receivePushNotificationCheckbox = document.getElementById(
     "receive-push-notification-checkbox",
   ) as HTMLInputElement;
+  const receivePushNotificationLabel = document.querySelector(
+    'label[for="receive-push-notification-checkbox"]',
+  ) as HTMLLabelElement;
+
   receivePushNotificationCheckbox.checked = await getReceivePushNotification();
   receivePushNotificationCheckbox.addEventListener("change", async () => {
     const checked = receivePushNotificationCheckbox.checked;
-    await setReceivePushNotification(checked);
+
+    // Disable checkbox and update label style immediately
+    console.log("[Option] Disabling push notification checkbox...");
+    receivePushNotificationCheckbox.disabled = true;
+    if (receivePushNotificationLabel) {
+      receivePushNotificationLabel.style.opacity = "0.5";
+      receivePushNotificationLabel.style.cursor = "not-allowed";
+    }
+
+    try {
+      // Save the setting (this triggers the background script)
+      console.log(`[Option] Setting push notification to: ${checked}`);
+      await setReceivePushNotification(checked);
+
+      // Wait for completion message from background script
+      const waitForCompletion = new Promise<void>((resolve) => {
+        const listener = (message: {
+          type?: string;
+          success?: boolean;
+          enabled?: boolean;
+          error?: string;
+        }) => {
+          if (message.type === "PUSH_NOTIFICATION_SETTING_COMPLETE") {
+            console.log("[Option] Received completion message:", message);
+            chrome.runtime.onMessage.removeListener(listener);
+            resolve();
+          }
+          // Return false to indicate we're not sending a response
+          return false;
+        };
+        chrome.runtime.onMessage.addListener(listener);
+
+        // Set timeout (30 seconds)
+        setTimeout(() => {
+          console.log("[Option] Timeout waiting for completion message");
+          chrome.runtime.onMessage.removeListener(listener);
+          resolve();
+        }, 30000);
+      });
+
+      console.log("[Option] Waiting for background script to complete...");
+      await waitForCompletion;
+      console.log("[Option] Push notification setting update completed");
+    } catch (error) {
+      console.error("[Option] Failed to update push notification setting:", error);
+      // Revert checkbox on error
+      receivePushNotificationCheckbox.checked = !checked;
+    } finally {
+      // Always re-enable checkbox and reset label style
+      console.log("[Option] Re-enabling push notification checkbox");
+      receivePushNotificationCheckbox.disabled = false;
+      if (receivePushNotificationLabel) {
+        receivePushNotificationLabel.style.opacity = "";
+        receivePushNotificationLabel.style.cursor = "";
+      }
+    }
   });
 }
 

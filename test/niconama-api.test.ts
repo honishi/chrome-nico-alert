@@ -66,7 +66,7 @@ describe("resolveProgram", () => {
     expect(program).toBeDefined();
     expect(program?.id).toBe("lv348687624");
     expect(program?.title).toBe(
-      "再生の道 代表選考会 生中継｜登壇:石丸伸二代表、候補者:⻘柳充哉･⼤⾕佳弘･奥村光貴･萩原崇･⽔野純也"
+      "再生の道 代表選考会 生中継｜登壇:石丸伸二代表、候補者:⻘柳充哉･⼤⾕佳弘･奥村光貴･萩原崇･⽔野純也",
     );
     expect(program?.watchPageUrl).toBe("https://live.nicovideo.jp/watch/lv348687624");
     // Channel broadcasts don't have programProvider for user
@@ -75,7 +75,7 @@ describe("resolveProgram", () => {
     expect(program?.socialGroup.id).toBe("ch2525");
     expect(program?.socialGroup.name).toBe("ニコニコニュース");
     expect(program?.socialGroup.thumbnailUrl).toBe(
-      "https://secure-dcdn.cdn.nimg.jp/comch/channel-icon/128x128/ch2525.jpg?1699511163"
+      "https://secure-dcdn.cdn.nimg.jp/comch/channel-icon/128x128/ch2525.jpg?1699511163",
     );
     expect(program?.isFollowerOnly).toBe(false);
     expect(program?.beginAt).toEqual(new Date(1757844000 * 1000));

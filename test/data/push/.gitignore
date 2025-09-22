@@ -1,0 +1,2 @@
+# Real test data with credentials - NEVER commit these!
+datasets/*.json
