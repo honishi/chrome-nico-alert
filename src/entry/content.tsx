@@ -164,13 +164,86 @@ async function fixChannelPage() {
  * Register push notification endpoint to Niconico API
  * Called from Background Script
  */
+/**
+ * Constants for Push API
+ */
+const PUSH_API_ENDPOINT = "https://api.push.nicovideo.jp/v1/nicopush/webpush/endpoints.json";
+const PUSH_DEST_APP = "nico_account_webpush";
+
+/**
+ * Create common headers for Push API requests
+ */
+function createPushApiHeaders(): Record<string, string> {
+  return {
+    "Content-Type": "application/json",
+    "X-Request-With": window.location.href,
+    Accept: "application/json",
+    "X-Frontend-Id": "8",
+    Origin: "https://account.nicovideo.jp",
+  };
+}
+
+/**
+ * Log debug information for Push API requests
+ */
+function logPushApiDebugInfo(operation: string, endpoint: string): void {
+  console.log(
+    `[Content Script] ${operation} push endpoint ${
+      operation === "Registering" ? "to" : "from"
+    } Niconico API`,
+  );
+  console.log("[Content Script] Endpoint:", endpoint);
+  console.log("[Content Script] Current origin:", window.location.origin);
+  console.log("[Content Script] Current URL:", window.location.href);
+}
+
+/**
+ * Make a Push API request
+ */
+async function makePushApiRequest(
+  method: "POST" | "DELETE",
+  requestBody: unknown,
+): Promise<Response> {
+  const headers = createPushApiHeaders();
+  console.log("[Content Script] Request headers:", headers);
+  console.log("[Content Script] Request body:", JSON.stringify(requestBody, null, 2));
+
+  return await fetch(PUSH_API_ENDPOINT, {
+    method,
+    credentials: "include",
+    mode: "cors",
+    headers,
+    body: JSON.stringify(requestBody),
+  });
+}
+
+/**
+ * Handle Push API response
+ */
+function handlePushApiResponse(
+  response: Response,
+  errorText: string | undefined,
+  operation: string,
+): { success: boolean; status?: number; error?: string } {
+  if (response.ok) {
+    console.log(`[Content Script] Push endpoint ${operation} successfully`);
+    return { success: true, status: response.status };
+  } else {
+    console.error(
+      `[Content Script] Failed to ${operation.toLowerCase()}:`,
+      response.status,
+      errorText,
+    );
+    return { success: false, status: response.status, error: errorText };
+  }
+}
+
 async function registerPushEndpoint(
   endpoint: string,
   keys: { p256dh: string; auth: string },
 ): Promise<{ success: boolean; status?: number; error?: string }> {
   try {
-    console.log("[Content Script] Registering push endpoint to Niconico API");
-    console.log("[Content Script] Endpoint:", endpoint);
+    logPushApiDebugInfo("Registering", endpoint);
 
     // Keys are already sent in standard Base64 format
     // p256dh is 65 bytes uncompressed format (with 0x04 prefix)
@@ -184,56 +257,24 @@ async function registerPushEndpoint(
       authLength: authBase64.length,
     });
 
-    // Format according to Niconico API expectations
-    const requestBody = {
-      destApp: "nico_account_webpush", // Required field
-      endpoint: {
-        endpoint: endpoint,
-        auth: authBase64, // Standard Base64
-        p256dh: p256dhBase64, // Standard Base64 (uncompressed format 65 bytes)
-      },
-    };
-
-    console.log("[Content Script] Request body:", JSON.stringify(requestBody, null, 2));
-
-    // Debug: Check current page origin
-    console.log("[Content Script] Current origin:", window.location.origin);
-    console.log("[Content Script] Current URL:", window.location.href);
     console.log(
       "[Content Script] Document cookies:",
       document.cookie ? "Available (but httpOnly cookies not visible)" : "No cookies",
     );
 
-    // Log request headers
-    // Match Niconico's actual Service Worker implementation
-    const headers = {
-      "Content-Type": "application/json",
-      "X-Request-With": window.location.href, // Niconico implementation uses location.href
-      Accept: "application/json",
-      "X-Frontend-Id": "8",
-      Origin: "https://account.nicovideo.jp", // Explicitly add Origin header
-    };
-    console.log("[Content Script] Request headers:", headers);
-
-    const response = await fetch(
-      "https://api.push.nicovideo.jp/v1/nicopush/webpush/endpoints.json",
-      {
-        method: "POST",
-        credentials: "include", // Automatically send cookies
-        mode: "cors", // Explicitly specify CORS mode
-        headers: headers,
-        body: JSON.stringify(requestBody),
+    // Format according to Niconico API expectations
+    const requestBody = {
+      destApp: PUSH_DEST_APP,
+      endpoint: {
+        endpoint: endpoint,
+        auth: authBase64,
+        p256dh: p256dhBase64,
       },
-    );
+    };
 
-    if (response.ok) {
-      console.log("[Content Script] Push endpoint registered successfully");
-      return { success: true, status: response.status };
-    } else {
-      const errorText = await response.text();
-      console.error("[Content Script] Failed to register:", response.status, errorText);
-      return { success: false, status: response.status, error: errorText };
-    }
+    const response = await makePushApiRequest("POST", requestBody);
+    const errorText = !response.ok ? await response.text() : undefined;
+    return handlePushApiResponse(response, errorText, "registered");
   } catch (error) {
     console.error("[Content Script] Registration error:", error);
     return { success: false, error: error instanceof Error ? error.message : String(error) };
@@ -244,52 +285,19 @@ async function unregisterPushEndpoint(
   endpoint: string,
 ): Promise<{ success: boolean; status?: number; error?: string }> {
   try {
-    console.log("[Content Script] Unregistering push endpoint from Niconico API");
-    console.log("[Content Script] Endpoint:", endpoint);
+    logPushApiDebugInfo("Unregistering", endpoint);
 
     // Format request body according to Niconico API expectations
     const requestBody = {
-      destApp: "nico_account_webpush", // Required field
+      destApp: PUSH_DEST_APP,
       endpoint: {
         endpoint: endpoint,
       },
     };
 
-    console.log("[Content Script] Request body:", JSON.stringify(requestBody, null, 2));
-
-    // Debug: Check current page origin
-    console.log("[Content Script] Current origin:", window.location.origin);
-    console.log("[Content Script] Current URL:", window.location.href);
-
-    // Match Niconico's actual implementation
-    const headers = {
-      "Content-Type": "application/json",
-      "X-Request-With": window.location.href,
-      Accept: "application/json",
-      "X-Frontend-Id": "8",
-      Origin: "https://account.nicovideo.jp",
-    };
-    console.log("[Content Script] Request headers:", headers);
-
-    const response = await fetch(
-      "https://api.push.nicovideo.jp/v1/nicopush/webpush/endpoints.json",
-      {
-        method: "DELETE",
-        credentials: "include", // Automatically send cookies
-        mode: "cors", // Explicitly specify CORS mode
-        headers: headers,
-        body: JSON.stringify(requestBody),
-      },
-    );
-
-    if (response.ok) {
-      console.log("[Content Script] Push endpoint unregistered successfully");
-      return { success: true, status: response.status };
-    } else {
-      const errorText = await response.text();
-      console.error("[Content Script] Failed to unregister:", response.status, errorText);
-      return { success: false, status: response.status, error: errorText };
-    }
+    const response = await makePushApiRequest("DELETE", requestBody);
+    const errorText = !response.ok ? await response.text() : undefined;
+    return handlePushApiResponse(response, errorText, "unregistered");
   } catch (error) {
     console.error("[Content Script] Unregistration error:", error);
     return { success: false, error: error instanceof Error ? error.message : String(error) };
