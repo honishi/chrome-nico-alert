@@ -1,0 +1,37 @@
+{
+  "_comment": "Example expected decrypted output for rfc8291-crypto.test.ts",
+  "_instructions": {
+    "setup": [
+      "1. Copy this file to 'expected-output.json'",
+      "2. Replace with actual decrypted JSON from your test payload",
+      "3. NEVER commit the real 'expected-output.json' file"
+    ],
+    "how_to_get_real_data": [
+      "1. Run the test with real keys and payload",
+      "2. Check console output for decrypted JSON",
+      "3. Copy the decrypted JSON structure here"
+    ],
+    "typical_niconico_format": {
+      "body": "Notification body text",
+      "title": "Notification title",
+      "icon": "URL to user icon",
+      "data": {
+        "created_at": "ISO8601 timestamp",
+        "on_click": "URL to open when clicked",
+        "tracking_parameter": "Tracking information",
+        "ttl": "Time to live in seconds"
+      }
+    }
+  },
+  "decryptedJson": {
+    "body": "「Example Broadcast Title」を放送",
+    "data": {
+      "created_at": "2024-01-01T00:00:00Z",
+      "on_click": "https://live.nicovideo.jp/watch/lv000000000?from=webpush&_topic=live_user_program_onairs",
+      "tracking_parameter": "live_onair-lv000000000-webpush-nico_account_webpush",
+      "ttl": 600
+    },
+    "icon": "https://secure-dcdn.cdn.nimg.jp/nicoaccount/usericon/000/0000000.jpg",
+    "title": "ExampleUserさんが生放送を開始"
+  }
+}

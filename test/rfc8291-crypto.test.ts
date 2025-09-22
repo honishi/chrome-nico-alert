@@ -25,10 +25,17 @@ import {
 // ========== Test Data Loading ==========
 const testDataDir = path.join(__dirname, "data", "push");
 
-function loadTestData<T>(filename: string): T {
+function loadTestData<T>(filename: string): T | null {
   const filePath = path.join(testDataDir, filename);
   if (!fs.existsSync(filePath)) {
-    throw new Error(`Test data file not found: ${filePath}`);
+    // Try to load example file if real file doesn't exist
+    const exampleFilePath = path.join(testDataDir, filename.replace(".json", ".example.json"));
+    if (fs.existsSync(exampleFilePath)) {
+      console.warn(`Using example file: ${filename.replace(".json", ".example.json")}`);
+      console.warn(`To use real data, copy ${filename.replace(".json", ".example.json")} to ${filename}`);
+      return JSON.parse(fs.readFileSync(exampleFilePath, "utf8"));
+    }
+    return null;
   }
   return JSON.parse(fs.readFileSync(filePath, "utf8"));
 }
@@ -181,8 +188,8 @@ describe("Payload Parsing", () => {
 
 // ========== Main Decryption Tests (with placeholder for real data) ==========
 describe("Decryption with Real Data", () => {
-  test.skip("decryptNotification should decrypt real Niconico push notification", async () => {
-    // Skip this test by default - remove .skip when you have real data
+  test("decryptNotification should decrypt real Niconico push notification", async () => {
+    // Test with real data
 
     // Load test data
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -191,6 +198,13 @@ describe("Decryption with Real Data", () => {
     const payloadData = loadTestData<any>("test-payload.json");
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const expectedOutput = loadTestData<any>("expected-output.json");
+
+    // Check if test data files exist
+    if (!keysData || !payloadData || !expectedOutput) {
+      console.warn("Real test data files not found. Skipping real data test.");
+      console.warn("To run this test, copy *.example.json files to *.json and add real data.");
+      return;
+    }
 
     // Check if we have real data (not dummy data)
     if (keysData.authSecret === "AAAAAAAAAAAAAAAAAAAAAA") {

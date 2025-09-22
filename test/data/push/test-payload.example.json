@@ -1,0 +1,28 @@
+{
+  "_comment": "Example test payload data for rfc8291-crypto.test.ts",
+  "_instructions": {
+    "setup": [
+      "1. Copy this file to 'test-payload.json'",
+      "2. Replace dummy values with real encrypted payload",
+      "3. NEVER commit the real 'test-payload.json' file"
+    ],
+    "how_to_get_real_data": [
+      "1. Add logging in background.ts push event handler",
+      "2. Receive an actual push notification",
+      "3. Log the event.data.text() value",
+      "4. Copy the Base64 URL-safe encoded payload here"
+    ],
+    "payload_structure": {
+      "format": "aes128gcm",
+      "components": [
+        "salt (16 bytes)",
+        "record size (4 bytes, big-endian)",
+        "public key length (1 byte)",
+        "public key (65 bytes)",
+        "ciphertext (remaining bytes)"
+      ]
+    }
+  },
+  "encryptedPayload": "DummyBase64URLSafeEncodedPayloadDataHere_ThisIsJustAPlaceholder",
+  "applicationServerPublicKey": "Extracted from payload automatically during parsing"
+}

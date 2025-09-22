@@ -5,3 +5,8 @@ dist*.zip
 temp/
 .claude/
 .serena/
+
+# Test data with real credentials - NEVER commit these!
+test/data/push/test-keys.json
+test/data/push/test-payload.json
+test/data/push/expected-output.json
