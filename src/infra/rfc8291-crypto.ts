@@ -9,11 +9,7 @@
  */
 export function base64UrlEncode(buffer: ArrayBuffer | Uint8Array): string {
   const bytes = buffer instanceof Uint8Array ? buffer : new Uint8Array(buffer);
-  let binary = "";
-  for (let i = 0; i < bytes.byteLength; i++) {
-    binary += String.fromCharCode(bytes[i]);
-  }
-  return btoa(binary).replace(/\+/g, "-").replace(/\//g, "_").replace(/=/g, "");
+  return btoa(toBinaryString(bytes)).replace(/\+/g, "-").replace(/\//g, "_").replace(/=/g, "");
 }
 
 /**
@@ -37,11 +33,7 @@ export function base64UrlDecode(str: string): Uint8Array {
  */
 export function base64Encode(buffer: ArrayBuffer | Uint8Array): string {
   const bytes = buffer instanceof Uint8Array ? buffer : new Uint8Array(buffer);
-  let binary = "";
-  for (let i = 0; i < bytes.byteLength; i++) {
-    binary += String.fromCharCode(bytes[i]);
-  }
-  return btoa(binary);
+  return btoa(toBinaryString(bytes));
 }
 
 // ========== Key Generation ==========
@@ -169,6 +161,7 @@ export async function importKeys(keys: {
  */
 export function parseAutoPushPayload(data: string): {
   ciphertext: Uint8Array;
+  header: Uint8Array;
   salt: Uint8Array;
   publicKey: Uint8Array;
   recordSize: number;
@@ -187,54 +180,125 @@ export function parseAutoPushPayload(data: string): {
   const recordSize = (decoded[16] << 24) | (decoded[17] << 16) | (decoded[18] << 8) | decoded[19];
   const publicKeyLength = decoded[20];
   const publicKey = decoded.slice(21, 21 + publicKeyLength);
+  const header = decoded.slice(0, 21 + publicKeyLength);
   const ciphertext = decoded.slice(21 + publicKeyLength);
 
   return {
     salt: new Uint8Array(salt),
     publicKey: new Uint8Array(publicKey),
     ciphertext: new Uint8Array(ciphertext),
+    header: new Uint8Array(header),
     recordSize,
   };
 }
 
-// ========== Cryptographic Primitives (Private) ==========
-/**
- * Implementation of HKDF (HMAC-based Key Derivation Function)
- */
+export async function decryptNotification(
+  payload: {
+    ciphertext: Uint8Array;
+    header: Uint8Array;
+    salt: Uint8Array;
+    publicKey: Uint8Array;
+    recordSize: number;
+  },
+  keys: {
+    authSecret: Uint8Array;
+    privateKey: CryptoKey;
+    publicKey: Uint8Array;
+  },
+): Promise<string> {
+  const asPublicKey = await crypto.subtle.importKey(
+    "raw",
+    toArrayBuffer(payload.publicKey),
+    {
+      name: "ECDH",
+      namedCurve: "P-256",
+    },
+    false,
+    [],
+  );
+
+  const sharedSecret = normalizeSharedSecretBytes(
+    await computeSharedSecret(keys.privateKey, asPublicKey),
+  );
+
+  const infoLabel = encodeText("WebPush: info\0");
+  const context = new Uint8Array(keys.publicKey.length + payload.publicKey.length);
+  context.set(keys.publicKey, 0);
+  context.set(payload.publicKey, keys.publicKey.length);
+
+  const prkInfo = new Uint8Array(infoLabel.length + context.length);
+  prkInfo.set(infoLabel);
+  prkInfo.set(context, infoLabel.length);
+
+  const prk = await hkdf(keys.authSecret, sharedSecret, prkInfo, 32);
+
+  const nonceInfo = encodeText("Content-Encoding: nonce\0");
+  const cekInfo = encodeText("Content-Encoding: aes128gcm\0");
+  const baseNonce = await hkdf(payload.salt, prk, nonceInfo, 12);
+  const cek = await hkdf(payload.salt, prk, cekInfo, 16);
+
+  const key = await crypto.subtle.importKey("raw", toArrayBuffer(cek), { name: "AES-GCM" }, false, [
+    "decrypt",
+  ]);
+
+  const decrypted = await crypto.subtle.decrypt(
+    {
+      name: "AES-GCM",
+      iv: toArrayBuffer(baseNonce),
+      tagLength: 128,
+    },
+    key,
+    toArrayBuffer(payload.ciphertext),
+  );
+
+  return processDecryptedBytes(new Uint8Array(decrypted));
+}
+
+// ========== Internal Utilities ==========
+const textEncoder = new TextEncoder();
+const textDecoder = new TextDecoder();
+
+/** Encode text as UTF-8 using a shared TextEncoder instance. */
+function encodeText(text: string): Uint8Array {
+  return textEncoder.encode(text);
+}
+
+/** Decode UTF-8 bytes using a shared TextDecoder instance. */
+function decodeText(bytes: Uint8Array): string {
+  return textDecoder.decode(bytes);
+}
+
+/** Create a detached ArrayBuffer copy suitable for Web Crypto raw inputs. */
+function toArrayBuffer(view: Uint8Array): ArrayBuffer {
+  return view.slice().buffer;
+}
+
+/** Convert a byte array into a binary string compatible with window.btoa. */
+function toBinaryString(bytes: Uint8Array): string {
+  let binary = "";
+  for (let i = 0; i < bytes.byteLength; i++) {
+    binary += String.fromCharCode(bytes[i]);
+  }
+  return binary;
+}
+
 async function hkdf(
   salt: Uint8Array,
   ikm: Uint8Array,
   info: Uint8Array,
   length: number,
 ): Promise<Uint8Array> {
-  // Extract: PRK = HMAC-Hash(salt, IKM)
-  // RFC5869: If salt is 0 length, fill with 0x00 of Hash length
   const actualSalt = salt.length === 0 ? new Uint8Array(32) : salt;
-
   const saltKey = await crypto.subtle.importKey(
     "raw",
-    actualSalt.buffer instanceof ArrayBuffer
-      ? (actualSalt.buffer.slice(
-          actualSalt.byteOffset,
-          actualSalt.byteOffset + actualSalt.byteLength,
-        ) as ArrayBuffer)
-      : (actualSalt as unknown as ArrayBuffer),
+    toArrayBuffer(actualSalt),
     { name: "HMAC", hash: "SHA-256" },
     false,
     ["sign"],
   );
 
-  const prkBytes = new Uint8Array(
-    await crypto.subtle.sign(
-      "HMAC",
-      saltKey,
-      ikm.buffer instanceof ArrayBuffer
-        ? (ikm.buffer.slice(ikm.byteOffset, ikm.byteOffset + ikm.byteLength) as ArrayBuffer)
-        : (ikm as unknown as ArrayBuffer),
-    ),
-  );
+  const prkBytes = new Uint8Array(await crypto.subtle.sign("HMAC", saltKey, toArrayBuffer(ikm)));
 
-  // Expand: OKM = T(1) | T(2) | ... | T(N)
   const prkKey = await crypto.subtle.importKey(
     "raw",
     prkBytes,
@@ -263,9 +327,6 @@ async function hkdf(
   return output;
 }
 
-/**
- * Calculate shared secret (ECDH)
- */
 async function computeSharedSecret(
   privateKey: CryptoKey,
   publicKey: CryptoKey,
@@ -282,143 +343,40 @@ async function computeSharedSecret(
   return new Uint8Array(sharedSecret);
 }
 
-// ========== Main Decryption Function ==========
-/**
- * Decrypt Web Push notification data
- */
-export async function decryptNotification(
-  payload: {
-    ciphertext: Uint8Array;
-    salt: Uint8Array;
-    publicKey: Uint8Array;
-  },
-  keys: {
-    authSecret: Uint8Array;
-    privateKey: CryptoKey;
-    publicKey: Uint8Array;
-  },
-): Promise<string> {
-  try {
-    // Import application server's public key
-    const asPublicKey = await crypto.subtle.importKey(
-      "raw",
-      payload.publicKey.buffer.slice(
-        payload.publicKey.byteOffset,
-        payload.publicKey.byteOffset + payload.publicKey.byteLength,
-      ) as ArrayBuffer,
-      {
-        name: "ECDH",
-        namedCurve: "P-256",
-      },
-      false,
-      [],
-    );
-
-    // Calculate shared secret
-    const sharedSecret = await computeSharedSecret(keys.privateKey, asPublicKey);
-
-    // Use Niconico pattern (WebPush: info)
-    // Follow the pattern in push.md
-    const authInfo = new TextEncoder().encode("WebPush: info\0");
-    const context = new Uint8Array(keys.publicKey.length + payload.publicKey.length);
-    context.set(keys.publicKey, 0);
-    context.set(payload.publicKey, keys.publicKey.length);
-
-    const prkInfo = new Uint8Array(authInfo.length + context.length);
-    prkInfo.set(authInfo);
-    prkInfo.set(context, authInfo.length);
-
-    const prk = await hkdf(keys.authSecret, sharedSecret, prkInfo, 32);
-
-    // Derive Nonce and CEK
-    const nonceInfo = new TextEncoder().encode("Content-Encoding: nonce\0");
-    const cekInfo = new TextEncoder().encode("Content-Encoding: aes128gcm\0");
-
-    const baseNonce = await hkdf(payload.salt, prk, nonceInfo, 12);
-    const cek = await hkdf(payload.salt, prk, cekInfo, 16);
-
-    // Generate nonce (chunk index 0)
-    const nonce = new Uint8Array(baseNonce);
-    // XOR for record index 0 is unnecessary (already 0)
-
-    // Decrypt with AES-GCM
-    const cekBuffer =
-      cek.buffer instanceof ArrayBuffer
-        ? (cek.buffer.slice(cek.byteOffset, cek.byteOffset + cek.byteLength) as ArrayBuffer)
-        : (cek as unknown as ArrayBuffer);
-    const key = await crypto.subtle.importKey("raw", cekBuffer, { name: "AES-GCM" }, false, [
-      "decrypt",
-    ]);
-
-    const decrypted = await crypto.subtle.decrypt(
-      {
-        name: "AES-GCM",
-        iv: nonce,
-        tagLength: 128, // 16 bytes = 128 bits
-      },
-      key,
-      payload.ciphertext.buffer instanceof ArrayBuffer
-        ? (payload.ciphertext.buffer.slice(
-            payload.ciphertext.byteOffset,
-            payload.ciphertext.byteOffset + payload.ciphertext.byteLength,
-          ) as ArrayBuffer)
-        : (payload.ciphertext as unknown as ArrayBuffer),
-    );
-
-    // Process decrypted data
-    const decryptedBytes = new Uint8Array(decrypted);
-
-    // Check the last byte (possible delimiter)
-    let processedBytes = decryptedBytes;
-    if (decryptedBytes.length > 0) {
-      const lastByte = decryptedBytes[decryptedBytes.length - 1];
-
-      // Remove RFC8188 delimiter (0x02 is the final record delimiter)
-      if (lastByte === 0x02) {
-        processedBytes = decryptedBytes.slice(0, -1);
-      } else if (lastByte === 0x01) {
-        processedBytes = decryptedBytes.slice(0, -1);
-      }
-    }
-
-    // Niconico push notifications may contain JSON directly without padding
-    // Check the first byte
-    if (processedBytes.length > 0) {
-      const firstByte = processedBytes[0];
-
-      // If it starts with JSON start character '{' (0x7b) or '[' (0x5b)
-      if (firstByte === 0x7b || firstByte === 0x5b) {
-        // No padding, direct JSON data
-        const result = new TextDecoder().decode(processedBytes);
-        return result;
-      }
-
-      // If there is padding
-      const paddingLength = firstByte;
-
-      // Check validity of padding length
-      if (paddingLength === 0) {
-        // If padding length is 0, payload starts from next byte
-        const plaintext = processedBytes.slice(1);
-        const result = new TextDecoder().decode(plaintext);
-        return result;
-      } else if (paddingLength + 1 <= processedBytes.length) {
-        // Normal padding processing
-        const plaintext = processedBytes.slice(paddingLength + 1);
-        const result = new TextDecoder().decode(plaintext);
-        return result;
-      } else {
-        // If padding length is invalid, assume no padding
-        const result = new TextDecoder().decode(processedBytes);
-        return result;
-      }
-    }
-
+/** Strip padding bytes and normalise decrypted payload to UTF-8 text. */
+function processDecryptedBytes(bytes: Uint8Array): string {
+  if (bytes.length === 0) {
     throw new Error("Decrypted data is empty");
-  } catch (error) {
-    console.error("[Decrypt] ❌ Decryption failed:", error);
-    console.error("[Decrypt] Error name:", (error as Error).name);
-    console.error("[Decrypt] Error message:", (error as Error).message);
-    throw error;
   }
+
+  let processed = bytes;
+  const lastByte = bytes[bytes.length - 1];
+  if (lastByte === 0x02 || lastByte === 0x01) {
+    processed = bytes.slice(0, -1);
+  }
+
+  if (processed.length === 0) {
+    throw new Error("Decrypted data has no content after trimming");
+  }
+
+  const firstByte = processed[0];
+  if (firstByte === 0x7b || firstByte === 0x5b) {
+    return decodeText(processed);
+  }
+
+  const paddingLength = firstByte;
+  if (paddingLength === 0 && processed.length > 1) {
+    return decodeText(processed.slice(1));
+  }
+
+  if (paddingLength + 1 <= processed.length) {
+    return decodeText(processed.slice(paddingLength + 1));
+  }
+
+  return decodeText(processed);
+}
+
+/** Normalize P-256 shared secrets by dropping a leading 0x00 when present. */
+function normalizeSharedSecretBytes(secret: Uint8Array): Uint8Array {
+  return secret.length > 0 && secret[0] === 0 ? secret.slice(1) : secret;
 }
