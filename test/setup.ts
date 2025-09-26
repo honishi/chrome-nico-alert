@@ -11,4 +11,12 @@ declare global {
   var crypto: Crypto;
 }
 
-global.crypto = webcrypto as unknown as Crypto;
+if (typeof globalThis.crypto === "undefined") {
+  // Keep the property read-only to align with runtime behaviour in Node.js 20+
+  Object.defineProperty(globalThis, "crypto", {
+    value: webcrypto as unknown as Crypto,
+    configurable: false,
+    enumerable: false,
+    writable: false,
+  });
+}
