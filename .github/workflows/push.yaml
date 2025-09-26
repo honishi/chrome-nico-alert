@@ -19,7 +19,7 @@ jobs:
         with:
           node-version-file: '.node-version'
       - name: Install packages
-        run: npm install
+        run: npm ci
       - name: Run tests
         run: npm test
 
@@ -42,7 +42,7 @@ jobs:
         with:
           node-version-file: '.node-version'
       - name: Install packages
-        run: npm install
+        run: npm ci
       - name: Build for Production
         run: |
           npm run build-prod
