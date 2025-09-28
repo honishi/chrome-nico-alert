@@ -4,7 +4,7 @@
  *
  * To run with real data:
  * 1. Replace dummy data in test/data/push/*.json files with actual values
- * 2. Run: npm test rfc8291-crypto
+ * 2. Run: npm test web-push-crypto
  */
 
 import "reflect-metadata";
@@ -21,7 +21,7 @@ import {
   importKeys,
   parseAutoPushPayload,
   decryptNotification,
-} from "../src/infra/rfc8291-crypto";
+} from "../src/infra/web-push-crypto";
 
 // ========== Test Data Loading ==========
 const testDataDir = path.join(__dirname, "data", "push");

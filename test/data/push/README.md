@@ -29,7 +29,7 @@ test/data/push/
 
 3. **Run tests:**
    ```bash
-   npm test rfc8291-crypto
+   npm test web-push-crypto
    ```
 
 ### Adding multiple datasets:
