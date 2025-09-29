@@ -9,6 +9,8 @@ export interface Option {
   setShowComing(value: boolean): Promise<void>;
   getShowRanking(): Promise<boolean>;
   setShowRanking(value: boolean): Promise<void>;
+  getShowPushStatus(): Promise<boolean>;
+  setShowPushStatus(value: boolean): Promise<void>;
   getShowNotification(): Promise<boolean>;
   setShowNotification(value: boolean): Promise<void>;
   getSoundVolume(): Promise<number>;
@@ -43,6 +45,14 @@ export class OptionImpl implements Option {
 
   async setShowRanking(value: boolean): Promise<void> {
     await this.browserApi.setShowRanking(value);
+  }
+
+  async getShowPushStatus(): Promise<boolean> {
+    return await this.browserApi.getShowPushStatus();
+  }
+
+  async setShowPushStatus(value: boolean): Promise<void> {
+    await this.browserApi.setShowPushStatus(value);
   }
 
   async getShowNotification(): Promise<boolean> {

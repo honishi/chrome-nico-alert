@@ -8,6 +8,8 @@ export interface BrowserApi {
   setShowComing(value: boolean): Promise<void>;
   getShowRanking(): Promise<boolean>;
   setShowRanking(value: boolean): Promise<void>;
+  getShowPushStatus(): Promise<boolean>;
+  setShowPushStatus(value: boolean): Promise<void>;
   getShowNotification(): Promise<boolean>;
   setShowNotification(value: boolean): Promise<void>;
   getSoundVolume(): Promise<number>;

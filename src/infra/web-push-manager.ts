@@ -12,7 +12,7 @@ import {
   base64Encode,
   decryptNotification,
   parseAutoPushPayload,
-} from "./rfc8291-crypto";
+} from "./web-push-crypto";
 
 /**
  * Implementation class for managing Web Push notifications

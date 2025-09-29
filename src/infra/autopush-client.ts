@@ -54,8 +54,9 @@ export class AutoPushClient {
 
   // Reconnection management
   private reconnectAttempts = 0;
-  private maxReconnectAttempts = 5;
+  private maxReconnectAttempts = 2025; // roughly 1 week of retries (capped at 5 min interval)
   private reconnectDelay = 1000; // ms
+  private maxReconnectDelay = 300000; // ms
   private reconnectTimer?: NodeJS.Timeout;
   private stateCheckInterval?: NodeJS.Timeout;
 
@@ -711,11 +712,17 @@ export class AutoPushClient {
 
     if (this.reconnectAttempts < this.maxReconnectAttempts) {
       this.reconnectAttempts++;
-      const delay = this.reconnectDelay * Math.pow(2, this.reconnectAttempts - 1);
+      const rawDelay = this.reconnectDelay * Math.pow(2, this.reconnectAttempts - 1);
+      const delay = Math.min(rawDelay, this.maxReconnectDelay);
 
       console.log(
         `[AutoPush] Reconnecting in ${delay}ms (attempt ${this.reconnectAttempts}/${this.maxReconnectAttempts})`,
       );
+      if (rawDelay !== delay) {
+        console.log(
+          `[AutoPush] Raw backoff ${rawDelay}ms exceeded cap, using maxReconnectDelay ${this.maxReconnectDelay}ms`,
+        );
+      }
 
       this.reconnectTimer = setTimeout(async () => {
         try {

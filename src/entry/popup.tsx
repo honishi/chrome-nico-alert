@@ -43,47 +43,13 @@ async function getPushStatus(): Promise<PushStatus> {
   });
 }
 
-async function startPushNotification(): Promise<void> {
-  return new Promise((resolve, reject) => {
-    chrome.runtime.sendMessage({ type: "START_PUSH" }, (response) => {
-      if (response && response.success) {
-        resolve();
-      } else {
-        reject(new Error(response?.error || "Failed to start push notification"));
-      }
-    });
-  });
-}
-
-async function stopPushNotification(): Promise<void> {
-  return new Promise((resolve, reject) => {
-    chrome.runtime.sendMessage({ type: "STOP_PUSH" }, (response) => {
-      if (response && response.success) {
-        resolve();
-      } else {
-        reject(new Error(response?.error || "Failed to stop push notification"));
-      }
-    });
-  });
-}
-
 async function updatePushStatusDisplay() {
   const statusContainer = document.querySelector(".push-status-container") as HTMLElement;
   const statusElement = document.getElementById("push-status");
-  const controlButton = document.getElementById("push-control-button") as HTMLButtonElement;
   if (!statusElement || !statusContainer) return;
 
   try {
     const status = await getPushStatus();
-
-    // Hide container entirely if push notifications are disabled
-    if (!status.enabled) {
-      statusContainer.style.display = "none";
-      return;
-    }
-
-    // Show container if push notifications are enabled
-    statusContainer.style.display = "block";
 
     let statusText = "プッシュ通知: 無効";
     let statusClass = "push-status-disabled";
@@ -171,47 +137,6 @@ async function updatePushStatusDisplay() {
     leftGroup.appendChild(programDiv);
     statusElement.appendChild(leftGroup);
 
-    // Re-add the control button (will be positioned to the right)
-    statusElement.appendChild(controlButton);
-
-    // Update control button
-    if (controlButton) {
-      controlButton.style.display = "inline-block";
-      controlButton.disabled = false;
-
-      if (status.connected) {
-        controlButton.innerHTML = '<i class="fa-solid fa-stop"></i> 切断';
-        controlButton.onclick = async () => {
-          controlButton.disabled = true;
-          controlButton.innerHTML = '<i class="fa-solid fa-stop"></i> 切断中...';
-          try {
-            await stopPushNotification();
-            await updatePushStatusDisplay();
-          } catch (error) {
-            console.error("Failed to stop push notification:", error);
-            alert("Failed to stop push notification");
-            controlButton.disabled = false;
-            controlButton.innerHTML = '<i class="fa-solid fa-stop"></i> 切断';
-          }
-        };
-      } else {
-        controlButton.innerHTML = '<i class="fa-solid fa-play"></i> 接続';
-        controlButton.onclick = async () => {
-          controlButton.disabled = true;
-          controlButton.innerHTML = '<i class="fa-solid fa-play"></i> 接続中...';
-          try {
-            await startPushNotification();
-            await updatePushStatusDisplay();
-          } catch (error) {
-            console.error("Failed to start push notification:", error);
-            alert("Failed to start push notification");
-            controlButton.disabled = false;
-            controlButton.innerHTML = '<i class="fa-solid fa-play"></i> 接続';
-          }
-        };
-      }
-    }
-
     // Set detailed information as tooltip (without time info)
     const details = [];
     if (status.connectionState) {
@@ -249,11 +174,20 @@ async function updatePushStatusDisplay() {
 async function renderPage() {
   const popup = container.resolve<Popup>(InjectTokens.Popup);
 
-  // Display push notification status
-  await updatePushStatusDisplay();
+  // Check if push status should be displayed
+  const showPushStatus = await popup.getShowPushStatus();
+  const pushStatusContainer = document.querySelector(".push-status-container") as HTMLElement;
+  if (pushStatusContainer) {
+    pushStatusContainer.style.display = showPushStatus ? "block" : "none";
+  }
 
-  // Update status every 5 seconds
-  setInterval(updatePushStatusDisplay, 5000);
+  // Display push notification status
+  if (showPushStatus) {
+    await updatePushStatusDisplay();
+
+    // Update status every 5 seconds
+    setInterval(updatePushStatusDisplay, 5000);
+  }
 
   const suspendButton = document.getElementById(SUSPEND_BUTTON_ID) as HTMLButtonElement;
   suspendButton.onclick = async () => {

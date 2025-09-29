@@ -1,5 +1,5 @@
 {
-  "_comment": "Example test data for rfc8291-crypto.test.ts",
+  "_comment": "Example test data for web-push-crypto.test.ts",
   "_instructions": {
     "setup": [
       "1. Copy this file to 'datasets/your-test-name.json'",
