@@ -76,15 +76,6 @@ async function updatePushStatusDisplay() {
   try {
     const status = await getPushStatus();
 
-    // Hide container entirely if push notifications are disabled
-    if (!status.enabled) {
-      statusContainer.style.display = "none";
-      return;
-    }
-
-    // Show container if push notifications are enabled
-    statusContainer.style.display = "block";
-
     let statusText = "プッシュ通知: 無効";
     let statusClass = "push-status-disabled";
 
@@ -249,11 +240,20 @@ async function updatePushStatusDisplay() {
 async function renderPage() {
   const popup = container.resolve<Popup>(InjectTokens.Popup);
 
-  // Display push notification status
-  await updatePushStatusDisplay();
+  // Check if push status should be displayed
+  const showPushStatus = await popup.getShowPushStatus();
+  const pushStatusContainer = document.querySelector(".push-status-container") as HTMLElement;
+  if (pushStatusContainer) {
+    pushStatusContainer.style.display = showPushStatus ? "block" : "none";
+  }
 
-  // Update status every 5 seconds
-  setInterval(updatePushStatusDisplay, 5000);
+  // Display push notification status
+  if (showPushStatus) {
+    await updatePushStatusDisplay();
+
+    // Update status every 5 seconds
+    setInterval(updatePushStatusDisplay, 5000);
+  }
 
   const suspendButton = document.getElementById(SUSPEND_BUTTON_ID) as HTMLButtonElement;
   suspendButton.onclick = async () => {
