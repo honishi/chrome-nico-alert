@@ -239,7 +239,7 @@ async function handleResetGuidance(): Promise<void> {
     await resetAllGuidance();
 
     // Show success state
-    button.textContent = "リセット完了！";
+    button.textContent = "リセット完了";
     button.classList.add("success");
 
     // Restore after 2 seconds

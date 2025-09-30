@@ -43,7 +43,7 @@ async function getPushStatus(): Promise<PushStatus> {
   });
 }
 
-async function updateGuidanceDisplay() {
+async function updatePushGuidanceDisplay() {
   const popup = container.resolve<Popup>(InjectTokens.Popup);
   const guidanceContainer = document.querySelector(".push-guidance-container") as HTMLElement;
   if (!guidanceContainer) return;
@@ -61,7 +61,7 @@ async function updateGuidanceDisplay() {
   }
 }
 
-async function handleGuidanceDismiss() {
+async function handlePushGuidanceDismiss() {
   const popup = container.resolve<Popup>(InjectTokens.Popup);
   await popup.setPushGuidanceDismissed(true);
 
@@ -215,11 +215,17 @@ async function renderPage() {
   };
 
   // Display and setup push guidance
-  await updateGuidanceDisplay();
-  const guidanceButton = document.getElementById("push-guidance-button");
-  if (guidanceButton) {
-    guidanceButton.onclick = async () => {
-      await handleGuidanceDismiss();
+  await updatePushGuidanceDisplay();
+  const pushGuidanceDismissButton = document.getElementById("push-guidance-button");
+  if (pushGuidanceDismissButton) {
+    pushGuidanceDismissButton.onclick = async () => {
+      await handlePushGuidanceDismiss();
+    };
+  }
+  const guidanceOpenOptionLink = document.getElementById("push-guidance-link");
+  if (guidanceOpenOptionLink) {
+    guidanceOpenOptionLink.onclick = () => {
+      popup.openOptionsPage();
     };
   }
 
