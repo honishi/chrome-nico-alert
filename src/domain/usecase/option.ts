@@ -11,6 +11,7 @@ export interface Option {
   setShowRanking(value: boolean): Promise<void>;
   getShowPushStatus(): Promise<boolean>;
   setShowPushStatus(value: boolean): Promise<void>;
+  resetAllGuidanceDismissed(): Promise<void>;
   getShowNotification(): Promise<boolean>;
   setShowNotification(value: boolean): Promise<void>;
   getSoundVolume(): Promise<number>;
@@ -53,6 +54,12 @@ export class OptionImpl implements Option {
 
   async setShowPushStatus(value: boolean): Promise<void> {
     await this.browserApi.setShowPushStatus(value);
+  }
+
+  async resetAllGuidanceDismissed(): Promise<void> {
+    // Reset all guidance dismissed flags
+    await this.browserApi.setPushGuidanceDismissed(false);
+    // Add more guidance flags here in the future
   }
 
   async getShowNotification(): Promise<boolean> {

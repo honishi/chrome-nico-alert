@@ -43,6 +43,34 @@ async function getPushStatus(): Promise<PushStatus> {
   });
 }
 
+async function updateGuidanceDisplay() {
+  const popup = container.resolve<Popup>(InjectTokens.Popup);
+  const guidanceContainer = document.querySelector(".push-guidance-container") as HTMLElement;
+  if (!guidanceContainer) return;
+
+  try {
+    const status = await getPushStatus();
+    const dismissed = await popup.getPushGuidanceDismissed();
+
+    // Show guidance if push is disabled and user hasn't dismissed it
+    const shouldShow = !status.enabled && !dismissed;
+    guidanceContainer.style.display = shouldShow ? "block" : "none";
+  } catch (error) {
+    console.error("Failed to update guidance display:", error);
+    guidanceContainer.style.display = "none";
+  }
+}
+
+async function handleGuidanceDismiss() {
+  const popup = container.resolve<Popup>(InjectTokens.Popup);
+  await popup.setPushGuidanceDismissed(true);
+
+  const guidanceContainer = document.querySelector(".push-guidance-container") as HTMLElement;
+  if (guidanceContainer) {
+    guidanceContainer.style.display = "none";
+  }
+}
+
 async function updatePushStatusDisplay() {
   const statusContainer = document.querySelector(".push-status-container") as HTMLElement;
   const statusElement = document.getElementById("push-status");
@@ -174,6 +202,27 @@ async function updatePushStatusDisplay() {
 async function renderPage() {
   const popup = container.resolve<Popup>(InjectTokens.Popup);
 
+  const suspendButton = document.getElementById(SUSPEND_BUTTON_ID) as HTMLButtonElement;
+  suspendButton.onclick = async () => {
+    await toggleSuspended();
+    await updateSuspendButton();
+  };
+  await updateSuspendButton();
+
+  const openOptionsButton = document.getElementById("open-options-button") as HTMLButtonElement;
+  openOptionsButton.onclick = () => {
+    popup.openOptionsPage();
+  };
+
+  // Display and setup push guidance
+  await updateGuidanceDisplay();
+  const guidanceButton = document.getElementById("push-guidance-button");
+  if (guidanceButton) {
+    guidanceButton.onclick = async () => {
+      await handleGuidanceDismiss();
+    };
+  }
+
   // Check if push status should be displayed
   const showPushStatus = await popup.getShowPushStatus();
   const pushStatusContainer = document.querySelector(".push-status-container") as HTMLElement;
@@ -188,18 +237,6 @@ async function renderPage() {
     // Update status every 5 seconds
     setInterval(updatePushStatusDisplay, 5000);
   }
-
-  const suspendButton = document.getElementById(SUSPEND_BUTTON_ID) as HTMLButtonElement;
-  suspendButton.onclick = async () => {
-    await toggleSuspended();
-    await updateSuspendButton();
-  };
-  await updateSuspendButton();
-
-  const openOptionsButton = document.getElementById("open-options-button") as HTMLButtonElement;
-  openOptionsButton.onclick = () => {
-    popup.openOptionsPage();
-  };
 
   const [followingPrograms, comingPrograms, rankingPrograms] = await popup.getPrograms();
   const showComing = await popup.showComing();

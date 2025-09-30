@@ -9,6 +9,8 @@ export interface Popup {
   getPrograms(): Promise<[Program[], Program[], Program[]]>; // [followingPrograms, comingPrograms, rankingPrograms]
   showComing(): Promise<boolean>;
   getShowPushStatus(): Promise<boolean>;
+  getPushGuidanceDismissed(): Promise<boolean>;
+  setPushGuidanceDismissed(dismissed: boolean): Promise<void>;
   toElapsedTime(program: Program): string;
   setBadgeNumber(number: number): Promise<void>;
   isSuspended(): Promise<boolean>;
@@ -44,6 +46,14 @@ export class PopupImpl implements Popup {
 
   async getShowPushStatus(): Promise<boolean> {
     return await this.browserApi.getShowPushStatus();
+  }
+
+  async getPushGuidanceDismissed(): Promise<boolean> {
+    return await this.browserApi.getPushGuidanceDismissed();
+  }
+
+  async setPushGuidanceDismissed(dismissed: boolean): Promise<void> {
+    await this.browserApi.setPushGuidanceDismissed(dismissed);
   }
 
   toElapsedTime(program: Program): string {

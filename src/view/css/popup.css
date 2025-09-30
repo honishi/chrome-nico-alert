@@ -63,6 +63,73 @@ body {
   align-items: center;
 }
 
+/* ==================== Push Guidance Section ==================== */
+.push-guidance-container {
+  margin-bottom: 16px;
+  padding: 12px;
+  background-color: #e3f2fd;
+  border-radius: 4px;
+  border: 1px solid #90caf9;
+}
+
+@media (prefers-color-scheme: dark) {
+  .push-guidance-container {
+    background-color: #1a237e;
+    border-color: #283593;
+  }
+}
+
+.push-guidance-content {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.push-guidance-message {
+  font-size: 12px;
+  line-height: 1.5;
+  flex: 1;
+  color: #1565c0;
+}
+
+@media (prefers-color-scheme: dark) {
+  .push-guidance-message {
+    color: #90caf9;
+  }
+}
+
+.push-guidance-button {
+  padding: 6px 16px;
+  font-size: 12px;
+  font-weight: 500;
+  border: 1px solid #1565c0;
+  border-radius: 3px;
+  background-color: #ffffff;
+  color: #1565c0;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: all 0.2s ease;
+}
+
+.push-guidance-button:hover {
+  background-color: #f5f5f5;
+  border-color: #0d47a1;
+}
+
+@media (prefers-color-scheme: dark) {
+  .push-guidance-button {
+    background-color: #283593;
+    color: #e3f2fd;
+    border-color: #3949ab;
+  }
+
+  .push-guidance-button:hover {
+    background-color: #3949ab;
+    border-color: #5c6bc0;
+  }
+}
+
 /* ==================== Push Status Section ==================== */
 .push-status-container {
   margin-bottom: 16px;
