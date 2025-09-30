@@ -1,25 +1,29 @@
 # AGENTS
 
 ## Mission
-This repository hosts a TypeScript-based Chrome extension that delivers Niconama live stream alerts. Agents should preserve extension compatibility with Chromium browsers and follow existing build and release automation.
+This repository hosts a TypeScript- and React-based Chrome extension that surfaces Niconama live stream alerts, automates lobby entry, and integrates with the autopush notification service. Agents should preserve Chromium Manifest V3 compatibility and keep the release automation intact.
 
 ## Project Snapshot
-- Entry points for the extension live in `src/entry/` (background service worker, content script, popup UI, offscreen worker).
-- Domain logic is organized under `src/domain/`, while platform integrations (e.g., web push, autopush client) sit in `src/infra/`.
-- Shared UI and assets are defined in `public/`, including `public/manifest.json`.
-- Automated builds run through `.github/workflows/push.yaml`, producing a zipped distribution on tagged releases.
+- `src/entry/` contains all extension entry points: the background service worker, offscreen worker, content script, popup UI, options UI, and shared React components.
+- Domain logic lives under `src/domain/` (models, use cases, browser-facing interfaces), while concrete integrations such as the Niconama API client, web push crypto helpers, and the autopush bridge reside in `src/infra/`.
+- HTML, CSS, and other rendered assets are maintained in `src/view/`, complementing the bundled artifacts generated into `public/` alongside `public/manifest.json` and icon assets.
+- Tests are written with Jest in `test/`, supported by fixtures under `test/data`, `test/html`, and `test/json`.
+- Build and bundling configuration is organized in `webpack/`, and additional user-facing documentation and imagery live in `docs/`.
+- GitHub Actions automation defined in `.github/workflows/push.yaml` runs tests, creates production builds, and attaches zipped `dist` artifacts to tagged releases.
 
 ## Tooling & Commands
-- Node.js version is declared in `.node-version`; install dependencies with `npm install`.
-- Use `npm run build-dev` for watch-mode development builds; run `npm run build-dev-once` when you need a single-shot development bundle.
-- Execute `npm run build-prod` for release bundles.
-- Execute `npm test` to run the Jest test suite.
-- Clean generated artifacts with `npm run clean`.
+- The required Node.js version is pinned via `.node-version`; install dependencies with `npm install` or `npm ci` for CI.
+- `npm run build-dev` starts a watch-mode development build, while `npm run build-dev-once` performs a single incremental build.
+- Produce release bundles with `npm run build-prod`; artifacts are emitted to `dist/` and zipped during CI.
+- Run unit tests with `npm test` and clear build outputs via `npm run clean`.
+- Enforce formatting and linting with `npm run lint-fix` (ESLint + Prettier) or run Prettier alone through `npm run prettier`.
 
 ## Collaboration Notes
-- Maintain the existing TypeScript, React, and webpack configuration conventions when adding features.
-- Verify that any changes keep the release workflow functional, especially the generated dist zip used in GitHub releases.
-- When introducing new files, prefer ASCII encoding unless the file already employs non-ASCII characters.
+- Follow the existing TypeScript, React, webpack, and tsyringe dependency-injection conventions when adding or refactoring features.
+- Confirm that background, content, popup, and offscreen workflows continue to operate across Chromium-based browsers, and that the Manifest V3 service worker lifecycle remains compliant.
+- Changes must keep the GitHub Actions release pipeline functional, including the zipped production bundle expected on version tags.
+- Prefer ASCII encoding for new files unless a file already relies on non-ASCII characters (e.g., localized copy or assets).
 
 ## Communication
-Coding-agent conversations with the user must be conducted in Japanese. Document updates like this file should remain in English unless the user specifies otherwise.
+Coding-agent conversations with the user must be conducted in Japanese. Repository documentation should remain in English unless the user provides different guidance.
+
