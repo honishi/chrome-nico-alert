@@ -15,6 +15,7 @@ async function renderPage() {
   await renderReceivePushNotificationCheckbox();
   await renderShowPushStatusCheckbox();
   await renderAutoOpen();
+  setupResetGuidanceButton();
 }
 
 async function renderShowComingCheckbox() {
@@ -217,6 +218,50 @@ async function getReceivePushNotification(): Promise<boolean> {
 async function setReceivePushNotification(value: boolean): Promise<void> {
   const option = container.resolve<Option>(InjectTokens.Option);
   await option.setReceivePushNotification(value);
+}
+
+async function resetAllGuidance(): Promise<void> {
+  const option = container.resolve<Option>(InjectTokens.Option);
+  await option.resetAllGuidanceDismissed();
+}
+
+async function handleResetGuidance(): Promise<void> {
+  const button = document.getElementById("reset-guidance-button") as HTMLButtonElement;
+  if (!button) return;
+
+  const originalText = button.textContent || "";
+
+  // Disable button
+  button.disabled = true;
+
+  try {
+    // Reset all guidance dismissed flags
+    await resetAllGuidance();
+
+    // Show success state
+    button.textContent = "リセット完了";
+    button.classList.add("success");
+
+    // Restore after 2 seconds
+    setTimeout(() => {
+      button.textContent = originalText;
+      button.classList.remove("success");
+      button.disabled = false;
+    }, 2000);
+  } catch (error) {
+    console.error("Failed to reset guidance flags:", error);
+    button.textContent = originalText;
+    button.disabled = false;
+  }
+}
+
+function setupResetGuidanceButton(): void {
+  const button = document.getElementById("reset-guidance-button");
+  if (button) {
+    button.onclick = async () => {
+      await handleResetGuidance();
+    };
+  }
 }
 
 async function renderAutoOpen() {
