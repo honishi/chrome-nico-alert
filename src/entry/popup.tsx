@@ -142,10 +142,10 @@ async function updatePushStatusDisplay() {
 
       let timeText = "";
       if (diffMinutes < 60) {
-        timeText = `${diffMinutes}分前`;
+        timeText = `${diffMinutes}m ago`;
       } else {
         const diffHours = Math.floor(diffMinutes / 60);
-        timeText = `${diffHours}時間前`;
+        timeText = `${diffHours}h ago`;
       }
 
       // Extract broadcaster name from title (format: "XXXさんが生放送を開始")
@@ -162,11 +162,11 @@ async function updatePushStatusDisplay() {
       const fullDateTime = `${year}/${month}/${day} ${hours}:${minutes}:${seconds}`;
 
       details.push(
-        `\n最新:【${displayTitle}】${status.lastReceivedProgram.program.body} (${timeText})`,
+        `Latest Program: [${displayTitle}] ${status.lastReceivedProgram.program.body} (${timeText})`,
       );
-      details.push(`日時: ${fullDateTime}`);
+      details.push(`Program Detected Time: ${fullDateTime}`);
     } else {
-      details.push(`\n最新: なし`);
+      details.push(`Latest Program: None`);
     }
 
     if (details.length > 0) {
