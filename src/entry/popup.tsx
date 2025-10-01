@@ -111,7 +111,7 @@ async function updatePushStatusDisplay() {
     // Set detailed information as tooltip
     const details = [];
     if (status.connectionState) {
-      details.push(`Status: ${status.connectionState}`);
+      details.push(`Connection Status: ${status.connectionState}`);
     }
     if (status.uaid) {
       details.push(`UAID: ${status.uaid}`);
@@ -121,15 +121,15 @@ async function updatePushStatusDisplay() {
     }
     if (status.connectionStatus) {
       details.push(
-        `Connect Rate Limit: ${status.connectionStatus.currentAttempts}/${status.connectionStatus.maxAttempts}`,
+        `Connection Rate Limit: ${status.connectionStatus.currentAttempts}/${status.connectionStatus.maxAttempts}`,
       );
       if (status.connectionStatus.lastAttemptTime) {
         const lastAttempt = new Date(status.connectionStatus.lastAttemptTime);
-        details.push(`Last Attempt: ${lastAttempt.toLocaleString("ja-JP")}`);
+        details.push(`Last Connection Attempt: ${lastAttempt.toLocaleString("ja-JP")}`);
       }
       if (status.connectionStatus.lastConnectedTime) {
         const lastConnection = new Date(status.connectionStatus.lastConnectedTime);
-        details.push(`Last Connection: ${lastConnection.toLocaleString("ja-JP")}`);
+        details.push(`Last Connected At: ${lastConnection.toLocaleString("ja-JP")}`);
       }
     }
 
@@ -166,7 +166,7 @@ async function updatePushStatusDisplay() {
       );
       details.push(`Program Detected Time: ${fullDateTime}`);
     } else {
-      details.push(`Latest Program: None`);
+      details.push(`Latest Program: N/A`);
     }
 
     if (details.length > 0) {
