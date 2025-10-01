@@ -17,7 +17,7 @@ body {
 .setting-container {
   display: flex;
   flex-direction: column;
-  margin-bottom: 16px;
+  margin-bottom: 8px;
 }
 
 .menu-container {
@@ -65,7 +65,7 @@ body {
 
 /* ==================== Push Guidance Section ==================== */
 .push-guidance-container {
-  margin-bottom: 16px;
+  margin: 16px 0 8px 0;
   padding: 8px 12px;
   background-color: #e3f2fd;
   border-radius: 4px;
@@ -204,14 +204,23 @@ body {
 
 /* ==================== Content Sections ==================== */
 .section-container {
-  margin-bottom: 32px;
 }
 
 .section-title-container {
-  margin-bottom: 16px;
   display: flex;
   justify-content: space-between;
   align-items: center;
+  position: sticky;
+  top: 0;
+  background-color: #ffffff;
+  z-index: 10;
+  padding: 16px 0;
+}
+
+@media (prefers-color-scheme: dark) {
+  .section-title-container {
+    background-color: #121212;
+  }
 }
 
 .section-title {
@@ -242,8 +251,7 @@ body {
 }
 
 .no-programs-container {
-  margin-left: 16px;
-  margin-bottom: 16px;
+  margin: 16px 0 16px 16px;
   display: none;
 }
 
@@ -259,7 +267,7 @@ body {
   gap: 16px 8px;
   align-items: start;
   margin-left: 16px;
-  margin-bottom: 16px;
+  padding-bottom: 16px;
 }
 
 .grid-item {
