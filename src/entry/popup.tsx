@@ -93,10 +93,6 @@ async function updatePushStatusDisplay() {
     // Clear and rebuild status content
     statusElement.innerHTML = "";
 
-    // Create left group container for status and program info
-    const leftGroup = document.createElement("div");
-    leftGroup.className = "push-status-left-group";
-
     // Create status text span
     const statusSpan = document.createElement("span");
     statusSpan.className = statusClass;
@@ -110,62 +106,9 @@ async function updatePushStatusDisplay() {
     const textNode = document.createTextNode(` ${statusText}`);
     statusSpan.appendChild(textNode);
 
-    leftGroup.appendChild(statusSpan);
+    statusElement.appendChild(statusSpan);
 
-    // Add last received program info or "no program received" message
-    const programDiv = document.createElement("div");
-    programDiv.className = "push-last-program";
-
-    // Create TV icon
-    const tvIcon = document.createElement("i");
-    tvIcon.className = "fa-solid fa-satellite-dish push-program-icon";
-    programDiv.appendChild(tvIcon);
-
-    if (status.lastReceivedProgram) {
-      const lastReceived = new Date(status.lastReceivedProgram.receivedAt);
-      const now = new Date();
-      const diffMs = now.getTime() - lastReceived.getTime();
-      const diffMinutes = Math.floor(diffMs / 60000);
-
-      let timeText = "";
-      if (diffMinutes < 60) {
-        timeText = `${diffMinutes}分前`;
-      } else {
-        const diffHours = Math.floor(diffMinutes / 60);
-        timeText = `${diffHours}時間前`;
-      }
-
-      // Extract broadcaster name from title (format: "XXXさんが生放送を開始")
-      const titleMatch = status.lastReceivedProgram.program.title.match(/(.+)さんが生放送を開始/);
-      const displayTitle = titleMatch ? titleMatch[1] : status.lastReceivedProgram.program.title;
-
-      const programTextSpan = document.createElement("span");
-      programTextSpan.className = "push-program-text";
-      const fullText = ` 最新:【${displayTitle}】${status.lastReceivedProgram.program.body} (${timeText})`;
-      programTextSpan.textContent = fullText;
-
-      // Format full date/time for tooltip
-      const year = lastReceived.getFullYear();
-      const month = String(lastReceived.getMonth() + 1).padStart(2, "0");
-      const day = String(lastReceived.getDate()).padStart(2, "0");
-      const hours = String(lastReceived.getHours()).padStart(2, "0");
-      const minutes = String(lastReceived.getMinutes()).padStart(2, "0");
-      const seconds = String(lastReceived.getSeconds()).padStart(2, "0");
-      const fullDateTime = `${year}/${month}/${day} ${hours}:${minutes}:${seconds}`;
-
-      programTextSpan.title = `最新:【${displayTitle}】${status.lastReceivedProgram.program.body}\n日時: ${fullDateTime}`;
-      programDiv.appendChild(programTextSpan);
-    } else {
-      const programTextSpan = document.createElement("span");
-      programTextSpan.className = "push-program-text";
-      programTextSpan.textContent = ` 最新: なし`;
-      programDiv.appendChild(programTextSpan);
-    }
-
-    leftGroup.appendChild(programDiv);
-    statusElement.appendChild(leftGroup);
-
-    // Set detailed information as tooltip (without time info)
+    // Set detailed information as tooltip
     const details = [];
     if (status.connectionState) {
       details.push(`Status: ${status.connectionState}`);
@@ -188,6 +131,42 @@ async function updatePushStatusDisplay() {
         const lastConnection = new Date(status.connectionStatus.lastConnectedTime);
         details.push(`Last Connection: ${lastConnection.toLocaleString("ja-JP")}`);
       }
+    }
+
+    // Add last received program info to tooltip
+    if (status.lastReceivedProgram) {
+      const lastReceived = new Date(status.lastReceivedProgram.receivedAt);
+      const now = new Date();
+      const diffMs = now.getTime() - lastReceived.getTime();
+      const diffMinutes = Math.floor(diffMs / 60000);
+
+      let timeText = "";
+      if (diffMinutes < 60) {
+        timeText = `${diffMinutes}分前`;
+      } else {
+        const diffHours = Math.floor(diffMinutes / 60);
+        timeText = `${diffHours}時間前`;
+      }
+
+      // Extract broadcaster name from title (format: "XXXさんが生放送を開始")
+      const titleMatch = status.lastReceivedProgram.program.title.match(/(.+)さんが生放送を開始/);
+      const displayTitle = titleMatch ? titleMatch[1] : status.lastReceivedProgram.program.title;
+
+      // Format full date/time
+      const year = lastReceived.getFullYear();
+      const month = String(lastReceived.getMonth() + 1).padStart(2, "0");
+      const day = String(lastReceived.getDate()).padStart(2, "0");
+      const hours = String(lastReceived.getHours()).padStart(2, "0");
+      const minutes = String(lastReceived.getMinutes()).padStart(2, "0");
+      const seconds = String(lastReceived.getSeconds()).padStart(2, "0");
+      const fullDateTime = `${year}/${month}/${day} ${hours}:${minutes}:${seconds}`;
+
+      details.push(
+        `\n最新:【${displayTitle}】${status.lastReceivedProgram.program.body} (${timeText})`,
+      );
+      details.push(`日時: ${fullDateTime}`);
+    } else {
+      details.push(`\n最新: なし`);
     }
 
     if (details.length > 0) {
