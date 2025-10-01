@@ -4,7 +4,6 @@ import { ChromeMessage, ChromeMessageType } from "./chrome_message/message";
 
 const SHOW_COMING_KEY = "showComing";
 const SHOW_RANKING_KEY = "showRanking";
-const SHOW_PUSH_STATUS_KEY = "showPushStatus";
 const PUSH_GUIDANCE_DISMISSED_KEY = "pushGuidanceDismissed";
 const SHOW_NOTIFICATION_KEY = "showNotification";
 const SOUND_VOLUME_KEY = "soundVolume";
@@ -43,15 +42,6 @@ export class BrowserApiImpl implements BrowserApi {
 
   async setShowRanking(value: boolean): Promise<void> {
     await chrome.storage.local.set({ [SHOW_RANKING_KEY]: value });
-  }
-
-  async getShowPushStatus(): Promise<boolean> {
-    const result = await chrome.storage.local.get([SHOW_PUSH_STATUS_KEY]);
-    return result[SHOW_PUSH_STATUS_KEY] ?? false;
-  }
-
-  async setShowPushStatus(value: boolean): Promise<void> {
-    await chrome.storage.local.set({ [SHOW_PUSH_STATUS_KEY]: value });
   }
 
   async getPushGuidanceDismissed(): Promise<boolean> {

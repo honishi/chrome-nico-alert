@@ -8,7 +8,6 @@ import { defaultBadgeBackgroundColor, suspendedBadgeBackgroundColor } from "./co
 export interface Popup {
   getPrograms(): Promise<[Program[], Program[], Program[]]>; // [followingPrograms, comingPrograms, rankingPrograms]
   showComing(): Promise<boolean>;
-  getShowPushStatus(): Promise<boolean>;
   getPushGuidanceDismissed(): Promise<boolean>;
   setPushGuidanceDismissed(dismissed: boolean): Promise<void>;
   toElapsedTime(program: Program): string;
@@ -42,10 +41,6 @@ export class PopupImpl implements Popup {
 
   async showComing(): Promise<boolean> {
     return await this.browserApi.getShowComing();
-  }
-
-  async getShowPushStatus(): Promise<boolean> {
-    return await this.browserApi.getShowPushStatus();
   }
 
   async getPushGuidanceDismissed(): Promise<boolean> {

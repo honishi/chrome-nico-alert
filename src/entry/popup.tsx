@@ -209,14 +209,14 @@ async function renderPage() {
   }
 
   // Check if push status should be displayed
-  const showPushStatus = await popup.getShowPushStatus();
+  const status = await getPushStatus();
   const pushStatusContainer = document.querySelector(".push-status-container") as HTMLElement;
   if (pushStatusContainer) {
-    pushStatusContainer.style.display = showPushStatus ? "block" : "none";
+    pushStatusContainer.style.display = status.enabled ? "block" : "none";
   }
 
   // Display push notification status
-  if (showPushStatus) {
+  if (status.enabled) {
     await updatePushStatusDisplay();
 
     // Update status every 5 seconds
