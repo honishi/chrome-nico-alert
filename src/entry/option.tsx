@@ -13,7 +13,6 @@ async function renderPage() {
   await renderShowNotificationCheckbox();
   await renderSoundVolume();
   await renderReceivePushNotificationCheckbox();
-  await renderShowPushStatusCheckbox();
   await renderAutoOpen();
   setupResetGuidanceButton();
 }
@@ -75,27 +74,6 @@ async function getShowNotification(): Promise<boolean> {
 async function setShowNotification(value: boolean): Promise<void> {
   const option = container.resolve<Option>(InjectTokens.Option);
   await option.setShowNotification(value);
-}
-
-async function renderShowPushStatusCheckbox() {
-  const showPushStatusCheckbox = document.getElementById(
-    "show-push-status-checkbox",
-  ) as HTMLInputElement;
-  showPushStatusCheckbox.checked = await getShowPushStatus();
-  showPushStatusCheckbox.addEventListener("change", async () => {
-    const checked = showPushStatusCheckbox.checked;
-    await setShowPushStatus(checked);
-  });
-}
-
-async function getShowPushStatus(): Promise<boolean> {
-  const option = container.resolve<Option>(InjectTokens.Option);
-  return await option.getShowPushStatus();
-}
-
-async function setShowPushStatus(value: boolean): Promise<void> {
-  const option = container.resolve<Option>(InjectTokens.Option);
-  await option.setShowPushStatus(value);
 }
 
 async function renderSoundVolume() {
