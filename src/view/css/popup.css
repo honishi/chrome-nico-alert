@@ -152,14 +152,6 @@ body {
   justify-content: space-between;
 }
 
-.push-status-left-group {
-  display: flex;
-  align-items: center;
-  gap: 16px;
-  min-width: 0;  /* Allow flex item to shrink */
-  flex: 1;       /* Use available width */
-}
-
 .push-status-loading {
   color: #6c757d;
   font-style: italic;
@@ -208,78 +200,6 @@ body {
   margin-right: 8px;
   display: inline-flex;
   align-items: center;
-}
-
-/* Last program info */
-.push-last-program {
-  color: #6c757d;
-  font-size: 12px;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-  min-width: 0;  /* Allow shrinking (important for ellipsis) */
-  flex: 1;       /* Take remaining width in the flex container */
-  display: flex;
-  align-items: center;
-}
-
-@media (prefers-color-scheme: dark) {
-  .push-last-program {
-    color: #adb5bd;
-  }
-}
-
-.push-program-icon {
-  font-size: 11px;
-  margin-right: 8px;
-  flex-shrink: 0;
-}
-
-.push-program-text {
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-  min-width: 0;
-}
-
-/* Control button */
-.push-control-button {
-  padding: 4px 12px;
-  font-size: 11px;
-  font-weight: 500;
-  border: 1px solid #dee2e6;
-  border-radius: 3px;
-  background-color: #ffffff;
-  color: #212529;
-  cursor: pointer;
-  transition: all 0.2s ease;
-  white-space: nowrap;
-  display: inline-flex;
-  align-items: center;
-  gap: 4px;
-}
-
-.push-control-button:hover:not(:disabled) {
-  background-color: #f8f9fa;
-  border-color: #adb5bd;
-}
-
-.push-control-button:disabled {
-  opacity: 0.6;
-  cursor: not-allowed;
-}
-
-@media (prefers-color-scheme: dark) {
-  .push-control-button {
-    background-color: #2b2b2b;
-    color: #f0f0f0;
-    border-color: #495057;
-  }
-
-  .push-control-button:hover:not(:disabled) {
-    background-color: #3a3a3a;
-    border-color: #6c757d;
-  }
 }
 
 /* ==================== Content Sections ==================== */
