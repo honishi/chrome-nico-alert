@@ -35,6 +35,7 @@ const FollowingPrograms: React.FC<FollowingProgramsProps> = ({
       <div
         ref={stickyRef}
         className={`section-title-container${isSticky ? " section-title-container-sticky" : ""}`}
+        style={{ zIndex: 12 }}
       >
         <span className="section-title"> フォロー中の番組 </span>
         {showPushStatus && <PushStatusDisplay />}
