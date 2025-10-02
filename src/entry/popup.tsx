@@ -77,7 +77,7 @@ async function renderPage() {
   const showComing = await popup.showComing();
 
   const followingContainer = document.getElementById("following-section");
-  const comingContainer = document.getElementById("coming");
+  const comingContainer = document.getElementById("coming-section");
   const rankingContainer = document.getElementById("ranking-section");
   if (followingContainer === null || comingContainer === null || rankingContainer === null) {
     return;
