@@ -15,6 +15,13 @@
     <title>Popup</title>
   </head>
   <body>
+    <div id="loading-container" class="loading-container">
+      <div class="loading-content">
+        <i class="fa-solid fa-spinner fa-spin"></i>
+        <span class="loading-text">読み込み中...</span>
+      </div>
+    </div>
+    <div id="main-content" style="display: none;">
     <div class="setting-container">
       <div class="menu-container">
         <div class="menu-left-container">
@@ -48,26 +55,9 @@
         <button id="push-guidance-button" class="push-guidance-button">閉じる</button>
       </div>
     </div>
-  <div class="section-container">
-      <div class="section-title-container">
-        <span class="section-title"> フォロー中の番組 </span>
-        <div class="push-status-container">
-          <div id="push-status" class="push-status">
-            <span class="push-status-loading">読み込み中...</span>
-          </div>
-        </div>
-      </div>
-      <div class="no-programs-container" id="following-no-programs">
-        <span class="no-programs-text">現在、放送中の番組はありません。</span>
-      </div>
-      <div class="grid-container" id="following"></div>
-    </div>
-    <div id="coming" ></div>
-    <div class="section-container" id="ranking-section" style="display: none;">
-      <div class="section-title-container">
-        <span class="section-title"> ランキング </span>
-      </div>
-      <div class="grid-container" id="ranking"></div>
+    <div id="following-section"></div>
+    <div id="coming-section"></div>
+    <div id="ranking-section"></div>
     </div>
   </body>
 </html>

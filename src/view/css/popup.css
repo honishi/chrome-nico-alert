@@ -2,6 +2,7 @@
 body {
   font-family: sans-serif;
   font-size: 12px;
+  margin: 8px;
   padding: 10px;
   width: 760px;
 }
@@ -11,6 +12,66 @@ body {
     background-color: #121212;
     color: #f0f0f0;
   }
+}
+
+/* ==================== Loading Section ==================== */
+.loading-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 32px;
+  width: 100%;
+}
+
+.loading-content {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 12px;
+}
+
+.loading-content i {
+  font-size: 20px;
+}
+
+.loading-text {
+  font-size: 14px;
+}
+
+/* ==================== Error Section ==================== */
+.error-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 16px;
+}
+
+.error-content {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 16px;
+  background-color: #fee;
+  border: 1px solid #fcc;
+  border-radius: 4px;
+  color: #c00;
+}
+
+@media (prefers-color-scheme: dark) {
+  .error-content {
+    background-color: #3d1a1a;
+    border-color: #6a2020;
+    color: #ff6b6b;
+  }
+}
+
+.error-content i {
+  font-size: 20px;
+}
+
+.error-text {
+  font-size: 14px;
 }
 
 /* ==================== Header Section ==================== */
@@ -214,12 +275,25 @@ body {
   top: 0;
   background-color: #ffffff;
   z-index: 10;
-  padding: 16px 0;
+  /* Extend to full width by negating body's margin (8px) + padding (10px) */
+  padding: 16px 18px;
+  margin-left: -18px;
+  margin-right: -18px;
 }
 
 @media (prefers-color-scheme: dark) {
   .section-title-container {
     background-color: #121212;
+  }
+}
+
+.section-title-container-sticky {
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+@media (prefers-color-scheme: dark) {
+  .section-title-container-sticky {
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
   }
 }
 
