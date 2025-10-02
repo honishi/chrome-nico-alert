@@ -3,11 +3,11 @@ import { container } from "tsyringe";
 import { InjectTokens } from "../di/inject-tokens";
 import { Popup } from "../domain/usecase/popup";
 import { configureDefaultContainer } from "../di/register";
-import ProgramGridItem from "./component/ProgramGridItem";
 import { createRoot } from "react-dom/client";
 import React from "react";
 import ComingPrograms from "./component/ComingPrograms";
 import FollowingPrograms from "./component/FollowingPrograms";
+import RankingPrograms from "./component/RankingPrograms";
 import { getPushStatus } from "./utils/push-status";
 
 const SUSPEND_BUTTON_ID = "suspend-button";
@@ -78,7 +78,7 @@ async function renderPage() {
 
   const followingContainer = document.getElementById("following-section");
   const comingContainer = document.getElementById("coming");
-  const rankingContainer = document.getElementById("ranking");
+  const rankingContainer = document.getElementById("ranking-section");
   if (followingContainer === null || comingContainer === null || rankingContainer === null) {
     return;
   }
@@ -102,15 +102,9 @@ async function renderPage() {
   );
 
   const showRanking = rankingPrograms.length > 0;
-  if (showRanking) {
-    const rankingItems = rankingPrograms.map((p, index) => {
-      const elapsed = popup.toElapsedTime(p);
-      const rank = index + 1;
-      return <ProgramGridItem program={p} elapsedTime={elapsed} rank={rank} key={p.id} />;
-    });
-    createRoot(rankingContainer).render(rankingItems);
-  }
-  setElementVisibility("ranking-section", showRanking);
+  createRoot(rankingContainer).render(
+    <RankingPrograms programs={rankingPrograms} popup={popup} showComponent={showRanking} />,
+  );
 
   await popup.setBadgeNumber(followingPrograms.length);
 }
@@ -130,14 +124,6 @@ async function updateSuspendButton() {
     ? '<i class="fa-solid fa-play"></i>'
     : '<i class="fa-solid fa-pause"></i>';
   suspendButton.textContent = `自動入場${isSuspended ? "停止" : "動作"}中`;
-}
-
-function setElementVisibility(id: string, visible: boolean) {
-  const element = document.getElementById(id);
-  if (element === null) {
-    return;
-  }
-  element.style.display = visible ? "block" : "none";
 }
 
 function addEventListeners() {
