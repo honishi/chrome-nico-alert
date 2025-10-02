@@ -25,7 +25,7 @@ const ComingPrograms: React.FC<ComingProgramsProps> = ({
   const displayedPrograms = showAll ? programs : programs.slice(0, programCountPerRow);
 
   return (
-    <div className="section-container" id="coming-section">
+    <div className="section-container">
       <div className="section-title-container">
         <span className="section-title"> 予約番組 </span>
       </div>
