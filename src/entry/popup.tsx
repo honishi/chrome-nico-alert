@@ -76,6 +76,12 @@ async function renderPage() {
   const [followingPrograms, comingPrograms, rankingPrograms] = await popup.getPrograms();
   const showComing = await popup.showComing();
 
+  // Hide loading and show main content
+  const loadingContainer = document.getElementById("loading-container");
+  const mainContent = document.getElementById("main-content");
+  if (loadingContainer) loadingContainer.style.display = "none";
+  if (mainContent) mainContent.style.display = "block";
+
   const followingContainer = document.getElementById("following-section");
   const comingContainer = document.getElementById("coming-section");
   const rankingContainer = document.getElementById("ranking-section");
