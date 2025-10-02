@@ -3,6 +3,7 @@ import ProgramGridItem from "./ProgramGridItem";
 import PushStatusDisplay from "./PushStatusDisplay";
 import { Program } from "../../domain/model/program";
 import { Popup } from "../../domain/usecase/popup";
+import { useSticky } from "../hooks/useSticky";
 
 interface FollowingProgramsProps {
   programs: Program[];
@@ -26,9 +27,14 @@ const FollowingPrograms: React.FC<FollowingProgramsProps> = ({
     return index + 1;
   };
 
+  const [stickyRef, isSticky] = useSticky<HTMLDivElement>();
+
   return (
     <div className="section-container">
-      <div className="section-title-container">
+      <div
+        ref={stickyRef}
+        className={`section-title-container${isSticky ? " section-title-container-sticky" : ""}`}
+      >
         <span className="section-title"> フォロー中の番組 </span>
         {showPushStatus && <PushStatusDisplay />}
       </div>
