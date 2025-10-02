@@ -71,12 +71,6 @@ async function renderPage() {
       };
     }
 
-    // Check if push status should be displayed
-    const status = await getPushStatus();
-
-    const [followingPrograms, comingPrograms, rankingPrograms] = await popup.getPrograms();
-    const showComing = await popup.showComing();
-
     const followingContainer = document.getElementById("following-section");
     const comingContainer = document.getElementById("coming-section");
     const rankingContainer = document.getElementById("ranking-section");
@@ -84,6 +78,10 @@ async function renderPage() {
       return;
     }
 
+    const [followingPrograms, comingPrograms, rankingPrograms] = await popup.getPrograms();
+
+    // Check if push status should be displayed
+    const status = await getPushStatus();
     createRoot(followingContainer).render(
       <FollowingPrograms
         programs={followingPrograms}
@@ -93,6 +91,7 @@ async function renderPage() {
       />,
     );
 
+    const showComing = await popup.showComing();
     createRoot(comingContainer).render(
       <ComingPrograms
         programs={comingPrograms}
