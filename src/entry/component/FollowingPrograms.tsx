@@ -27,10 +27,11 @@ const FollowingPrograms: React.FC<FollowingProgramsProps> = ({
     return index + 1;
   };
 
-  const [stickyRef, isSticky] = useSticky<HTMLDivElement>();
+  const { sentinelRef, stickyRef, isSticky } = useSticky<HTMLDivElement>();
 
   return (
     <div className="section-container">
+      <div ref={sentinelRef} style={{ height: "1px", width: "100%", pointerEvents: "none" }} />
       <div
         ref={stickyRef}
         className={`section-title-container${isSticky ? " section-title-container-sticky" : ""}`}

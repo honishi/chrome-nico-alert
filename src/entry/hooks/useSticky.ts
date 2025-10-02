@@ -2,26 +2,20 @@ import { useEffect, useRef, useState } from "react";
 
 /**
  * Custom hook to detect if a sticky element is currently stuck
- * @returns tuple of [ref to attach to element, isSticky boolean state]
+ * @returns object containing sentinelRef (to attach to sentinel div), stickyRef (to attach to sticky element), and isSticky state
  */
-export function useSticky<T extends HTMLElement>(): [React.RefObject<T>, boolean] {
-  const ref = useRef<T>(null);
+export function useSticky<T extends HTMLElement>(): {
+  sentinelRef: React.RefObject<HTMLDivElement>;
+  stickyRef: React.RefObject<T>;
+  isSticky: boolean;
+} {
+  const sentinelRef = useRef<HTMLDivElement>(null);
+  const stickyRef = useRef<T>(null);
   const [isSticky, setIsSticky] = useState(false);
 
   useEffect(() => {
-    const element = ref.current;
-    if (!element) return;
-
-    // Create a sentinel element just above the sticky element
-    const sentinel = document.createElement("div");
-    sentinel.style.height = "1px";
-    sentinel.style.width = "100%";
-    sentinel.style.pointerEvents = "none";
-
-    const parent = element.parentElement;
-    if (!parent) return;
-
-    parent.insertBefore(sentinel, element);
+    const sentinel = sentinelRef.current;
+    if (!sentinel) return;
 
     const observer = new IntersectionObserver(
       ([entry]) => {
@@ -35,9 +29,8 @@ export function useSticky<T extends HTMLElement>(): [React.RefObject<T>, boolean
 
     return () => {
       observer.disconnect();
-      sentinel.remove();
     };
   }, []);
 
-  return [ref, isSticky];
+  return { sentinelRef, stickyRef, isSticky };
 }

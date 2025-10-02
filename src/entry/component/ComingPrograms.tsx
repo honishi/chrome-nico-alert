@@ -24,10 +24,11 @@ const ComingPrograms: React.FC<ComingProgramsProps> = ({
   const [showAll, setShowAll] = useState(!useShowMoreButton);
   const programCountPerRow = 5;
   const displayedPrograms = showAll ? programs : programs.slice(0, programCountPerRow);
-  const [stickyRef, isSticky] = useSticky<HTMLDivElement>();
+  const { sentinelRef, stickyRef, isSticky } = useSticky<HTMLDivElement>();
 
   return (
     <div className="section-container">
+      <div ref={sentinelRef} style={{ height: "1px", width: "100%", pointerEvents: "none" }} />
       <div
         ref={stickyRef}
         className={`section-title-container${isSticky ? " section-title-container-sticky" : ""}`}

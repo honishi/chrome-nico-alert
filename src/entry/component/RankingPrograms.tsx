@@ -15,10 +15,11 @@ const RankingPrograms: React.FC<RankingProgramsProps> = ({ programs, popup, show
     return null;
   }
 
-  const [stickyRef, isSticky] = useSticky<HTMLDivElement>();
+  const { sentinelRef, stickyRef, isSticky } = useSticky<HTMLDivElement>();
 
   return (
     <div className="section-container">
+      <div ref={sentinelRef} style={{ height: "1px", width: "100%", pointerEvents: "none" }} />
       <div
         ref={stickyRef}
         className={`section-title-container${isSticky ? " section-title-container-sticky" : ""}`}
