@@ -32,6 +32,7 @@ const ComingPrograms: React.FC<ComingProgramsProps> = ({
       <div
         ref={stickyRef}
         className={`section-title-container${isSticky ? " section-title-container-sticky" : ""}`}
+        style={{ zIndex: 11 }}
       >
         <span className="section-title"> 予約番組 </span>
       </div>

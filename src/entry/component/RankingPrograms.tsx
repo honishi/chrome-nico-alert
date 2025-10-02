@@ -23,6 +23,7 @@ const RankingPrograms: React.FC<RankingProgramsProps> = ({ programs, popup, show
       <div
         ref={stickyRef}
         className={`section-title-container${isSticky ? " section-title-container-sticky" : ""}`}
+        style={{ zIndex: 10 }}
       >
         <span className="section-title"> ランキング </span>
       </div>
