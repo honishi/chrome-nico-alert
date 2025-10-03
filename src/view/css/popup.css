@@ -325,7 +325,7 @@ body {
 }
 
 .no-programs-container {
-  margin: 16px 0 16px 16px;
+  padding: 16px 0 32px 16px;
   display: none;
 }
 
