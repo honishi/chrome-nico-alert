@@ -1,63 +1,65 @@
 <!doctype html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <script src="../popup.js"></script>
-    <link rel="stylesheet" href="../css/popup.css" />
-    <link
-      rel="stylesheet"
-      href="https://fonts.googleapis.com/css2?family=M+PLUS+Rounded+1c&display=swap"
-    />
-    <link
-      rel="stylesheet"
-      href="../css/font-awesome/all.min.css"
-    />
-    <title>Popup</title>
-  </head>
-  <body>
-    <div id="loading-container" class="loading-container">
-      <div class="loading-content">
-        <i class="fa-solid fa-spinner fa-spin"></i>
-        <span class="loading-text">読み込み中...</span>
+
+<head>
+  <meta charset="UTF-8" />
+  <script src="../popup.js"></script>
+  <link rel="stylesheet" href="../css/popup.css" />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=M+PLUS+Rounded+1c&display=swap" />
+  <link rel="stylesheet" href="../css/font-awesome/all.min.css" />
+  <title>Popup</title>
+</head>
+
+<body>
+  <div class="setting-container">
+    <div class="menu-container">
+      <div class="menu-left-container">
+        <span class="menu-item">
+          <i class="fa-solid fa-door-open"></i> <a href="https://www.nicovideo.jp/my/follow" target="_blank">自動入場管理</a>
+        </span>
+        <span class="menu-item">
+          <i class="fa-solid fa-home"></i> <a href="https://www.nicovideo.jp/my" target="_blank">マイページ</a>
+        </span>
+        <span class="menu-item">
+          <i class="fa-solid fa-users"></i> <a href="https://live.nicovideo.jp/follow" target="_blank">フォロー中ページ</a>
+        </span>
+        <span class="menu-item">
+          <i class="fa-solid fa-calendar-days"></i> <a href="https://blog.nicovideo.jp/niconews/173156.html"
+            target="_blank">最新イベント一覧</a>
+        </span>
+      </div>
+      <div class="menu-right-container">
+        <span class="menu-item">
+          <span id="suspend-emoji"></span>
+          <button id="suspend-button" class="menu-item-button"></button>
+        </span>
+        <span class="menu-item">
+          <i class="fa-solid fa-cog"></i> <button id="open-options-button" class="menu-item-button">オプション</button>
+        </span>
       </div>
     </div>
-    <div id="main-content" style="display: none;">
-    <div class="setting-container">
-      <div class="menu-container">
-        <div class="menu-left-container">
-          <span class="menu-item">
-            <i class="fa-solid fa-door-open"></i> <a href="https://www.nicovideo.jp/my/follow" target="_blank">自動入場管理</a>
-          </span>
-          <span class="menu-item">
-            <i class="fa-solid fa-home"></i> <a href="https://www.nicovideo.jp/my" target="_blank">マイページ</a>
-          </span>
-          <span class="menu-item">
-            <i class="fa-solid fa-users"></i> <a href="https://live.nicovideo.jp/follow" target="_blank">フォロー中ページ</a>
-          </span>
-          <span class="menu-item">
-            <i class="fa-solid fa-calendar-days"></i> <a href="https://blog.nicovideo.jp/niconews/173156.html" target="_blank">最新イベント一覧</a>
-          </span>
-        </div>
-        <div class="menu-right-container">
-          <span class="menu-item">
-            <span id="suspend-emoji"></span>
-            <button id="suspend-button" class="menu-item-button"></button>
-          </span>
-          <span class="menu-item">
-            <i class="fa-solid fa-cog"></i> <button id="open-options-button" class="menu-item-button">オプション</button>
-          </span>
-        </div>
-      </div>
+  </div>
+
+  <div class="push-guidance-container" style="display: none;">
+    <div class="push-guidance-content">
+      <span class="push-guidance-message">プッシュ通知を利用した放送開始検知は <span id="push-guidance-link" class="push-guidance-link"><i
+            class="fa-solid fa-cog"></i> オプション画面</span> から有効化できます</span>
+      <button id="push-guidance-button" class="push-guidance-button">閉じる</button>
     </div>
-    <div class="push-guidance-container" style="display: none;">
-      <div class="push-guidance-content">
-        <span class="push-guidance-message">プッシュ通知を利用した放送開始検知は <span id="push-guidance-link" class="push-guidance-link"><i class="fa-solid fa-cog"></i> オプション画面</span> から有効化できます</span>
-        <button id="push-guidance-button" class="push-guidance-button">閉じる</button>
-      </div>
+  </div>
+
+  <div id="loading-container" class="loading-container">
+    <div class="loading-content">
+      <i class="fa-solid fa-spinner fa-spin"></i>
+      <span class="loading-text">読み込み中...</span>
     </div>
+  </div>
+
+  <div id="main-content" style="display: none;">
     <div id="following-section"></div>
     <div id="coming-section"></div>
     <div id="ranking-section"></div>
-    </div>
-  </body>
+  </div>
+</body>
+
 </html>

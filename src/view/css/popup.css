@@ -14,66 +14,6 @@ body {
   }
 }
 
-/* ==================== Loading Section ==================== */
-.loading-container {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  min-height: 32px;
-  width: 100%;
-}
-
-.loading-content {
-  display: flex;
-  flex-direction: row;
-  align-items: center;
-  gap: 12px;
-}
-
-.loading-content i {
-  font-size: 20px;
-}
-
-.loading-text {
-  font-size: 14px;
-}
-
-/* ==================== Error Section ==================== */
-.error-container {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  padding: 16px;
-}
-
-.error-content {
-  display: flex;
-  flex-direction: row;
-  align-items: center;
-  gap: 12px;
-  padding: 12px 16px;
-  background-color: #fee;
-  border: 1px solid #fcc;
-  border-radius: 4px;
-  color: #c00;
-}
-
-@media (prefers-color-scheme: dark) {
-  .error-content {
-    background-color: #3d1a1a;
-    border-color: #6a2020;
-    color: #ff6b6b;
-  }
-}
-
-.error-content i {
-  font-size: 20px;
-}
-
-.error-text {
-  font-size: 14px;
-}
-
 /* ==================== Header Section ==================== */
 .setting-container {
   display: flex;
@@ -124,9 +64,70 @@ body {
   align-items: center;
 }
 
+/* ==================== Loading Section ==================== */
+.loading-container {
+  display: flex;
+  justify-content: flex-start;
+  align-items: center;
+  min-height: 32px;
+  width: 100%;
+  padding-top: 8px;
+}
+
+.loading-content {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 12px;
+}
+
+.loading-content i {
+  font-size: 20px;
+}
+
+.loading-text {
+  font-size: 14px;
+}
+
+/* ==================== Error Section ==================== */
+.error-container {
+  display: flex;
+  justify-content: flex-start;
+  align-items: center;
+  padding: 8px 0;
+}
+
+.error-content {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 12px;
+  padding: 8px 12px;
+  background-color: #fee;
+  border: 1px solid #fcc;
+  border-radius: 4px;
+  color: #c00;
+}
+
+@media (prefers-color-scheme: dark) {
+  .error-content {
+    background-color: #3d1a1a;
+    border-color: #6a2020;
+    color: #ff6b6b;
+  }
+}
+
+.error-content i {
+  font-size: 16px;
+}
+
+.error-text {
+  font-size: 12px;
+}
+
 /* ==================== Push Guidance Section ==================== */
 .push-guidance-container {
-  margin: 16px 0 8px 0;
+  margin: 16px 0 4px 0;
   padding: 8px 12px;
   background-color: #e3f2fd;
   border-radius: 4px;
@@ -200,69 +201,6 @@ body {
   }
 }
 
-/* ==================== Push Status Section ==================== */
-.push-status-container {
-  margin-right: 16px;
-}
-
-.push-status {
-  font-size: 12px;
-  font-weight: 500;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-}
-
-.push-status-loading {
-  color: #6c757d;
-  font-style: italic;
-}
-
-/* Status states */
-.push-status-connected {
-  white-space: nowrap;
-  display: inline-flex;
-  align-items: center;
-}
-
-.push-status-connected .push-status-icon {
-  color: #28a745;
-}
-
-.push-status-disconnected {
-  white-space: nowrap;
-  display: inline-flex;
-  align-items: center;
-}
-
-.push-status-disconnected .push-status-icon {
-  color: #ffc107;
-}
-
-.push-status-disabled {
-  white-space: nowrap;
-  display: inline-flex;
-  align-items: center;
-}
-
-.push-status-disabled .push-status-icon {
-  color: #6c757d;
-}
-
-.push-status-error {
-  color: #dc3545;
-  white-space: nowrap;
-  display: inline-flex;
-  align-items: center;
-}
-
-.push-status-icon {
-  font-size: 10px;
-  margin-right: 8px;
-  display: inline-flex;
-  align-items: center;
-}
-
 /* ==================== Content Sections ==================== */
 .section-container {
 }
@@ -332,6 +270,69 @@ body {
 .no-programs-text {
   font-family: "M PLUS Rounded 1c", sans-serif;
   font-size: 14px;
+}
+
+/* ==================== Push Status Section ==================== */
+.push-status-container {
+  margin-right: 16px;
+}
+
+.push-status {
+  font-size: 12px;
+  font-weight: 500;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.push-status-loading {
+  color: #6c757d;
+  font-style: italic;
+}
+
+/* Status states */
+.push-status-connected {
+  white-space: nowrap;
+  display: inline-flex;
+  align-items: center;
+}
+
+.push-status-connected .push-status-icon {
+  color: #28a745;
+}
+
+.push-status-disconnected {
+  white-space: nowrap;
+  display: inline-flex;
+  align-items: center;
+}
+
+.push-status-disconnected .push-status-icon {
+  color: #ffc107;
+}
+
+.push-status-disabled {
+  white-space: nowrap;
+  display: inline-flex;
+  align-items: center;
+}
+
+.push-status-disabled .push-status-icon {
+  color: #6c757d;
+}
+
+.push-status-error {
+  color: #dc3545;
+  white-space: nowrap;
+  display: inline-flex;
+  align-items: center;
+}
+
+.push-status-icon {
+  font-size: 10px;
+  margin-right: 8px;
+  display: inline-flex;
+  align-items: center;
 }
 
 /* ==================== Grid & Program Items ==================== */
@@ -498,7 +499,7 @@ body {
   border: none;
   color: #121212;
   cursor: pointer;
-  font-family: 'M PLUS Rounded 1c', sans-serif;
+  font-family: "M PLUS Rounded 1c", sans-serif;
   font-size: 14px;
   padding: 5px 10px;
   text-decoration: underline;
