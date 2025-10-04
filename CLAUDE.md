@@ -35,9 +35,11 @@ npm test
 
 ### Directory Structure
 - `src/entry/` - Chrome extension entry points (background.ts, content.tsx, popup.tsx, option.tsx, offscreen.ts)
-  - `component/` - React components (AutoOpenToggleButton, ComingPrograms, ProgramGridItem, DeleteUserRow)
+  - `component/` - React components (AutoOpenToggleButton, ComingPrograms, FollowingPrograms, RankingPrograms, ProgramGridItem, DeleteUserRow, PushStatusDisplay)
+  - `utils/` - Utility functions (push-status.ts)
+  - `hooks/` - React custom hooks (useSticky.ts)
 - `src/domain/` - Business logic layer
-  - `model/` - Domain models (program, push-program, push-subscription, sound-type)
+  - `model/` - Domain models (program, push-program, push-subscription, push-status, sound-type)
   - `usecase/` - Use case implementations (background, content, popup, option, colors)
   - `infra-interface/` - Infrastructure layer interfaces (browser-api, niconama-api, push-manager)
 - `src/infra/` - Infrastructure layer
