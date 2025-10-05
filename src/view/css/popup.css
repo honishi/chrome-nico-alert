@@ -342,6 +342,7 @@ body {
   gap: 16px 8px;
   align-items: start;
   margin-left: 16px;
+  padding-top: 2px;
   padding-bottom: 16px;
 }
 
