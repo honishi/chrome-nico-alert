@@ -153,11 +153,11 @@ function setupCustomSoundHandlers(
   input.addEventListener("change", async () => {
     const file = input.files?.[0];
     if (file) {
-      // Check file size (3MB limit to ensure it fits in chrome.storage.local after base64 encoding)
-      const MAX_FILE_SIZE = 3 * 1024 * 1024; // 3MB
+      // Check file size (1MB limit to ensure total storage stays within chrome.storage.local 5MB quota)
+      const MAX_FILE_SIZE = 1 * 1024 * 1024; // 1MB
       if (file.size > MAX_FILE_SIZE) {
         const fileSizeMB = (file.size / 1024 / 1024).toFixed(2);
-        console.warn(`File size exceeded: ${fileSizeMB}MB (max: 3MB)`);
+        console.warn(`File size exceeded: ${fileSizeMB}MB (max: 1MB)`);
         statusElement.textContent = `エラー: ファイルサイズ超過 (${fileSizeMB}MB)`;
         statusElement.style.color = "#dc3545"; // Red
         input.value = ""; // Clear the input
