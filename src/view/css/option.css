@@ -1,162 +1,169 @@
+/* ==================== Base Styles ==================== */
 .section-container {
-    margin: 0 0 16px 0;
+  margin: 0 0 16px 0;
 }
 
 .section-title {
-    margin: 0 0 8px 0;
-    font-weight: bold;
+  margin: 0 0 8px 0;
+  font-weight: bold;
 }
 
 .section-content {
-    margin: 0 0 8px 16px;
+  margin: 0 0 8px 16px;
 }
 
+/* ==================== Checkbox Styles ==================== */
 .checkbox-container {
-    display: flex;
-    align-items: center;
-    gap: 8px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
 }
 
 .checkbox-with-note {
-    display: grid;
-    grid-template-columns: auto 1fr;
-    column-gap: 8px;
-    row-gap: 2px;
-    align-items: center;
+  display: grid;
+  grid-template-columns: auto 1fr;
+  column-gap: 8px;
+  row-gap: 2px;
+  align-items: center;
 }
 
 .checkbox-with-note label {
-    grid-column: 2;
+  grid-column: 2;
 }
 
 .checkbox-with-note .checkbox-note {
-    grid-column: 2;
-    font-size: 0.9em;
+  grid-column: 2;
+  font-size: 0.9em;
 }
 
+/* ==================== Volume Slider Section ==================== */
 .volume-slider-container {
-    display: flex;
-    align-items: center;
+  display: flex;
+  align-items: center;
 }
 
 .volume-slider-label {
-    margin: 0 8px 0 0;
+  margin: 0 8px 0 0;
 }
 
 .volume-slider {
 }
 
 .volume-value-text {
-    margin: 0 0 0 8px;
+  margin: 0 0 0 8px;
 }
 
 .volume-value-unit {
-    margin: 0 0 0 8px;
+  margin: 0 0 0 8px;
 }
 
-.play-test-sound-button, .remove-button {
-    background: none;
-    border: none;
-    text-decoration: underline;
-    color: inherit;
-    font: inherit;
-    cursor: pointer;
-    outline: none;
-    padding: 0;
-}
-
-.play-test-sound-button {
-    margin: 0 0 0 8px;
-}
-
+/* ==================== Custom Sound Section ==================== */
 .custom-sound-container {
-    display: flex;
-    flex-direction: column;
-    gap: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
 }
 
 .custom-sound-item {
-    display: flex;
-    flex-direction: column;
-    gap: 4px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
 }
 
 .custom-sound-status-row {
-    display: flex;
-    align-items: center;
-    gap: 8px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
 }
 
 .custom-sound-label {
-    min-width: 100px;
-}
-
-.custom-sound-input {
-    font-size: 11px;
-}
-
-.custom-sound-buttons {
-    display: flex;
-    gap: 8px;
-    margin-left: 108px;
-}
-
-.custom-sound-upload-row {
-    margin-left: 108px;
+  min-width: 100px;
 }
 
 .custom-sound-status {
-    font-size: 11px;
-    color: #28a745;
+  font-size: 11px;
+  color: #28a745;
 }
 
-.auto-open-user-div {
-    height: 20px;
+.custom-sound-buttons {
+  display: flex;
+  gap: 8px;
+  margin-left: 108px;
 }
 
+.custom-sound-upload-row {
+  margin-left: 108px;
+}
+
+.custom-sound-input {
+  font-size: 11px;
+}
+
+/* ==================== Button Styles ==================== */
+.play-test-sound-button,
 .remove-button {
-    margin: 0 8px 0 0;
+  background: none;
+  border: none;
+  text-decoration: underline;
+  color: inherit;
+  font: inherit;
+  cursor: pointer;
+  outline: none;
+  padding: 0;
 }
 
-.user-name {
-    margin: 0 8px 0 0;
-}
-
-.user-link {
-    color: inherit;
-    text-decoration: none;
-    cursor: pointer;
-}
-
-.button-container {
-    display: flex;
-    flex-direction: column;
-    gap: 8px;
+.play-test-sound-button {
+  margin: 0 0 0 8px;
 }
 
 .reset-guidance-button {
-    padding: 4px 10px;
-    font-size: 11px;
-    border: 1px solid #dee2e6;
-    border-radius: 3px;
-    background-color: #f8f9fa;
-    cursor: pointer;
-    transition: all 0.2s ease;
-    align-self: flex-start;
+  padding: 4px 10px;
+  font-size: 11px;
+  border: 1px solid #dee2e6;
+  border-radius: 3px;
+  background-color: #f8f9fa;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  align-self: flex-start;
 }
 
 .reset-guidance-button:hover {
-    background-color: #e9ecef;
-    border-color: #adb5bd;
+  background-color: #e9ecef;
+  border-color: #adb5bd;
 }
 
 .reset-guidance-button.success {
-    background-color: #d4edda;
-    border-color: #28a745;
-    color: #155724;
+  background-color: #d4edda;
+  border-color: #28a745;
+  color: #155724;
+}
+
+.button-container {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
 }
 
 .button-note {
-    font-size: 11px;
-    margin-left: 8px;
+  font-size: 11px;
+  margin-left: 8px;
+}
+
+/* ==================== Auto Open User Section ==================== */
+.auto-open-user-div {
+  height: 20px;
+}
+
+.remove-button {
+  margin: 0 8px 0 0;
+}
+
+.user-name {
+  margin: 0 8px 0 0;
+}
+
+.user-link {
+  color: inherit;
+  text-decoration: none;
+  cursor: pointer;
 }
