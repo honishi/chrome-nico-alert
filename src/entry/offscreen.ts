@@ -12,12 +12,19 @@ function addOnMessageListener() {
     // console.log(`Received message from the extension: ${JSON.stringify(message)}`);
     const chromeMessage = message as ChromeMessage;
     if (chromeMessage.messageType === ChromeMessageType.PLAY_SOUND) {
-      await playAudio(toFilePath(message.options.sound), message.options.volume);
+      const audioSource = toAudioSource(message.options.sound, message.options.customSoundFile);
+      await playAudio(audioSource, message.options.volume);
     }
   });
 }
 
-function toFilePath(soundType: SoundType): string {
+function toAudioSource(soundType: SoundType, customSoundFile?: string | null): string {
+  // Use custom sound file if provided
+  if (customSoundFile) {
+    return customSoundFile;
+  }
+
+  // Fall back to default embedded sound
   switch (soundType) {
     case SoundType.DEFAULT:
       return "../sounds/new_live_sub.mp3";

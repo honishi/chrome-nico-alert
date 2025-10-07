@@ -13,7 +13,8 @@ Chrome extension for Niconico Live (Nico Nama). Provides broadcast alerts and au
 npm run build-dev
 
 # Development build (single run, no watch)
-npm run build-dev-once
+# IMPORTANT: Always run prettier before build-dev-once
+npm run prettier && npm run build-dev-once
 
 # Production build
 npm run build-prod
@@ -31,6 +32,10 @@ npm run prettier
 npm test
 ```
 
+### Development Workflow
+- **Before building**: Always run `npm run prettier` to format code before `npm run build-dev-once`
+- This ensures consistent code formatting across the codebase
+
 ## Architecture
 
 ### Directory Structure
@@ -39,7 +44,7 @@ npm test
   - `utils/` - Utility functions (push-status.ts)
   - `hooks/` - React custom hooks (useSticky.ts)
 - `src/domain/` - Business logic layer
-  - `model/` - Domain models (program, push-program, push-subscription, push-status, sound-type)
+  - `model/` - Domain models (program, push-program, push-subscription, push-status, sound-type, custom-sound)
   - `usecase/` - Use case implementations (background, content, popup, option, colors)
   - `infra-interface/` - Infrastructure layer interfaces (browser-api, niconama-api, push-manager)
 - `src/infra/` - Infrastructure layer
@@ -109,6 +114,12 @@ Injected into the following URL patterns:
   - Provides connect/disconnect controls for push notifications
 - **Options** - Settings page for configuring notifications, sounds, and auto-open users
   - Manages push notification settings
+  - **Custom Sound Files**: Users can upload custom notification sounds (max 1MB per file)
+    - Supports separate audio files for main and sub notification types
+    - Files are stored as base64-encoded data URLs in chrome.storage.local
+    - Total storage quota: ~5MB (without unlimitedStorage permission)
+    - Validation includes file size checks and error handling for corrupted data
+    - Auto-fallback to default sounds on errors (storage quota exceeded, corrupted data, message size limits)
 - **Offscreen Document** - For background audio playback (workaround for Service Worker limitations)
 - **Push Notification System**
   - **AutoPushClient** - WebSocket client for Mozilla Push Service

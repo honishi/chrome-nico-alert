@@ -37,6 +37,34 @@
             <span id="volume-value-text" class="volume-value-text"></span> %
             <button id="play-test-sound-button" class="play-test-sound-button">[テスト]</button>
         </div>
+        <div class="section-content custom-sound-container">
+            <div class="custom-sound-item">
+                <div class="custom-sound-status-row">
+                    <span class="custom-sound-label">メイン通知音</span>
+                    <span id="custom-sound-main-status" class="custom-sound-status">未設定</span>
+                </div>
+                <div class="custom-sound-upload-row">
+                    <input type="file" id="custom-sound-main-input" class="custom-sound-input" accept="audio/*" />
+                </div>
+                <div class="custom-sound-buttons">
+                    <button id="play-test-main-sound-button" class="play-test-sound-button">[テスト]</button>
+                    <button id="clear-custom-sound-main-button" class="play-test-sound-button">[クリア]</button>
+                </div>
+            </div>
+            <div class="custom-sound-item">
+                <div class="custom-sound-status-row">
+                    <span class="custom-sound-label">サブ通知音</span>
+                    <span id="custom-sound-sub-status" class="custom-sound-status">未設定</span>
+                </div>
+                <div class="custom-sound-upload-row">
+                    <input type="file" id="custom-sound-sub-input" class="custom-sound-input" accept="audio/*" />
+                </div>
+                <div class="custom-sound-buttons">
+                    <button id="play-test-sub-sound-button" class="play-test-sound-button">[テスト]</button>
+                    <button id="clear-custom-sound-sub-button" class="play-test-sound-button">[クリア]</button>
+                </div>
+            </div>
+        </div>
         <div class="section-content checkbox-with-note">
             <input id="receive-push-notification-checkbox" type="checkbox" />
             <label for="receive-push-notification-checkbox">放送開始検知にプッシュ通知を利用する (β)</label>

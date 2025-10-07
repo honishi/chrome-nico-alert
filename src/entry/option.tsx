@@ -3,6 +3,8 @@ import { configureDefaultContainer } from "../di/register";
 import { container } from "tsyringe";
 import { InjectTokens } from "../di/inject-tokens";
 import { Option } from "../domain/usecase/option";
+import { BrowserApi } from "../domain/infra-interface/browser-api";
+import { SoundType } from "../domain/model/sound-type";
 import React from "react";
 import DeleteUserRow from "./component/DeleteUserRow";
 import { createRoot } from "react-dom/client";
@@ -12,6 +14,7 @@ async function renderPage() {
   await renderShowRankingCheckbox();
   await renderShowNotificationCheckbox();
   await renderSoundVolume();
+  await renderCustomSound();
   await renderReceivePushNotificationCheckbox();
   await renderAutoOpen();
   setupResetGuidanceButton();
@@ -116,6 +119,124 @@ async function setSoundVolumeAsPercentInt(value: number): Promise<void> {
 async function playTestSound() {
   const option = container.resolve<Option>(InjectTokens.Option);
   await option.playTestSound();
+}
+
+async function updateSoundStatus(
+  soundType: SoundType,
+  statusElement: HTMLSpanElement,
+  browserApi: BrowserApi,
+): Promise<void> {
+  const file = await browserApi.getCustomSoundFile(soundType);
+  if (file) {
+    statusElement.textContent = file.fileName;
+    statusElement.style.color = "#28a745"; // Green
+  } else {
+    statusElement.textContent = "未設定";
+    statusElement.style.color = "#6c757d"; // Gray
+  }
+}
+
+function setupCustomSoundHandlers(
+  soundType: SoundType,
+  inputId: string,
+  testButtonId: string,
+  clearButtonId: string,
+  statusElement: HTMLSpanElement,
+  browserApi: BrowserApi,
+  updateStatus: () => Promise<void>,
+): void {
+  const input = document.getElementById(inputId) as HTMLInputElement;
+  const testButton = document.getElementById(testButtonId) as HTMLButtonElement;
+  const clearButton = document.getElementById(clearButtonId) as HTMLButtonElement;
+
+  // File input handler
+  input.addEventListener("change", async () => {
+    const file = input.files?.[0];
+    if (file) {
+      // Check file size (1MB limit to ensure total storage stays within chrome.storage.local 5MB quota)
+      const MAX_FILE_SIZE = 1 * 1024 * 1024; // 1MB
+      if (file.size > MAX_FILE_SIZE) {
+        const fileSizeMB = (file.size / 1024 / 1024).toFixed(2);
+        console.warn(`File size exceeded: ${fileSizeMB}MB (max: 1MB)`);
+        statusElement.textContent = `エラー: ファイルサイズ超過 (${fileSizeMB}MB)`;
+        statusElement.style.color = "#dc3545"; // Red
+        input.value = ""; // Clear the input
+        // Reset status after 3 seconds
+        setTimeout(async () => {
+          await updateStatus();
+        }, 3000);
+        return;
+      }
+
+      const reader = new FileReader();
+      reader.onload = async () => {
+        const dataUrl = reader.result as string;
+        try {
+          await browserApi.setCustomSoundFile(soundType, file.name, dataUrl);
+          await updateStatus();
+        } catch (e) {
+          const errorMsg = e instanceof Error ? e.message : String(e);
+          console.error("Failed to save custom sound file:", errorMsg);
+          statusElement.textContent = `エラー: 保存失敗`;
+          statusElement.style.color = "#dc3545"; // Red
+          input.value = ""; // Clear the input
+          // Reset status after 3 seconds
+          setTimeout(async () => {
+            await updateStatus();
+          }, 3000);
+        }
+      };
+      reader.readAsDataURL(file);
+    }
+  });
+
+  // Test button handler
+  testButton.addEventListener("click", async () => {
+    await browserApi.playSound(soundType);
+  });
+
+  // Clear button handler
+  clearButton.addEventListener("click", async () => {
+    await browserApi.clearCustomSoundFile(soundType);
+    input.value = "";
+    await updateStatus();
+  });
+}
+
+async function renderCustomSound() {
+  const browserApi = container.resolve<BrowserApi>(InjectTokens.BrowserApi);
+
+  const mainStatus = document.getElementById("custom-sound-main-status") as HTMLSpanElement;
+  const subStatus = document.getElementById("custom-sound-sub-status") as HTMLSpanElement;
+
+  // Update status displays
+  const updateStatus = async () => {
+    await updateSoundStatus(SoundType.NEW_LIVE_MAIN, mainStatus, browserApi);
+    await updateSoundStatus(SoundType.NEW_LIVE_SUB, subStatus, browserApi);
+  };
+
+  await updateStatus();
+
+  // Setup handlers for both sound types
+  setupCustomSoundHandlers(
+    SoundType.NEW_LIVE_MAIN,
+    "custom-sound-main-input",
+    "play-test-main-sound-button",
+    "clear-custom-sound-main-button",
+    mainStatus,
+    browserApi,
+    updateStatus,
+  );
+
+  setupCustomSoundHandlers(
+    SoundType.NEW_LIVE_SUB,
+    "custom-sound-sub-input",
+    "play-test-sub-sound-button",
+    "clear-custom-sound-sub-button",
+    subStatus,
+    browserApi,
+    updateStatus,
+  );
 }
 
 async function renderReceivePushNotificationCheckbox() {
