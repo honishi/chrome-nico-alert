@@ -121,102 +121,92 @@ async function playTestSound() {
   await option.playTestSound();
 }
 
+async function updateSoundStatus(
+  soundType: SoundType,
+  statusElement: HTMLSpanElement,
+  browserApi: BrowserApi,
+): Promise<void> {
+  const file = await browserApi.getCustomSoundFile(soundType);
+  if (file) {
+    statusElement.textContent = file.fileName;
+    statusElement.style.color = "#28a745"; // Green
+  } else {
+    statusElement.textContent = "未設定";
+    statusElement.style.color = "#6c757d"; // Gray
+  }
+}
+
+function setupCustomSoundHandlers(
+  soundType: SoundType,
+  inputId: string,
+  testButtonId: string,
+  clearButtonId: string,
+  browserApi: BrowserApi,
+  updateStatus: () => Promise<void>,
+): void {
+  const input = document.getElementById(inputId) as HTMLInputElement;
+  const testButton = document.getElementById(testButtonId) as HTMLButtonElement;
+  const clearButton = document.getElementById(clearButtonId) as HTMLButtonElement;
+
+  // File input handler
+  input.addEventListener("change", async () => {
+    const file = input.files?.[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onload = async () => {
+        const dataUrl = reader.result as string;
+        await browserApi.setCustomSoundFile(soundType, file.name, dataUrl);
+        await updateStatus();
+      };
+      reader.readAsDataURL(file);
+    }
+  });
+
+  // Test button handler
+  testButton.addEventListener("click", async () => {
+    await browserApi.playSound(soundType);
+  });
+
+  // Clear button handler
+  clearButton.addEventListener("click", async () => {
+    await browserApi.clearCustomSoundFile(soundType);
+    input.value = "";
+    await updateStatus();
+  });
+}
+
 async function renderCustomSound() {
   const browserApi = container.resolve<BrowserApi>(InjectTokens.BrowserApi);
 
-  // Main sound
-  const mainInput = document.getElementById("custom-sound-main-input") as HTMLInputElement;
-  const mainTestButton = document.getElementById(
-    "play-test-main-sound-button",
-  ) as HTMLButtonElement;
-  const mainClearButton = document.getElementById(
-    "clear-custom-sound-main-button",
-  ) as HTMLButtonElement;
   const mainStatus = document.getElementById("custom-sound-main-status") as HTMLSpanElement;
-
-  // Sub sound
-  const subInput = document.getElementById("custom-sound-sub-input") as HTMLInputElement;
-  const subTestButton = document.getElementById("play-test-sub-sound-button") as HTMLButtonElement;
-  const subClearButton = document.getElementById(
-    "clear-custom-sound-sub-button",
-  ) as HTMLButtonElement;
   const subStatus = document.getElementById("custom-sound-sub-status") as HTMLSpanElement;
 
   // Update status displays
   const updateStatus = async () => {
-    const mainFile = await browserApi.getCustomSoundFile(SoundType.NEW_LIVE_MAIN);
-    const subFile = await browserApi.getCustomSoundFile(SoundType.NEW_LIVE_SUB);
-
-    if (mainFile) {
-      mainStatus.textContent = mainFile.fileName;
-      mainStatus.style.color = "#28a745"; // Green
-    } else {
-      mainStatus.textContent = "未設定";
-      mainStatus.style.color = "#6c757d"; // Gray
-    }
-
-    if (subFile) {
-      subStatus.textContent = subFile.fileName;
-      subStatus.style.color = "#28a745"; // Green
-    } else {
-      subStatus.textContent = "未設定";
-      subStatus.style.color = "#6c757d"; // Gray
-    }
+    await updateSoundStatus(SoundType.NEW_LIVE_MAIN, mainStatus, browserApi);
+    await updateSoundStatus(SoundType.NEW_LIVE_SUB, subStatus, browserApi);
   };
 
   await updateStatus();
 
-  // Main sound file input
-  mainInput.addEventListener("change", async () => {
-    const file = mainInput.files?.[0];
-    if (file) {
-      const reader = new FileReader();
-      reader.onload = async () => {
-        const dataUrl = reader.result as string;
-        await browserApi.setCustomSoundFile(SoundType.NEW_LIVE_MAIN, file.name, dataUrl);
-        await updateStatus();
-      };
-      reader.readAsDataURL(file);
-    }
-  });
+  // Setup handlers for both sound types
+  setupCustomSoundHandlers(
+    SoundType.NEW_LIVE_MAIN,
+    "custom-sound-main-input",
+    "play-test-main-sound-button",
+    "clear-custom-sound-main-button",
+    browserApi,
+    updateStatus,
+  );
 
-  // Main sound test button
-  mainTestButton.addEventListener("click", async () => {
-    await browserApi.playSound(SoundType.NEW_LIVE_MAIN);
-  });
-
-  // Main sound clear button
-  mainClearButton.addEventListener("click", async () => {
-    await browserApi.clearCustomSoundFile(SoundType.NEW_LIVE_MAIN);
-    mainInput.value = "";
-    await updateStatus();
-  });
-
-  // Sub sound file input
-  subInput.addEventListener("change", async () => {
-    const file = subInput.files?.[0];
-    if (file) {
-      const reader = new FileReader();
-      reader.onload = async () => {
-        const dataUrl = reader.result as string;
-        await browserApi.setCustomSoundFile(SoundType.NEW_LIVE_SUB, file.name, dataUrl);
-        await updateStatus();
-      };
-      reader.readAsDataURL(file);
-    }
-  });
-
-  // Sub sound test button
-  subTestButton.addEventListener("click", async () => {
-    await browserApi.playSound(SoundType.NEW_LIVE_SUB);
-  });
-
-  // Sub sound clear button
-  subClearButton.addEventListener("click", async () => {
-    await browserApi.clearCustomSoundFile(SoundType.NEW_LIVE_SUB);
-    subInput.value = "";
-    await updateStatus();
-  });
+  setupCustomSoundHandlers(
+    SoundType.NEW_LIVE_SUB,
+    "custom-sound-sub-input",
+    "play-test-sub-sound-button",
+    "clear-custom-sound-sub-button",
+    browserApi,
+    updateStatus,
+  );
 }
 
 async function renderReceivePushNotificationCheckbox() {
