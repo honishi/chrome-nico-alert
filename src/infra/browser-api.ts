@@ -80,7 +80,15 @@ export class BrowserApiImpl implements BrowserApi {
     if (!result[key]) {
       return null;
     }
-    return JSON.parse(result[key]) as CustomSoundData;
+
+    try {
+      return JSON.parse(result[key]) as CustomSoundData;
+    } catch (e) {
+      console.error(`Corrupted custom sound data detected for ${key}, clearing it:`, e);
+      // Clear corrupted data and return null to fall back to default sound
+      await chrome.storage.local.remove(key);
+      return null;
+    }
   }
 
   async setCustomSoundFile(type: SoundType, fileName: string, dataUrl: string): Promise<void> {
@@ -107,7 +115,13 @@ export class BrowserApiImpl implements BrowserApi {
     await this.createOffscreen();
 
     // Get custom sound file if available
-    const customSound = await this.getCustomSoundFile(sound);
+    let customSound: CustomSoundData | null = null;
+    try {
+      customSound = await this.getCustomSoundFile(sound);
+    } catch (e) {
+      console.error(`Failed to get custom sound file, using default:`, e);
+      // Continue with null customSound (default sound)
+    }
 
     const message: ChromeMessage = {
       messageType: ChromeMessageType.PLAY_SOUND,
