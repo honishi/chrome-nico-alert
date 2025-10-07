@@ -128,6 +128,12 @@
 
 .custom-sound-item {
     display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.custom-sound-row {
+    display: flex;
     align-items: center;
     gap: 8px;
 }
@@ -140,19 +146,10 @@
     font-size: 11px;
 }
 
-.clear-custom-sound-button {
-    padding: 2px 8px;
-    font-size: 11px;
-    border: 1px solid #dee2e6;
-    border-radius: 3px;
-    background-color: #f8f9fa;
-    cursor: pointer;
-    transition: all 0.2s ease;
-}
-
-.clear-custom-sound-button:hover {
-    background-color: #e9ecef;
-    border-color: #adb5bd;
+.custom-sound-buttons {
+    display: flex;
+    gap: 8px;
+    margin-left: 108px;
 }
 
 .custom-sound-status {

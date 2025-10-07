@@ -13,7 +13,8 @@ Chrome extension for Niconico Live (Nico Nama). Provides broadcast alerts and au
 npm run build-dev
 
 # Development build (single run, no watch)
-npm run build-dev-once
+# IMPORTANT: Always run prettier before build-dev-once
+npm run prettier && npm run build-dev-once
 
 # Production build
 npm run build-prod
@@ -30,6 +31,10 @@ npm run prettier
 # Run tests
 npm test
 ```
+
+### Development Workflow
+- **Before building**: Always run `npm run prettier` to format code before `npm run build-dev-once`
+- This ensures consistent code formatting across the codebase
 
 ## Architecture
 
