@@ -126,6 +126,9 @@ async function renderCustomSound() {
 
   // Main sound
   const mainInput = document.getElementById("custom-sound-main-input") as HTMLInputElement;
+  const mainTestButton = document.getElementById(
+    "play-test-main-sound-button",
+  ) as HTMLButtonElement;
   const mainClearButton = document.getElementById(
     "clear-custom-sound-main-button",
   ) as HTMLButtonElement;
@@ -133,6 +136,7 @@ async function renderCustomSound() {
 
   // Sub sound
   const subInput = document.getElementById("custom-sound-sub-input") as HTMLInputElement;
+  const subTestButton = document.getElementById("play-test-sub-sound-button") as HTMLButtonElement;
   const subClearButton = document.getElementById(
     "clear-custom-sound-sub-button",
   ) as HTMLButtonElement;
@@ -162,6 +166,11 @@ async function renderCustomSound() {
     }
   });
 
+  // Main sound test button
+  mainTestButton.addEventListener("click", async () => {
+    await browserApi.playSound(SoundType.NEW_LIVE_MAIN);
+  });
+
   // Main sound clear button
   mainClearButton.addEventListener("click", async () => {
     await browserApi.clearCustomSoundFile(SoundType.NEW_LIVE_MAIN);
@@ -181,6 +190,11 @@ async function renderCustomSound() {
       };
       reader.readAsDataURL(file);
     }
+  });
+
+  // Sub sound test button
+  subTestButton.addEventListener("click", async () => {
+    await browserApi.playSound(SoundType.NEW_LIVE_SUB);
   });
 
   // Sub sound clear button
