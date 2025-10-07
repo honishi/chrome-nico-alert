@@ -141,6 +141,7 @@ function setupCustomSoundHandlers(
   inputId: string,
   testButtonId: string,
   clearButtonId: string,
+  statusElement: HTMLSpanElement,
   browserApi: BrowserApi,
   updateStatus: () => Promise<void>,
 ): void {
@@ -152,11 +153,38 @@ function setupCustomSoundHandlers(
   input.addEventListener("change", async () => {
     const file = input.files?.[0];
     if (file) {
+      // Check file size (3MB limit to ensure it fits in chrome.storage.local after base64 encoding)
+      const MAX_FILE_SIZE = 3 * 1024 * 1024; // 3MB
+      if (file.size > MAX_FILE_SIZE) {
+        const fileSizeMB = (file.size / 1024 / 1024).toFixed(2);
+        console.warn(`File size exceeded: ${fileSizeMB}MB (max: 3MB)`);
+        statusElement.textContent = `エラー: ファイルサイズ超過 (${fileSizeMB}MB)`;
+        statusElement.style.color = "#dc3545"; // Red
+        input.value = ""; // Clear the input
+        // Reset status after 3 seconds
+        setTimeout(async () => {
+          await updateStatus();
+        }, 3000);
+        return;
+      }
+
       const reader = new FileReader();
       reader.onload = async () => {
         const dataUrl = reader.result as string;
-        await browserApi.setCustomSoundFile(soundType, file.name, dataUrl);
-        await updateStatus();
+        try {
+          await browserApi.setCustomSoundFile(soundType, file.name, dataUrl);
+          await updateStatus();
+        } catch (e) {
+          const errorMsg = e instanceof Error ? e.message : String(e);
+          console.error("Failed to save custom sound file:", errorMsg);
+          statusElement.textContent = `エラー: 保存失敗`;
+          statusElement.style.color = "#dc3545"; // Red
+          input.value = ""; // Clear the input
+          // Reset status after 3 seconds
+          setTimeout(async () => {
+            await updateStatus();
+          }, 3000);
+        }
       };
       reader.readAsDataURL(file);
     }
@@ -195,6 +223,7 @@ async function renderCustomSound() {
     "custom-sound-main-input",
     "play-test-main-sound-button",
     "clear-custom-sound-main-button",
+    mainStatus,
     browserApi,
     updateStatus,
   );
@@ -204,6 +233,7 @@ async function renderCustomSound() {
     "custom-sound-sub-input",
     "play-test-sub-sound-button",
     "clear-custom-sound-sub-button",
+    subStatus,
     browserApi,
     updateStatus,
   );

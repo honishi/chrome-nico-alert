@@ -86,7 +86,16 @@ export class BrowserApiImpl implements BrowserApi {
   async setCustomSoundFile(type: SoundType, fileName: string, dataUrl: string): Promise<void> {
     const key = type === SoundType.NEW_LIVE_MAIN ? CUSTOM_SOUND_MAIN_KEY : CUSTOM_SOUND_SUB_KEY;
     const data: CustomSoundData = { fileName, dataUrl };
-    await chrome.storage.local.set({ [key]: JSON.stringify(data) });
+    try {
+      await chrome.storage.local.set({ [key]: JSON.stringify(data) });
+    } catch (e) {
+      if (e instanceof Error && e.message.includes("QUOTA_BYTES")) {
+        throw new Error(
+          "ストレージの容量制限を超えています。より小さいファイルを選択してください。",
+        );
+      }
+      throw e;
+    }
   }
 
   async clearCustomSoundFile(type: SoundType): Promise<void> {
@@ -111,10 +120,27 @@ export class BrowserApiImpl implements BrowserApi {
 
     try {
       await chrome.runtime.sendMessage(message);
+      console.log(`sent message: ${JSON.stringify({ messageType: message.messageType, sound })}`);
     } catch (e) {
-      console.error(`Failed to send message: ${e}`);
-    } finally {
-      console.log(`sent message: ${message}`);
+      console.error(`Failed to send message with custom sound: ${e}`);
+      // Fallback to default sound if custom sound message fails (likely due to size)
+      if (customSound) {
+        console.warn("Retrying with default sound...");
+        const fallbackMessage: ChromeMessage = {
+          messageType: ChromeMessageType.PLAY_SOUND,
+          options: {
+            sound: sound,
+            volume: await this.getSoundVolume(),
+            customSoundFile: null,
+          },
+        };
+        try {
+          await chrome.runtime.sendMessage(fallbackMessage);
+          console.log("Successfully sent fallback message with default sound");
+        } catch (fallbackError) {
+          console.error(`Failed to send fallback message: ${fallbackError}`);
+        }
+      }
     }
   }
 
