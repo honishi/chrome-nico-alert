@@ -37,6 +37,20 @@
             <span id="volume-value-text" class="volume-value-text"></span> %
             <button id="play-test-sound-button" class="play-test-sound-button">[テスト]</button>
         </div>
+        <div class="section-content custom-sound-container">
+            <div class="custom-sound-item">
+                <span class="custom-sound-label">メイン通知音</span>
+                <input type="file" id="custom-sound-main-input" class="custom-sound-input" accept="audio/*" />
+                <button id="clear-custom-sound-main-button" class="clear-custom-sound-button">クリア</button>
+                <span id="custom-sound-main-status" class="custom-sound-status"></span>
+            </div>
+            <div class="custom-sound-item">
+                <span class="custom-sound-label">サブ通知音</span>
+                <input type="file" id="custom-sound-sub-input" class="custom-sound-input" accept="audio/*" />
+                <button id="clear-custom-sound-sub-button" class="clear-custom-sound-button">クリア</button>
+                <span id="custom-sound-sub-status" class="custom-sound-status"></span>
+            </div>
+        </div>
         <div class="section-content checkbox-with-note">
             <input id="receive-push-notification-checkbox" type="checkbox" />
             <label for="receive-push-notification-checkbox">放送開始検知にプッシュ通知を利用する (β)</label>

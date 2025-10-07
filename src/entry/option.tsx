@@ -3,6 +3,8 @@ import { configureDefaultContainer } from "../di/register";
 import { container } from "tsyringe";
 import { InjectTokens } from "../di/inject-tokens";
 import { Option } from "../domain/usecase/option";
+import { BrowserApi } from "../domain/infra-interface/browser-api";
+import { SoundType } from "../domain/model/sound-type";
 import React from "react";
 import DeleteUserRow from "./component/DeleteUserRow";
 import { createRoot } from "react-dom/client";
@@ -12,6 +14,7 @@ async function renderPage() {
   await renderShowRankingCheckbox();
   await renderShowNotificationCheckbox();
   await renderSoundVolume();
+  await renderCustomSound();
   await renderReceivePushNotificationCheckbox();
   await renderAutoOpen();
   setupResetGuidanceButton();
@@ -116,6 +119,76 @@ async function setSoundVolumeAsPercentInt(value: number): Promise<void> {
 async function playTestSound() {
   const option = container.resolve<Option>(InjectTokens.Option);
   await option.playTestSound();
+}
+
+async function renderCustomSound() {
+  const browserApi = container.resolve<BrowserApi>(InjectTokens.BrowserApi);
+
+  // Main sound
+  const mainInput = document.getElementById("custom-sound-main-input") as HTMLInputElement;
+  const mainClearButton = document.getElementById(
+    "clear-custom-sound-main-button",
+  ) as HTMLButtonElement;
+  const mainStatus = document.getElementById("custom-sound-main-status") as HTMLSpanElement;
+
+  // Sub sound
+  const subInput = document.getElementById("custom-sound-sub-input") as HTMLInputElement;
+  const subClearButton = document.getElementById(
+    "clear-custom-sound-sub-button",
+  ) as HTMLButtonElement;
+  const subStatus = document.getElementById("custom-sound-sub-status") as HTMLSpanElement;
+
+  // Update status displays
+  const updateStatus = async () => {
+    const mainFile = await browserApi.getCustomSoundFile(SoundType.NEW_LIVE_MAIN);
+    const subFile = await browserApi.getCustomSoundFile(SoundType.NEW_LIVE_SUB);
+    mainStatus.textContent = mainFile ? "設定済み" : "";
+    subStatus.textContent = subFile ? "設定済み" : "";
+  };
+
+  await updateStatus();
+
+  // Main sound file input
+  mainInput.addEventListener("change", async () => {
+    const file = mainInput.files?.[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onload = async () => {
+        const dataUrl = reader.result as string;
+        await browserApi.setCustomSoundFile(SoundType.NEW_LIVE_MAIN, dataUrl);
+        await updateStatus();
+      };
+      reader.readAsDataURL(file);
+    }
+  });
+
+  // Main sound clear button
+  mainClearButton.addEventListener("click", async () => {
+    await browserApi.clearCustomSoundFile(SoundType.NEW_LIVE_MAIN);
+    mainInput.value = "";
+    await updateStatus();
+  });
+
+  // Sub sound file input
+  subInput.addEventListener("change", async () => {
+    const file = subInput.files?.[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onload = async () => {
+        const dataUrl = reader.result as string;
+        await browserApi.setCustomSoundFile(SoundType.NEW_LIVE_SUB, dataUrl);
+        await updateStatus();
+      };
+      reader.readAsDataURL(file);
+    }
+  });
+
+  // Sub sound clear button
+  subClearButton.addEventListener("click", async () => {
+    await browserApi.clearCustomSoundFile(SoundType.NEW_LIVE_SUB);
+    subInput.value = "";
+    await updateStatus();
+  });
 }
 
 async function renderReceivePushNotificationCheckbox() {

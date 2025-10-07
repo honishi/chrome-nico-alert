@@ -7,6 +7,8 @@ const SHOW_RANKING_KEY = "showRanking";
 const PUSH_GUIDANCE_DISMISSED_KEY = "pushGuidanceDismissed";
 const SHOW_NOTIFICATION_KEY = "showNotification";
 const SOUND_VOLUME_KEY = "soundVolume";
+const CUSTOM_SOUND_MAIN_KEY = "customSoundMain";
+const CUSTOM_SOUND_SUB_KEY = "customSoundSub";
 const SUSPEND_FROM_DATE_KEY = "suspendFromDate";
 const AUTO_OPEN_USERS_KEY = "autoOpenUsers";
 const RECEIVE_PUSH_NOTIFICATION_KEY = "receivePushNotification";
@@ -71,14 +73,34 @@ export class BrowserApiImpl implements BrowserApi {
     await chrome.storage.local.set({ [SOUND_VOLUME_KEY]: value });
   }
 
+  async getCustomSoundFile(type: SoundType): Promise<string | null> {
+    const key = type === SoundType.NEW_LIVE_MAIN ? CUSTOM_SOUND_MAIN_KEY : CUSTOM_SOUND_SUB_KEY;
+    const result = await chrome.storage.local.get([key]);
+    return result[key] ?? null;
+  }
+
+  async setCustomSoundFile(type: SoundType, dataUrl: string): Promise<void> {
+    const key = type === SoundType.NEW_LIVE_MAIN ? CUSTOM_SOUND_MAIN_KEY : CUSTOM_SOUND_SUB_KEY;
+    await chrome.storage.local.set({ [key]: dataUrl });
+  }
+
+  async clearCustomSoundFile(type: SoundType): Promise<void> {
+    const key = type === SoundType.NEW_LIVE_MAIN ? CUSTOM_SOUND_MAIN_KEY : CUSTOM_SOUND_SUB_KEY;
+    await chrome.storage.local.remove(key);
+  }
+
   async playSound(sound: SoundType): Promise<void> {
     await this.createOffscreen();
+
+    // Get custom sound file if available
+    const customSoundFile = await this.getCustomSoundFile(sound);
 
     const message: ChromeMessage = {
       messageType: ChromeMessageType.PLAY_SOUND,
       options: {
         sound: sound,
         volume: await this.getSoundVolume(),
+        customSoundFile: customSoundFile,
       },
     };
 
