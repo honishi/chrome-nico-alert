@@ -77,7 +77,7 @@
 }
 
 .custom-sound-label {
-  min-width: 100px;
+  min-width: 80px;
 }
 
 .custom-sound-status {
@@ -88,11 +88,11 @@
 .custom-sound-buttons {
   display: flex;
   gap: 8px;
-  margin-left: 108px;
+  margin-left: 88px;
 }
 
 .custom-sound-upload-row {
-  margin-left: 108px;
+  margin-left: 88px;
 }
 
 .custom-sound-input {
