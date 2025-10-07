@@ -146,8 +146,22 @@ async function renderCustomSound() {
   const updateStatus = async () => {
     const mainFile = await browserApi.getCustomSoundFile(SoundType.NEW_LIVE_MAIN);
     const subFile = await browserApi.getCustomSoundFile(SoundType.NEW_LIVE_SUB);
-    mainStatus.textContent = mainFile ? mainFile.fileName : "";
-    subStatus.textContent = subFile ? subFile.fileName : "";
+
+    if (mainFile) {
+      mainStatus.textContent = mainFile.fileName;
+      mainStatus.style.color = "#28a745"; // Green
+    } else {
+      mainStatus.textContent = "未設定";
+      mainStatus.style.color = "#6c757d"; // Gray
+    }
+
+    if (subFile) {
+      subStatus.textContent = subFile.fileName;
+      subStatus.style.color = "#28a745"; // Green
+    } else {
+      subStatus.textContent = "未設定";
+      subStatus.style.color = "#6c757d"; // Gray
+    }
   };
 
   await updateStatus();

@@ -69,6 +69,47 @@
     margin: 0 0 0 8px;
 }
 
+.custom-sound-container {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.custom-sound-item {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.custom-sound-status-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.custom-sound-label {
+    min-width: 100px;
+}
+
+.custom-sound-input {
+    font-size: 11px;
+}
+
+.custom-sound-buttons {
+    display: flex;
+    gap: 8px;
+    margin-left: 108px;
+}
+
+.custom-sound-upload-row {
+    margin-left: 108px;
+}
+
+.custom-sound-status {
+    font-size: 11px;
+    color: #28a745;
+}
+
 .auto-open-user-div {
     height: 20px;
 }
@@ -118,41 +159,4 @@
 .button-note {
     font-size: 11px;
     margin-left: 8px;
-}
-
-.custom-sound-container {
-    display: flex;
-    flex-direction: column;
-    gap: 12px;
-}
-
-.custom-sound-item {
-    display: flex;
-    flex-direction: column;
-    gap: 4px;
-}
-
-.custom-sound-row {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-}
-
-.custom-sound-label {
-    min-width: 100px;
-}
-
-.custom-sound-input {
-    font-size: 11px;
-}
-
-.custom-sound-buttons {
-    display: flex;
-    gap: 8px;
-    margin-left: 108px;
-}
-
-.custom-sound-status {
-    font-size: 11px;
-    color: #28a745;
 }
