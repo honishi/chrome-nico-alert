@@ -1,4 +1,5 @@
 import { SoundType } from "../model/sound-type";
+import { CustomSoundData } from "../model/custom-sound";
 
 export interface BrowserApi {
   startSendingKeepAliveFromOffscreen(): Promise<void>;
@@ -15,8 +16,8 @@ export interface BrowserApi {
   getSoundVolume(): Promise<number>;
   setSoundVolume(value: number): Promise<void>;
 
-  getCustomSoundFile(type: SoundType): Promise<string | null>;
-  setCustomSoundFile(type: SoundType, dataUrl: string): Promise<void>;
+  getCustomSoundFile(type: SoundType): Promise<CustomSoundData | null>;
+  setCustomSoundFile(type: SoundType, fileName: string, dataUrl: string): Promise<void>;
   clearCustomSoundFile(type: SoundType): Promise<void>;
   playSound(sound: SoundType): Promise<void>;
   getReceivePushNotification(): Promise<boolean>;

@@ -146,8 +146,8 @@ async function renderCustomSound() {
   const updateStatus = async () => {
     const mainFile = await browserApi.getCustomSoundFile(SoundType.NEW_LIVE_MAIN);
     const subFile = await browserApi.getCustomSoundFile(SoundType.NEW_LIVE_SUB);
-    mainStatus.textContent = mainFile ? "設定済み" : "";
-    subStatus.textContent = subFile ? "設定済み" : "";
+    mainStatus.textContent = mainFile ? mainFile.fileName : "";
+    subStatus.textContent = subFile ? subFile.fileName : "";
   };
 
   await updateStatus();
@@ -159,7 +159,7 @@ async function renderCustomSound() {
       const reader = new FileReader();
       reader.onload = async () => {
         const dataUrl = reader.result as string;
-        await browserApi.setCustomSoundFile(SoundType.NEW_LIVE_MAIN, dataUrl);
+        await browserApi.setCustomSoundFile(SoundType.NEW_LIVE_MAIN, file.name, dataUrl);
         await updateStatus();
       };
       reader.readAsDataURL(file);
@@ -185,7 +185,7 @@ async function renderCustomSound() {
       const reader = new FileReader();
       reader.onload = async () => {
         const dataUrl = reader.result as string;
-        await browserApi.setCustomSoundFile(SoundType.NEW_LIVE_SUB, dataUrl);
+        await browserApi.setCustomSoundFile(SoundType.NEW_LIVE_SUB, file.name, dataUrl);
         await updateStatus();
       };
       reader.readAsDataURL(file);

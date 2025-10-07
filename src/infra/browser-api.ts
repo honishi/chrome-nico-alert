@@ -1,4 +1,5 @@
 import { SoundType } from "../domain/model/sound-type";
+import { CustomSoundData } from "../domain/model/custom-sound";
 import { BrowserApi } from "../domain/infra-interface/browser-api";
 import { ChromeMessage, ChromeMessageType } from "./chrome_message/message";
 
@@ -73,15 +74,19 @@ export class BrowserApiImpl implements BrowserApi {
     await chrome.storage.local.set({ [SOUND_VOLUME_KEY]: value });
   }
 
-  async getCustomSoundFile(type: SoundType): Promise<string | null> {
+  async getCustomSoundFile(type: SoundType): Promise<CustomSoundData | null> {
     const key = type === SoundType.NEW_LIVE_MAIN ? CUSTOM_SOUND_MAIN_KEY : CUSTOM_SOUND_SUB_KEY;
     const result = await chrome.storage.local.get([key]);
-    return result[key] ?? null;
+    if (!result[key]) {
+      return null;
+    }
+    return JSON.parse(result[key]) as CustomSoundData;
   }
 
-  async setCustomSoundFile(type: SoundType, dataUrl: string): Promise<void> {
+  async setCustomSoundFile(type: SoundType, fileName: string, dataUrl: string): Promise<void> {
     const key = type === SoundType.NEW_LIVE_MAIN ? CUSTOM_SOUND_MAIN_KEY : CUSTOM_SOUND_SUB_KEY;
-    await chrome.storage.local.set({ [key]: dataUrl });
+    const data: CustomSoundData = { fileName, dataUrl };
+    await chrome.storage.local.set({ [key]: JSON.stringify(data) });
   }
 
   async clearCustomSoundFile(type: SoundType): Promise<void> {
@@ -93,14 +98,14 @@ export class BrowserApiImpl implements BrowserApi {
     await this.createOffscreen();
 
     // Get custom sound file if available
-    const customSoundFile = await this.getCustomSoundFile(sound);
+    const customSound = await this.getCustomSoundFile(sound);
 
     const message: ChromeMessage = {
       messageType: ChromeMessageType.PLAY_SOUND,
       options: {
         sound: sound,
         volume: await this.getSoundVolume(),
-        customSoundFile: customSoundFile,
+        customSoundFile: customSound?.dataUrl ?? null,
       },
     };
 
