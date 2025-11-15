@@ -148,3 +148,54 @@ Injected into the following URL patterns:
   - Release creation with dist.zip artifact on version tags (format: `*.*.*`)
   - Node.js version managed via `.node-version` file (currently 22.20.0)
   - Two-job pipeline: test → build (build only runs after tests pass)
+
+## Git Commit Guidelines
+
+### Commit Message Format
+Each commit message consists of **header**, **body**, and **footer**:
+
+```
+<type>(<scope>): <subject>
+<BLANK LINE>
+<body>
+<BLANK LINE>
+<footer>
+```
+
+- **Header** is mandatory (max 100 characters per line)
+- **Scope** is optional
+- Use imperative, present tense (e.g., "change" not "changed" or "changes")
+- Don't capitalize first letter in subject
+- No period (.) at the end of subject
+
+### Type
+Must be one of the following:
+
+- **feat**: New feature
+- **fix**: Bug fix
+- **docs**: Documentation only changes
+- **style**: Code style changes (formatting, semicolons, etc.)
+- **refactor**: Code change that neither fixes a bug nor adds a feature
+- **perf**: Performance improvement
+- **test**: Adding or fixing tests
+- **chore**: Build process or auxiliary tool changes
+
+### Scope
+Optional string specifying the affected area (e.g., `$location`, `$browser`, `AutoPushClient`, `WebPushManager`).
+Use `*` for multiple scopes.
+
+### Body
+- Use imperative, present tense
+- Include motivation for the change and contrast with previous behavior
+
+### Footer
+- Reference GitHub issues (e.g., `Closes #123`)
+- **Breaking Changes**: Start with `BREAKING CHANGE:` followed by description
+
+### Revert
+For reverting commits:
+```
+revert: <header of reverted commit>
+
+This reverts commit <hash>.
+```
