@@ -1,2 +1,4 @@
 all.min.css
-test/**/*.{html,json}
+# test/**/*.{html,json}
+test/**/*.html
+test/**/*.json
