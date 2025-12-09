@@ -71,6 +71,23 @@ export class NiconamaApiImpl implements NiconamaApi {
     return parsedJson.data.map(this.toDomainProgram);
   }
 
+  private toSocialGroup(
+    socialGroup:
+      | {
+          id?: string;
+          name?: string;
+          thumbnailUrl?: string;
+          thumbnailImageUrl?: string;
+        }
+      | undefined,
+  ): Program["socialGroup"] {
+    return {
+      id: socialGroup?.id ?? "co0",
+      name: socialGroup?.name ?? "削除されたコミュニティ",
+      thumbnailUrl: socialGroup?.thumbnailUrl ?? socialGroup?.thumbnailImageUrl ?? "",
+    };
+  }
+
   private extractUserProgramRankingFromHtml(html: string): Program[] {
     const match = /<script id="embedded-data" data-props="([^"]*)"><\/script>/.exec(html);
     if (match === null || match.length < 2) {
@@ -104,11 +121,7 @@ export class NiconamaApiImpl implements NiconamaApi {
         icon: program.programProvider.icon,
         iconSmall: program.programProvider.iconSmall,
       },
-      socialGroup: {
-        id: program.socialGroup?.id ?? "co0",
-        name: program.socialGroup?.name ?? "削除されたコミュニティ",
-        thumbnailUrl: program.socialGroup?.thumbnailUrl ?? "",
-      },
+      socialGroup: this.toSocialGroup(program.socialGroup),
       supplier: program.supplier && {
         name: program.supplier.name,
         programProviderId: program.supplier.programProviderId,
@@ -177,11 +190,7 @@ export class NiconamaApiImpl implements NiconamaApi {
               iconSmall: supplier.icons?.uri50x50 || "",
             }
           : undefined,
-      socialGroup: {
-        id: socialGroup?.id ?? "co0",
-        name: socialGroup?.name ?? "削除されたコミュニティ",
-        thumbnailUrl: socialGroup.thumbnailImageUrl ?? "",
-      },
+      socialGroup: this.toSocialGroup(socialGroup),
       supplier: supplier
         ? {
             name: supplier.name,
