@@ -105,9 +105,9 @@ export class NiconamaApiImpl implements NiconamaApi {
         iconSmall: program.programProvider.iconSmall,
       },
       socialGroup: {
-        id: program.socialGroup.id,
-        name: program.socialGroup.name,
-        thumbnailUrl: program.socialGroup.thumbnailUrl,
+        id: program.socialGroup?.id ?? "co0",
+        name: program.socialGroup?.name ?? "削除されたコミュニティ",
+        thumbnailUrl: program.socialGroup?.thumbnailUrl ?? "",
       },
       supplier: program.supplier && {
         name: program.supplier.name,
@@ -178,9 +178,9 @@ export class NiconamaApiImpl implements NiconamaApi {
             }
           : undefined,
       socialGroup: {
-        id: socialGroup.id,
-        name: socialGroup.name,
-        thumbnailUrl: socialGroup.thumbnailImageUrl || "",
+        id: socialGroup?.id ?? "co0",
+        name: socialGroup?.name ?? "削除されたコミュニティ",
+        thumbnailUrl: socialGroup.thumbnailImageUrl ?? "",
       },
       supplier: supplier
         ? {
