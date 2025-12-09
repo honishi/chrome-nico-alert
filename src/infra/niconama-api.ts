@@ -63,12 +63,12 @@ export class NiconamaApiImpl implements NiconamaApi {
 
   private extractFollowProgramsFromJson(json: string): Program[] {
     const parsedJson = JSON.parse(json);
-    return parsedJson.data.programs.map(this.toDomainProgram);
+    return parsedJson.data.programs.map(this.toDomainProgram.bind(this));
   }
 
   private extractRecentProgramsFromJson(json: string): Program[] {
     const parsedJson = JSON.parse(json);
-    return parsedJson.data.map(this.toDomainProgram);
+    return parsedJson.data.map(this.toDomainProgram.bind(this));
   }
 
   private toSocialGroup(
