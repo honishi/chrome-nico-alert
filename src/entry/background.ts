@@ -97,31 +97,40 @@ function configureMessageListener() {
 
       // Use Promise for async processing
       (async () => {
-        const enabled = await browserApi.getReceivePushNotification();
-        const lastProgram = pushManager.getLastReceivedProgram();
-        const connectionStatus = pushManager.getConnectionStatus();
-        const status = {
-          enabled: enabled,
-          connected: pushManager.isConnected(),
-          connectionState: pushManager.getConnectionState(),
-          lastReceivedProgram: lastProgram
-            ? {
-                program: lastProgram.program,
-                receivedAt: lastProgram.receivedAt.toISOString(),
-              }
-            : undefined,
-          channelId: pushManager.getChannelId(),
-          uaid: pushManager.getUaid(),
-          connectionStatus: connectionStatus
-            ? {
-                currentAttempts: connectionStatus.currentAttempts,
-                maxAttempts: connectionStatus.maxAttempts,
-                lastAttemptTime: connectionStatus.lastAttemptTime?.toISOString(),
-                lastConnectedTime: connectionStatus.lastConnectedTime?.toISOString(),
-              }
-            : undefined,
-        };
-        sendResponse(status);
+        try {
+          const enabled = await browserApi.getReceivePushNotification();
+          const lastProgram = pushManager.getLastReceivedProgram();
+          const connectionStatus = pushManager.getConnectionStatus();
+          const status = {
+            enabled: enabled,
+            connected: pushManager.isConnected(),
+            connectionState: pushManager.getConnectionState(),
+            lastReceivedProgram: lastProgram
+              ? {
+                  program: lastProgram.program,
+                  receivedAt: lastProgram.receivedAt.toISOString(),
+                }
+              : undefined,
+            channelId: pushManager.getChannelId(),
+            uaid: pushManager.getUaid(),
+            connectionStatus: connectionStatus
+              ? {
+                  currentAttempts: connectionStatus.currentAttempts,
+                  maxAttempts: connectionStatus.maxAttempts,
+                  lastAttemptTime: connectionStatus.lastAttemptTime?.toISOString(),
+                  lastConnectedTime: connectionStatus.lastConnectedTime?.toISOString(),
+                }
+              : undefined,
+          };
+          sendResponse(status);
+        } catch (error) {
+          console.error("[Background] Failed to get push status:", error);
+          sendResponse({
+            enabled: false,
+            connected: false,
+            connectionState: "error",
+          });
+        }
       })();
 
       return true; // Indicates async response

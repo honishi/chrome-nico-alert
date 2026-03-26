@@ -8,13 +8,16 @@ function startSendingKeepAlive() {
 }
 
 function addOnMessageListener() {
-  chrome.runtime.onMessage.addListener(async (message) => {
+  chrome.runtime.onMessage.addListener((message) => {
     // console.log(`Received message from the extension: ${JSON.stringify(message)}`);
     const chromeMessage = message as ChromeMessage;
-    if (chromeMessage.messageType === ChromeMessageType.PLAY_SOUND) {
-      const audioSource = toAudioSource(message.options.sound, message.options.customSoundFile);
-      await playAudio(audioSource, message.options.volume);
+    if (chromeMessage.messageType !== ChromeMessageType.PLAY_SOUND) {
+      return false;
     }
+
+    const audioSource = toAudioSource(message.options.sound, message.options.customSoundFile);
+    void playAudio(audioSource, message.options.volume);
+    return false;
   });
 }
 
