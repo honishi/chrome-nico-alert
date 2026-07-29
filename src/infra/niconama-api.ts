@@ -119,7 +119,8 @@ export class NiconamaApiImpl implements NiconamaApi {
         id: program.programProvider.id,
         name: program.programProvider.name,
         icon: program.programProvider.icon,
-        iconSmall: program.programProvider.iconSmall,
+        // The follow API may return an empty iconSmall; fall back to the full-size icon
+        iconSmall: program.programProvider.iconSmall || program.programProvider.icon,
       },
       socialGroup: this.toSocialGroup(program.socialGroup),
       supplier: program.supplier && {
