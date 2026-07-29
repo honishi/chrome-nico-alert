@@ -1,87 +1,89 @@
 {
-  "meta": { "statusCode": 200, "errorCode": "OK" },
+  "meta": {
+    "statusCode": 200,
+    "errorCode": "OK"
+  },
   "data": {
     "programs": [
       {
-        "id": "lv349362700",
-        "title": "すっごいキャンプにきました",
-        "listingThumbnail": "https://asset2.dlive.nicovideo.jp/f54c/6937e6d5adbce0d61238d35b/screenshot/123/thumbnail-352x198/screenshot.jpg",
-        "watchPageUrl": "https://live.nicovideo.jp/watch/lv349362700?status=onair&ref=FollowedProgramsPage-FollowedOnairBroadcastStatusProgramListSection-ProgramCard",
+        "id": "lv351064801",
+        "title": "だら雑",
+        "listingThumbnail": "https://asset2.dlive.nicovideo.jp/9e58/6a6a27ff60d5c1be10b7a268/screenshot/123/thumbnail-352x198/screenshot.jpg",
+        "watchPageUrl": "https://live.nicovideo.jp/watch/lv351064801?status=onair&ref=FollowedProgramsPage-FollowedOnairBroadcastStatusProgramListSection-ProgramCard",
         "providerType": "community",
         "liveCycle": "ON_AIR",
-        "beginAt": 1765271301000,
-        "endAt": 1765273101000,
+        "beginAt": 1785342047000,
+        "endAt": 1785343847000,
         "isFollowerOnly": false,
         "isPayProgram": false,
         "programProvider": {
-          "id": "52553742",
-          "name": "贅肉ちゃん",
-          "icon": "https://secure-dcdn.cdn.nimg.jp/nicoaccount/usericon/5255/52553742.jpg?1743091003",
-          "iconSmall": "https://secure-dcdn.cdn.nimg.jp/nicoaccount/usericon/s/5255/52553742.jpg?1743091003"
+          "id": "144474652",
+          "name": "そらの",
+          "icon": "https://secure-dcdn.cdn.nimg.jp/nicoaccount/usericon/14447/144474652.jpg?1780470458",
+          "iconSmall": ""
         },
-        "statistics": { "watchCount": 1325, "commentCount": 222, "reservationCount": 1 },
-        "timeshift": { "isPlayable": false, "isReservable": true }
+        "statistics": {
+          "watchCount": 223,
+          "commentCount": 54
+        },
+        "timeshift": {
+          "isPlayable": false,
+          "isReservable": true
+        }
       },
       {
-        "id": "lv349361694",
-        "title": "ただいま作業",
-        "listingThumbnail": "https://listing-thumbnail.live.nicovideo.jp?image=prod-lv349361694/thumbnail_1729192172576.png&w=352&h=198&v=1765259092967",
-        "flippedListingThumbnail": "https://asset2.dlive.nicovideo.jp/fadf/6937b75593308dd3db330efd/screenshot/123/thumbnail-352x198/screenshot.jpg",
-        "watchPageUrl": "https://live.nicovideo.jp/watch/lv349361694?status=onair&ref=FollowedProgramsPage-FollowedOnairBroadcastStatusProgramListSection-ProgramCard",
+        "id": "lv351063502",
+        "title": "かんぺい！",
+        "listingThumbnail": "https://asset2.dlive.nicovideo.jp/0e77/6a69fb3d60d5c1be10b79d32/screenshot/123/thumbnail-352x198/screenshot.jpg",
+        "watchPageUrl": "https://live.nicovideo.jp/watch/lv351063502?status=onair&ref=FollowedProgramsPage-FollowedOnairBroadcastStatusProgramListSection-ProgramCard",
         "providerType": "community",
         "liveCycle": "ON_AIR",
-        "beginAt": 1765259096000,
-        "endAt": 1765273496000,
+        "beginAt": 1785330495000,
+        "endAt": 1785343095000,
         "isFollowerOnly": false,
         "isPayProgram": false,
         "programProvider": {
-          "id": "61578582",
-          "name": "ないとファイ・猫鬼斬",
-          "icon": "https://secure-dcdn.cdn.nimg.jp/nicoaccount/usericon/6157/61578582.jpg?1653312330",
-          "iconSmall": "https://secure-dcdn.cdn.nimg.jp/nicoaccount/usericon/s/6157/61578582.jpg?1653312330"
+          "id": "123514112",
+          "name": "ポンコツびぃちゃん(無敵)",
+          "icon": "https://secure-dcdn.cdn.nimg.jp/nicoaccount/usericon/12351/123514112.jpg?1668731182",
+          "iconSmall": ""
         },
-        "statistics": { "watchCount": 43, "commentCount": 32 },
-        "timeshift": { "isPlayable": false, "isReservable": true }
+        "statistics": {
+          "watchCount": 7089,
+          "commentCount": 4379,
+          "reservationCount": 4
+        },
+        "timeshift": {
+          "isPlayable": false,
+          "isReservable": true
+        }
       },
       {
-        "id": "lv349227936",
+        "id": "lv350920363",
         "title": "ニコニコ実況",
-        "listingThumbnail": "https://listing-thumbnail.live.nicovideo.jp?image=prod-lv349227936/thumbnail_1763649014876.jpg&w=352&h=198&v=1763649014876",
-        "watchPageUrl": "https://live.nicovideo.jp/watch/lv349227936?status=onair&ref=FollowedProgramsPage-FollowedOnairBroadcastStatusProgramListSection-ProgramCard",
+        "listingThumbnail": "https://listing-thumbnail.live.nicovideo.jp?image=prod-lv350920363/thumbnail_1783536436788.jpg&w=352&h=198&v=1783536436788",
+        "watchPageUrl": "https://live.nicovideo.jp/watch/lv350920363?status=onair&ref=FollowedProgramsPage-FollowedOnairBroadcastStatusProgramListSection-ProgramCard",
         "providerType": "official",
         "liveCycle": "ON_AIR",
-        "beginAt": 1765033200000,
-        "endAt": 1765292400000,
+        "beginAt": 1785250800000,
+        "endAt": 1785574800000,
         "isFollowerOnly": false,
         "isPayProgram": false,
         "socialGroup": {
           "id": "ch2525",
           "name": "ニコニコニュース",
-          "thumbnailUrl": "https://secure-dcdn.cdn.nimg.jp/comch/channel-icon/128x128/ch2525.jpg?1699511163"
+          "thumbnailUrl": "https://secure-dcdn.cdn.nimg.jp/comch/channel-icon/128x128/ch2525.jpg?1772186286"
         },
-        "statistics": { "watchCount": 0, "commentCount": 0 },
-        "timeshift": { "isPlayable": false, "isReservable": false }
-      },
-      {
-        "id": "lv349333726",
-        "title": "ニコニコニュース実況",
-        "listingThumbnail": "https://listing-thumbnail.live.nicovideo.jp?image=prod-lv349333726/thumbnail_1764930003587.jpg&w=352&h=198&v=1764930003587",
-        "watchPageUrl": "https://live.nicovideo.jp/watch/lv349333726?status=onair&ref=FollowedProgramsPage-FollowedOnairBroadcastStatusProgramListSection-ProgramCard",
-        "providerType": "official",
-        "liveCycle": "ON_AIR",
-        "beginAt": 1764930600000,
-        "endAt": 1765292399000,
-        "isFollowerOnly": false,
-        "isPayProgram": false,
-        "socialGroup": {
-          "id": "ch2525",
-          "name": "ニコニコニュース",
-          "thumbnailUrl": "https://secure-dcdn.cdn.nimg.jp/comch/channel-icon/128x128/ch2525.jpg?1699511163"
+        "statistics": {
+          "watchCount": 0,
+          "commentCount": 0
         },
-        "statistics": { "watchCount": 156775, "commentCount": 118876, "reservationCount": 3 },
-        "timeshift": { "isPlayable": false, "isReservable": true }
+        "timeshift": {
+          "isPlayable": false,
+          "isReservable": false
+        }
       }
     ],
-    "total": 4
+    "total": 3
   }
 }

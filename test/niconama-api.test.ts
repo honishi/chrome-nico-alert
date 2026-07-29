@@ -14,8 +14,30 @@ test("Parse programs_onair.json", async () => {
   const json = fs.readFileSync("test/json/programs_onair.json", "utf8");
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const programs = (nicoapi as any).extractFollowProgramsFromJson(json);
-  // console.log(programs);
-  expect(programs.length).toBeGreaterThan(0);
+  expect(programs.length).toBe(3);
+
+  // User program: the API returns an empty iconSmall, so it should fall back to icon
+  const userProgram = programs[0];
+  expect(userProgram.id).toBe("lv351064801");
+  expect(userProgram.programProvider).toBeDefined();
+  expect(userProgram.programProvider?.id).toBe("144474652");
+  expect(userProgram.programProvider?.name).toBe("そらの");
+  expect(userProgram.programProvider?.icon).toBe(
+    "https://secure-dcdn.cdn.nimg.jp/nicoaccount/usericon/14447/144474652.jpg?1780470458",
+  );
+  expect(userProgram.programProvider?.iconSmall).toBe(
+    "https://secure-dcdn.cdn.nimg.jp/nicoaccount/usericon/14447/144474652.jpg?1780470458",
+  );
+
+  // Channel program: no programProvider, icon comes from socialGroup
+  const channelProgram = programs[2];
+  expect(channelProgram.id).toBe("lv350920363");
+  expect(channelProgram.programProvider).toBeUndefined();
+  expect(channelProgram.socialGroup.id).toBe("ch2525");
+  expect(channelProgram.socialGroup.name).toBe("ニコニコニュース");
+  expect(channelProgram.socialGroup.thumbnailUrl).toBe(
+    "https://secure-dcdn.cdn.nimg.jp/comch/channel-icon/128x128/ch2525.jpg?1772186286",
+  );
 });
 
 test("Parse recent_programs.json", async () => {
