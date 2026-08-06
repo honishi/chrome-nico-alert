@@ -374,6 +374,18 @@ export class BackgroundImpl implements Background {
       if (!pushEnabled) {
         return;
       }
+
+      // Programs that began long ago and only now surfaced in the following
+      // list (list churn, service worker restarts) are not push misses: their
+      // push, if any, was sent before our observation window. A genuine miss
+      // is detected by polling within moments of the broadcast start.
+      const MAX_PROGRAM_AGE_MS = 10 * 60 * 1000;
+      const beginAtMs = new Date(program.beginAt).getTime();
+      const programAgeMs = Date.now() - beginAtMs;
+      if (!Number.isNaN(beginAtMs) && programAgeMs > MAX_PROGRAM_AGE_MS) {
+        return;
+      }
+
       const PUSH_EVENT_LOOKBACK_MS = 10 * 60 * 1000;
       const hasPushEvent = await this.pushDiagnostics.hasRecentProgramPushEvent(
         program.id,
@@ -385,6 +397,7 @@ export class BackgroundImpl implements Background {
       this.pushDiagnostics.record("push_missing", {
         programId: program.id,
         providerId: program.programProvider?.id ?? program.socialGroup.id,
+        programAgeSeconds: Number.isNaN(beginAtMs) ? undefined : Math.round(programAgeMs / 1000),
         connected: this.pushManager.isConnected(),
         connectionState: this.pushManager.getConnectionState(),
       });
