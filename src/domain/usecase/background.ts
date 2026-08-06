@@ -5,6 +5,7 @@ import { InjectTokens } from "../../di/inject-tokens";
 import { SoundType } from "../model/sound-type";
 import { BrowserApi } from "../infra-interface/browser-api";
 import { NiconamaApi } from "../infra-interface/niconama-api";
+import { PushDiagnostics } from "../infra-interface/push-diagnostics";
 import { PushManager } from "../infra-interface/push-manager";
 import { defaultBadgeBackgroundColor } from "./colors";
 
@@ -30,11 +31,14 @@ export class BackgroundImpl implements Background {
     @inject(InjectTokens.NiconamaApi) private niconamaApi: NiconamaApi,
     @inject(InjectTokens.BrowserApi) private browserApi: BrowserApi,
     @inject(InjectTokens.PushManager) private pushManager: PushManager,
+    @inject(InjectTokens.PushDiagnostics) private pushDiagnostics: PushDiagnostics,
   ) {
     this.initialize().then(() => console.log("Background initialized"));
   }
 
   async initialize(): Promise<void> {
+    // Marks service worker (re)starts in the diagnostics timeline
+    this.pushDiagnostics.record("sw_start");
     await this.resetSuspended();
     await this.initializePushManager();
   }
@@ -100,6 +104,9 @@ export class BackgroundImpl implements Background {
    * Process broadcast detected by push notification
    */
   async processPushProgram(pushProgram: PushProgram): Promise<void> {
+    // Extract programId from PushProgram
+    const programId = this.extractProgramId(pushProgram.onClick);
+
     // Filter out old notifications (skip notifications older than 3 minutes)
     const MAX_NOTIFICATION_AGE_MINUTES = 3;
     if (pushProgram.createdAt) {
@@ -113,22 +120,43 @@ export class BackgroundImpl implements Background {
             pushProgram.onClick
           }`,
         );
+        this.pushDiagnostics.record("push_discard", {
+          reason: "stale",
+          programId,
+          ageMinutes: Math.round(ageMinutes * 10) / 10,
+        });
         return;
       }
     }
 
-    // Extract programId from PushProgram
-    const programId = this.extractProgramId(pushProgram.onClick);
     if (!programId) {
       // Silently skip non-live notifications such as video upload notifications
       console.log("Skipping non-live notification:", pushProgram.onClick);
+      this.pushDiagnostics.record("push_discard", {
+        reason: "non_live",
+        onClick: pushProgram.onClick,
+      });
       return;
     }
 
     // Get Program information via resolveProgram API
-    const program = await this.niconamaApi.resolveProgram(programId);
+    let program: Program | undefined;
+    try {
+      program = await this.niconamaApi.resolveProgram(programId);
+    } catch (error) {
+      this.pushDiagnostics.record("push_discard", {
+        reason: "resolve_error",
+        programId,
+        error: (error as Error).message,
+      });
+      throw error;
+    }
     if (!program) {
       console.log(`Program not found (may have been deleted): ${programId}`);
+      this.pushDiagnostics.record("push_discard", {
+        reason: "resolve_failed",
+        programId,
+      });
       return;
     }
 
@@ -137,6 +165,10 @@ export class BackgroundImpl implements Background {
     // Check if already processed
     if (this.isProcessed(program)) {
       console.log("Program already processed:", program.id);
+      this.pushDiagnostics.record("push_discard", {
+        reason: "already_processed",
+        programId,
+      });
       return;
     }
 
@@ -156,6 +188,11 @@ export class BackgroundImpl implements Background {
     // Don't open tab if suspended
     if (isSuspended) {
       console.log("Suspended, not opening tab:", program.id);
+      this.pushDiagnostics.record("push_program", {
+        programId,
+        notified: showNotification,
+        suspended: true,
+      });
       return;
     }
 
@@ -167,6 +204,12 @@ export class BackgroundImpl implements Background {
     } else if (showNotification) {
       await this.playSoundThrottled(SoundType.NEW_LIVE_SUB);
     }
+    this.pushDiagnostics.record("push_program", {
+      programId,
+      notified: showNotification,
+      suspended: false,
+      autoOpened: shouldAutoOpen,
+    });
   }
 
   async run(): Promise<void> {

@@ -3,6 +3,7 @@ import { PushManager } from "../domain/infra-interface/push-manager";
 import { PushSubscriptionInfo } from "../domain/model/push-subscription";
 import { PushProgram } from "../domain/model/push-program";
 import { AutoPushClient } from "./autopush-client";
+import { pushDiagnostics } from "./push-diagnostics";
 import {
   generateKeyPair,
   generateAuthSecret,
@@ -823,9 +824,16 @@ export class WebPushManager implements PushManager {
     console.log("  Headers:", notification.headers);
     console.log("  Timestamp:", new Date().toISOString());
 
+    // Track the pipeline stage so failures can be classified in diagnostics
+    let stage = "parse";
     try {
       if (!this.cryptoKeys) {
         console.error("[WebPushManager] ❌ Crypto keys not available!");
+        pushDiagnostics.record("pipeline_error", {
+          stage: "keys",
+          channelId: notification.channelID,
+          version: notification.version,
+        });
         return;
       }
 
@@ -840,22 +848,40 @@ export class WebPushManager implements PushManager {
         console.log("  Public key length:", payload.publicKey.length);
         console.log("  Ciphertext length:", payload.ciphertext.length);
 
+        stage = "decrypt";
         const decrypted = await decryptNotification(payload, this.cryptoKeys);
         console.log("[WebPushManager] Decrypted text:", decrypted);
+        pushDiagnostics.record("decrypt_ok", {
+          channelId: notification.channelID,
+          version: notification.version,
+        });
 
+        stage = "json";
         const data = JSON.parse(decrypted);
         console.log("[WebPushManager] 🎉 Decrypted notification data:", data);
 
         // Notify existing processing system
+        stage = "process";
         await this.processNotificationData(data);
       } else {
         console.log("[WebPushManager] ⚠️ No data in notification");
+        pushDiagnostics.record("push_discard", {
+          reason: "no_data",
+          channelId: notification.channelID,
+          version: notification.version,
+        });
       }
     } catch (error) {
       console.error("[WebPushManager] ❌ Failed to process notification:", error);
       console.error("[WebPushManager] Error details:", {
         message: (error as Error).message,
         stack: (error as Error).stack,
+      });
+      pushDiagnostics.record("pipeline_error", {
+        stage,
+        channelId: notification.channelID,
+        version: notification.version,
+        error: (error as Error).message,
       });
     }
   }
