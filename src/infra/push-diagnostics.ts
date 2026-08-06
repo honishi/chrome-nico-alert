@@ -7,7 +7,8 @@ import {
 } from "../domain/infra-interface/push-diagnostics";
 
 const STORAGE_KEY = "pushDiagnosticsLog";
-const DEFAULT_MAX_EVENTS = 2000;
+// ~2.7 events/min observed at evening peak -> 6000 covers roughly 2-3 days
+const DEFAULT_MAX_EVENTS = 6000;
 const DEFAULT_RETENTION_MS = 7 * 24 * 60 * 60 * 1000; // 7 days
 const DEFAULT_SNAPSHOT_HEARTBEAT_MS = 15 * 60 * 1000; // 15 minutes
 
