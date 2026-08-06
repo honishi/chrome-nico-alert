@@ -39,6 +39,8 @@ interface MessageData {
   headers?: Record<string, unknown>;
 }
 
+import { pushDiagnostics } from "./push-diagnostics";
+
 /**
  * AutoPush (Mozilla Push Service) client
  * Receives Push notifications via WebSocket
@@ -73,6 +75,7 @@ export class AutoPushClient {
   private uaid?: string;
   private channelIds: string[] = [];
   private pendingChannelIds?: string[];
+  private lastHelloSentUaid?: string; // For diagnostics: detect server-side UAID rotation
 
   // Message handlers
   private messageHandlers: Map<string, (data: unknown) => void> = new Map();
@@ -206,6 +209,7 @@ export class AutoPushClient {
         this.ws.onopen = () => {
           console.log("[AutoPush] ✅ WebSocket OPENED");
           console.log("[AutoPush] Connected to:", this.endpoint);
+          pushDiagnostics.record("ws_open");
           this.isConnected = true;
           this.lastConnectedAt = new Date();
 
@@ -242,6 +246,7 @@ export class AutoPushClient {
 
         this.ws.onerror = (error) => {
           console.error("[AutoPush] ❌ WebSocket ERROR:", error);
+          pushDiagnostics.record("ws_error");
           this.isConnected = false;
           reject(error);
         };
@@ -252,6 +257,12 @@ export class AutoPushClient {
             code: event.code,
             reason: event.reason || "(no reason provided)",
             wasClean: event.wasClean,
+          });
+          pushDiagnostics.record("ws_close", {
+            code: event.code,
+            reason: event.reason || undefined,
+            wasClean: event.wasClean,
+            intentional: this.intentionalDisconnect,
           });
           this.isConnected = false;
           this.handleDisconnect();
@@ -315,6 +326,7 @@ export class AutoPushClient {
 
     // Save channelIds for use in handleHello
     this.pendingChannelIds = channelIds || [];
+    this.lastHelloSentUaid = uaid || undefined;
 
     return new Promise((resolve, reject) => {
       // Set up one-time handler for hello response
@@ -477,6 +489,18 @@ export class AutoPushClient {
    * Process Hello response
    */
   private handleHello(message: HelloResponse): void {
+    pushDiagnostics.record("hello_result", {
+      status: message.status,
+      uaid: message.uaid,
+      sentUaid: this.lastHelloSentUaid,
+      uaidChanged: !!(
+        this.lastHelloSentUaid &&
+        message.uaid &&
+        this.lastHelloSentUaid !== message.uaid
+      ),
+      channelCount: this.pendingChannelIds?.length ?? 0,
+    });
+
     // If UAID is expired (409 Conflict or 410 Gone)
     if (message.status === 409 || message.status === 410) {
       console.warn(
@@ -562,6 +586,12 @@ export class AutoPushClient {
     const channelId = message.channelID;
     const operationKey = `register_${channelId}`;
 
+    pushDiagnostics.record("register_result", {
+      status: message.status,
+      channelId,
+      hasEndpoint: !!message.pushEndpoint,
+    });
+
     if (message.status === 200 && message.pushEndpoint) {
       // Add to local channel list
       if (!this.channelIds.includes(channelId)) {
@@ -591,6 +621,12 @@ export class AutoPushClient {
    * Process notification message
    */
   private handleNotification(message: NotificationMessage): void {
+    pushDiagnostics.record("socket_received", {
+      channelId: message.channelID,
+      version: message.version,
+      dataLength: message.data?.length ?? 0,
+    });
+
     console.log("[AutoPush] 📬 Notification received:");
     console.log("  Channel ID:", message.channelID);
     console.log("  Version:", message.version);
@@ -627,6 +663,10 @@ export class AutoPushClient {
       };
       console.log("[AutoPush] Sending ACK for notification");
       this.sendMessage(ack, "ACK");
+      pushDiagnostics.record("ack_sent", {
+        channelId: message.channelID,
+        version: message.version,
+      });
     }
   }
 
@@ -681,6 +721,10 @@ export class AutoPushClient {
     if (this.connectCallTimestamps.length > this.maxConnectCallsPerHour) {
       const errorMessage = `[AutoPush] Connect rate limit exceeded: More than ${this.maxConnectCallsPerHour} connect attempts in 1 hour`;
       console.error(errorMessage);
+      pushDiagnostics.record("reconnect_giveup", {
+        reason: "rate_limit",
+        attemptsInLastHour: this.connectCallTimestamps.length,
+      });
       throw new Error(errorMessage);
     }
   }
@@ -718,6 +762,10 @@ export class AutoPushClient {
       console.log(
         `[AutoPush] Reconnecting in ${delay}ms (attempt ${this.reconnectAttempts}/${this.maxReconnectAttempts})`,
       );
+      pushDiagnostics.record("reconnect_scheduled", {
+        attempt: this.reconnectAttempts,
+        delayMs: delay,
+      });
       if (rawDelay !== delay) {
         console.log(
           `[AutoPush] Raw backoff ${rawDelay}ms exceeded cap, using maxReconnectDelay ${this.maxReconnectDelay}ms`,
@@ -750,6 +798,10 @@ export class AutoPushClient {
       }, delay);
     } else {
       console.error("[AutoPush] Max reconnection attempts reached");
+      pushDiagnostics.record("reconnect_giveup", {
+        reason: "max_attempts",
+        attempt: this.reconnectAttempts,
+      });
     }
   }
 }
