@@ -67,6 +67,14 @@ export class AutoPushClient {
   private readonly maxConnectCallsPerHour = 100;
   private lastConnectedAt?: Date;
 
+  // Liveness watchdog (half-open connection detection)
+  private lastActivityAt = Date.now();
+  private lastLivenessPingAt = 0;
+  private pongTimer?: NodeJS.Timeout;
+  private readonly idlePingThresholdMs = 5 * 60 * 1000; // ping after 5 min without inbound traffic
+  private readonly pongTimeoutMs = 10 * 1000; // reconnect if no reply within 10 s
+  private readonly minLivenessPingIntervalMs = 60 * 1000; // AutoPush forbids pings more often than 1/min
+
   // Test utilities
   private testAutoCloseTimer?: NodeJS.Timeout;
   private testAutoCloseMs?: number;
@@ -212,6 +220,7 @@ export class AutoPushClient {
           pushDiagnostics.record("ws_open");
           this.isConnected = true;
           this.lastConnectedAt = new Date();
+          this.lastActivityAt = Date.now();
 
           // Clear and reset state check timer
           if (this.stateCheckInterval) {
@@ -224,12 +233,19 @@ export class AutoPushClient {
                 `[AutoPush] WebSocket state check: ${state} (${new Date().toISOString()})`,
               );
             }
+            this.checkLiveness();
           }, 30000); // Every 30 seconds
 
           resolve();
         };
 
         this.ws.onmessage = (event) => {
+          // Any inbound traffic proves the connection is alive
+          this.lastActivityAt = Date.now();
+          if (this.pongTimer) {
+            clearTimeout(this.pongTimer);
+            this.pongTimer = undefined;
+          }
           try {
             const message = JSON.parse(event.data);
             console.log(
@@ -290,6 +306,10 @@ export class AutoPushClient {
     if (this.testAutoCloseTimer) {
       clearTimeout(this.testAutoCloseTimer);
       this.testAutoCloseTimer = undefined;
+    }
+    if (this.pongTimer) {
+      clearTimeout(this.pongTimer);
+      this.pongTimer = undefined;
     }
 
     if (this.ws) {
@@ -727,6 +747,68 @@ export class AutoPushClient {
       });
       throw new Error(errorMessage);
     }
+  }
+
+  /**
+   * Detect half-open (zombie) connections.
+   * readyState can stay OPEN long after the peer is gone; field data showed
+   * such connections silently dropping every push for up to 20 minutes.
+   * After idlePingThresholdMs without inbound traffic, send an
+   * application-level PING; without any reply within pongTimeoutMs, drop the
+   * socket and reconnect.
+   */
+  private checkLiveness(): void {
+    if (!this.ws || this.ws.readyState !== WebSocket.OPEN || !this.uaid) {
+      return;
+    }
+    if (this.pongTimer) {
+      return; // Ping already in flight
+    }
+    const idleMs = Date.now() - this.lastActivityAt;
+    if (idleMs < this.idlePingThresholdMs) {
+      return;
+    }
+    if (Date.now() - this.lastLivenessPingAt < this.minLivenessPingIntervalMs) {
+      return;
+    }
+
+    this.lastLivenessPingAt = Date.now();
+    console.log(`[AutoPush] Liveness ping after ${Math.round(idleMs / 1000)}s of silence`);
+    pushDiagnostics.record("liveness_ping", { idleSeconds: Math.round(idleMs / 1000) });
+    this.sendMessage({}, "PING");
+
+    this.pongTimer = setTimeout(() => {
+      this.pongTimer = undefined;
+      console.error("[AutoPush] Liveness ping timed out, dropping zombie connection");
+      pushDiagnostics.record("liveness_reconnect", {
+        idleSeconds: Math.round((Date.now() - this.lastActivityAt) / 1000),
+      });
+      this.forceReconnect();
+    }, this.pongTimeoutMs);
+  }
+
+  /**
+   * Drop a dead socket immediately (without waiting for its close event,
+   * which can take many minutes on a half-open connection) and reconnect
+   */
+  private forceReconnect(): void {
+    const staleWs = this.ws;
+    if (staleWs) {
+      // Detach handlers so a late close event on the dead socket cannot
+      // trigger a second reconnection path
+      staleWs.onopen = null;
+      staleWs.onmessage = null;
+      staleWs.onerror = null;
+      staleWs.onclose = null;
+      try {
+        staleWs.close();
+      } catch (e) {
+        console.error("[AutoPush] Failed to close stale WebSocket:", e);
+      }
+    }
+    this.ws = undefined;
+    this.isConnected = false;
+    this.handleDisconnect();
   }
 
   /**

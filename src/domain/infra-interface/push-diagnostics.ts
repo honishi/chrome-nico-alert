@@ -7,6 +7,8 @@
  * - hello_result: HELLO handshake response (uaidChanged flags server-side UAID rotation)
  * - register_result: channel registration response
  * - reconnect_scheduled / reconnect_giveup: reconnection state
+ * - liveness_ping / liveness_reconnect: idle liveness probe and forced
+ *   reconnection of a half-open (zombie) connection
  * - conn_snapshot: periodic connection state snapshot (deduplicated)
  *
  * Push pipeline (correlated by channelId+version, then programId):
@@ -28,6 +30,8 @@ export type PushDiagnosticsEventType =
   | "register_result"
   | "reconnect_scheduled"
   | "reconnect_giveup"
+  | "liveness_ping"
+  | "liveness_reconnect"
   | "conn_snapshot"
   | "socket_received"
   | "ack_sent"
