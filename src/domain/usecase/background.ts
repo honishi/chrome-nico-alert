@@ -107,8 +107,32 @@ export class BackgroundImpl implements Background {
     // Extract programId from PushProgram
     const programId = this.extractProgramId(pushProgram.onClick);
 
-    // Filter out old notifications (skip notifications older than 3 minutes)
-    const MAX_NOTIFICATION_AGE_MINUTES = 3;
+    if (!programId) {
+      // Silently skip non-live notifications such as video upload notifications
+      console.log("Skipping non-live notification:", pushProgram.onClick);
+      this.pushDiagnostics.record("push_discard", {
+        reason: "non_live",
+        onClick: pushProgram.onClick,
+      });
+      return;
+    }
+
+    // Duplicate check comes before the stale filter: pushes redelivered after
+    // a reconnect are usually already handled via polling and must be
+    // classified as duplicates, not losses
+    if (this.processedProgramIds.includes(programId)) {
+      console.log("Program already processed:", programId);
+      this.pushDiagnostics.record("push_discard", {
+        reason: "already_processed",
+        programId,
+      });
+      return;
+    }
+
+    // Filter out old notifications. The 10-minute window matches the observed
+    // AutoPush redelivery TTL (~8-10 min), so notifications stored server-side
+    // during a connection gap arrive late instead of being lost
+    const MAX_NOTIFICATION_AGE_MINUTES = 10;
     if (pushProgram.createdAt) {
       const notificationTime = new Date(pushProgram.createdAt);
       const now = new Date();
@@ -127,16 +151,6 @@ export class BackgroundImpl implements Background {
         });
         return;
       }
-    }
-
-    if (!programId) {
-      // Silently skip non-live notifications such as video upload notifications
-      console.log("Skipping non-live notification:", pushProgram.onClick);
-      this.pushDiagnostics.record("push_discard", {
-        reason: "non_live",
-        onClick: pushProgram.onClick,
-      });
-      return;
     }
 
     // Get Program information via resolveProgram API
@@ -161,16 +175,6 @@ export class BackgroundImpl implements Background {
     }
 
     console.log("Processing push program:", program.id, program.title);
-
-    // Check if already processed
-    if (this.isProcessed(program)) {
-      console.log("Program already processed:", program.id);
-      this.pushDiagnostics.record("push_discard", {
-        reason: "already_processed",
-        programId,
-      });
-      return;
-    }
 
     // Add to processed list
     this.processedProgramIds.push(program.id);
