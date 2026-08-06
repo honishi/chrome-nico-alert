@@ -11,7 +11,7 @@ import {
   importKeys,
   base64UrlEncode,
   base64Encode,
-  decryptNotification,
+  decryptNotificationWithInfo,
   parseAutoPushPayload,
 } from "./web-push-crypto";
 
@@ -849,11 +849,13 @@ export class WebPushManager implements PushManager {
         console.log("  Ciphertext length:", payload.ciphertext.length);
 
         stage = "decrypt";
-        const decrypted = await decryptNotification(payload, this.cryptoKeys);
+        const decryption = await decryptNotificationWithInfo(payload, this.cryptoKeys);
+        const decrypted = decryption.plaintext;
         console.log("[WebPushManager] Decrypted text:", decrypted);
         pushDiagnostics.record("decrypt_ok", {
           channelId: notification.channelID,
           version: shortVersion(notification.version),
+          sharedSecretFallback: decryption.usedSharedSecretFallback,
         });
 
         stage = "json";

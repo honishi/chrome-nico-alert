@@ -192,20 +192,47 @@ export function parseAutoPushPayload(data: string): {
   };
 }
 
+interface NotificationPayload {
+  ciphertext: Uint8Array;
+  header: Uint8Array;
+  salt: Uint8Array;
+  publicKey: Uint8Array;
+  recordSize: number;
+}
+
+interface NotificationKeys {
+  authSecret: Uint8Array;
+  privateKey: CryptoKey;
+  publicKey: Uint8Array;
+}
+
+export interface DecryptionResult {
+  plaintext: string;
+  /**
+   * True when decryption only succeeded with the leading zero byte of the
+   * ECDH shared secret stripped (compat mode for Niconico's sender, which
+   * uses a variable-length shared secret representation instead of the
+   * fixed 32 bytes required by RFC 8291).
+   */
+  usedSharedSecretFallback: boolean;
+}
+
 export async function decryptNotification(
-  payload: {
-    ciphertext: Uint8Array;
-    header: Uint8Array;
-    salt: Uint8Array;
-    publicKey: Uint8Array;
-    recordSize: number;
-  },
-  keys: {
-    authSecret: Uint8Array;
-    privateKey: CryptoKey;
-    publicKey: Uint8Array;
-  },
+  payload: NotificationPayload,
+  keys: NotificationKeys,
 ): Promise<string> {
+  return (await decryptNotificationWithInfo(payload, keys)).plaintext;
+}
+
+/**
+ * Decrypt a notification, trying the RFC 8291 compliant 32-byte shared secret
+ * first and falling back to the legacy stripped representation when the
+ * secret has a leading zero byte (~1/256 of messages).
+ */
+export async function decryptNotificationWithInfo(
+  payload: NotificationPayload,
+  keys: NotificationKeys,
+): Promise<DecryptionResult> {
   const asPublicKey = await crypto.subtle.importKey(
     "raw",
     toArrayBuffer(payload.publicKey),
@@ -217,10 +244,30 @@ export async function decryptNotification(
     [],
   );
 
-  const sharedSecret = normalizeSharedSecretBytes(
-    await computeSharedSecret(keys.privateKey, asPublicKey),
-  );
+  const sharedSecret = await computeSharedSecret(keys.privateKey, asPublicKey);
 
+  try {
+    return {
+      plaintext: await deriveKeysAndDecrypt(sharedSecret, payload, keys),
+      usedSharedSecretFallback: false,
+    };
+  } catch (error) {
+    // Compat fallback: senders that strip the leading zero derive different keys
+    if (sharedSecret.length > 0 && sharedSecret[0] === 0) {
+      return {
+        plaintext: await deriveKeysAndDecrypt(sharedSecret.slice(1), payload, keys),
+        usedSharedSecretFallback: true,
+      };
+    }
+    throw error;
+  }
+}
+
+async function deriveKeysAndDecrypt(
+  sharedSecret: Uint8Array,
+  payload: NotificationPayload,
+  keys: NotificationKeys,
+): Promise<string> {
   const infoLabel = encodeText("WebPush: info\0");
   const context = new Uint8Array(keys.publicKey.length + payload.publicKey.length);
   context.set(keys.publicKey, 0);
@@ -374,9 +421,4 @@ function processDecryptedBytes(bytes: Uint8Array): string {
   }
 
   return decodeText(processed);
-}
-
-/** Normalize P-256 shared secrets by dropping a leading 0x00 when present. */
-function normalizeSharedSecretBytes(secret: Uint8Array): Uint8Array {
-  return secret.length > 0 && secret[0] === 0 ? secret.slice(1) : secret;
 }
