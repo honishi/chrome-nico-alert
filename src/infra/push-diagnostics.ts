@@ -154,6 +154,17 @@ export class PushDiagnosticsImpl implements PushDiagnostics {
 }
 
 /**
+ * Shorten AutoPush version tokens (~200 chars) for the event log.
+ * The 32-char prefix contains enough entropy to correlate events per message.
+ */
+export function shortVersion(version: string | number | undefined): string | undefined {
+  if (version === undefined) {
+    return undefined;
+  }
+  return String(version).slice(0, 32);
+}
+
+/**
  * Shared singleton.
  * Infra-layer classes (AutoPushClient, WebPushManager) import this directly;
  * domain-layer classes receive the same instance via DI (InjectTokens.PushDiagnostics).

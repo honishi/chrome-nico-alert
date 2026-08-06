@@ -3,7 +3,7 @@ import { PushManager } from "../domain/infra-interface/push-manager";
 import { PushSubscriptionInfo } from "../domain/model/push-subscription";
 import { PushProgram } from "../domain/model/push-program";
 import { AutoPushClient } from "./autopush-client";
-import { pushDiagnostics } from "./push-diagnostics";
+import { pushDiagnostics, shortVersion } from "./push-diagnostics";
 import {
   generateKeyPair,
   generateAuthSecret,
@@ -832,7 +832,7 @@ export class WebPushManager implements PushManager {
         pushDiagnostics.record("pipeline_error", {
           stage: "keys",
           channelId: notification.channelID,
-          version: notification.version,
+          version: shortVersion(notification.version),
         });
         return;
       }
@@ -853,7 +853,7 @@ export class WebPushManager implements PushManager {
         console.log("[WebPushManager] Decrypted text:", decrypted);
         pushDiagnostics.record("decrypt_ok", {
           channelId: notification.channelID,
-          version: notification.version,
+          version: shortVersion(notification.version),
         });
 
         stage = "json";
@@ -868,7 +868,7 @@ export class WebPushManager implements PushManager {
         pushDiagnostics.record("push_discard", {
           reason: "no_data",
           channelId: notification.channelID,
-          version: notification.version,
+          version: shortVersion(notification.version),
         });
       }
     } catch (error) {
@@ -880,7 +880,7 @@ export class WebPushManager implements PushManager {
       pushDiagnostics.record("pipeline_error", {
         stage,
         channelId: notification.channelID,
-        version: notification.version,
+        version: shortVersion(notification.version),
         error: (error as Error).message,
       });
     }

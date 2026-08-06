@@ -39,7 +39,7 @@ interface MessageData {
   headers?: Record<string, unknown>;
 }
 
-import { pushDiagnostics } from "./push-diagnostics";
+import { pushDiagnostics, shortVersion } from "./push-diagnostics";
 
 /**
  * AutoPush (Mozilla Push Service) client
@@ -623,7 +623,7 @@ export class AutoPushClient {
   private handleNotification(message: NotificationMessage): void {
     pushDiagnostics.record("socket_received", {
       channelId: message.channelID,
-      version: message.version,
+      version: shortVersion(message.version),
       dataLength: message.data?.length ?? 0,
     });
 
@@ -665,7 +665,7 @@ export class AutoPushClient {
       this.sendMessage(ack, "ACK");
       pushDiagnostics.record("ack_sent", {
         channelId: message.channelID,
-        version: message.version,
+        version: shortVersion(message.version),
       });
     }
   }
