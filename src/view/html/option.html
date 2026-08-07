@@ -73,6 +73,21 @@
     </div>
     <div class="section-container">
         <div class="section-title">
+            <i class="fa-solid fa-stethoscope"></i> プッシュ通知の診断ログ
+        </div>
+        <div class="section-content checkbox-with-note">
+            <input id="push-diagnostics-checkbox" type="checkbox" />
+            <label for="push-diagnostics-checkbox">診断ログを記録する</label>
+            <div class="checkbox-note">※ プッシュ通知の受信状況を調査するためのログを記録します。ログはこの端末内にのみ保存され、外部に送信されることはありません。オフに戻すとログは削除されます</div>
+        </div>
+        <div class="section-content button-container">
+            <button id="download-push-diagnostics-button" class="reset-guidance-button">ログをダウンロード</button>
+            <button id="clear-push-diagnostics-button" class="reset-guidance-button">ログをクリア</button>
+            <div id="push-diagnostics-status" class="button-note"></div>
+        </div>
+    </div>
+    <div class="section-container">
+        <div class="section-title">
             <i class="fa-solid fa-gear"></i> その他
         </div>
         <div class="section-content button-container">

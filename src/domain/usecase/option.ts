@@ -2,6 +2,7 @@ import { inject, injectable } from "tsyringe";
 import { InjectTokens } from "../../di/inject-tokens";
 import { NiconamaApi } from "../infra-interface/niconama-api";
 import { BrowserApi } from "../infra-interface/browser-api";
+import { PushDiagnostics } from "../infra-interface/push-diagnostics";
 import { SoundType } from "../model/sound-type";
 
 export interface Option {
@@ -17,6 +18,10 @@ export interface Option {
   playTestSound(): Promise<void>;
   getReceivePushNotification(): Promise<boolean>;
   setReceivePushNotification(value: boolean): Promise<void>;
+  getPushDiagnosticsEnabled(): Promise<boolean>;
+  setPushDiagnosticsEnabled(value: boolean): Promise<void>;
+  getPushDiagnosticsLog(): Promise<{ json: string; count: number }>;
+  clearPushDiagnosticsLog(): Promise<void>;
   getAutoOpenUserIds(): Promise<string[]>;
   getUserName(userId: string): Promise<string>;
   getChannelName(channelId: string): Promise<string>;
@@ -28,6 +33,7 @@ export class OptionImpl implements Option {
   constructor(
     @inject(InjectTokens.NiconamaApi) private niconamaApi: NiconamaApi,
     @inject(InjectTokens.BrowserApi) private browserApi: BrowserApi,
+    @inject(InjectTokens.PushDiagnostics) private pushDiagnostics: PushDiagnostics,
   ) {}
 
   async getShowComing(): Promise<boolean> {
@@ -78,6 +84,28 @@ export class OptionImpl implements Option {
 
   async setReceivePushNotification(value: boolean): Promise<void> {
     await this.browserApi.setReceivePushNotification(value);
+  }
+
+  async getPushDiagnosticsEnabled(): Promise<boolean> {
+    return await this.browserApi.getPushDiagnosticsEnabled();
+  }
+
+  async setPushDiagnosticsEnabled(value: boolean): Promise<void> {
+    await this.browserApi.setPushDiagnosticsEnabled(value);
+    // Turning diagnostics off also discards the recorded log (privacy /
+    // storage footprint); export beforehand if needed
+    if (!value) {
+      await this.pushDiagnostics.clearEvents();
+    }
+  }
+
+  async getPushDiagnosticsLog(): Promise<{ json: string; count: number }> {
+    const events = await this.pushDiagnostics.getEvents();
+    return { json: JSON.stringify(events, null, 2), count: events.length };
+  }
+
+  async clearPushDiagnosticsLog(): Promise<void> {
+    await this.pushDiagnostics.clearEvents();
   }
 
   async getAutoOpenUserIds(): Promise<string[]> {

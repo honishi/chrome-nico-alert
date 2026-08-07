@@ -16,6 +16,7 @@ async function renderPage() {
   await renderSoundVolume();
   await renderCustomSound();
   await renderReceivePushNotificationCheckbox();
+  await renderPushDiagnostics();
   await renderAutoOpen();
   setupResetGuidanceButton();
 }
@@ -317,6 +318,62 @@ async function getReceivePushNotification(): Promise<boolean> {
 async function setReceivePushNotification(value: boolean): Promise<void> {
   const option = container.resolve<Option>(InjectTokens.Option);
   await option.setReceivePushNotification(value);
+}
+
+async function renderPushDiagnostics() {
+  const option = container.resolve<Option>(InjectTokens.Option);
+
+  const checkbox = document.getElementById("push-diagnostics-checkbox") as HTMLInputElement;
+  const downloadButton = document.getElementById(
+    "download-push-diagnostics-button",
+  ) as HTMLButtonElement;
+  const clearButton = document.getElementById("clear-push-diagnostics-button") as HTMLButtonElement;
+  const statusText = document.getElementById("push-diagnostics-status") as HTMLDivElement;
+
+  const updateStatus = async () => {
+    const enabled = await option.getPushDiagnosticsEnabled();
+    const { count } = await option.getPushDiagnosticsLog();
+    const stateLabel = enabled ? "記録中" : "停止中";
+    statusText.textContent = `※ ${stateLabel} / 記録件数: ${count} 件`;
+    downloadButton.disabled = count === 0;
+    clearButton.disabled = count === 0;
+  };
+
+  checkbox.checked = await option.getPushDiagnosticsEnabled();
+  checkbox.addEventListener("change", async () => {
+    await option.setPushDiagnosticsEnabled(checkbox.checked);
+    await updateStatus();
+  });
+
+  downloadButton.addEventListener("click", async () => {
+    try {
+      const { json, count } = await option.getPushDiagnosticsLog();
+      if (count === 0) {
+        return;
+      }
+      const blob = new Blob([json], { type: "application/json" });
+      const url = URL.createObjectURL(blob);
+      const anchor = document.createElement("a");
+      const timestamp = new Date().toISOString().replace(/[:.]/g, "-");
+      anchor.href = url;
+      anchor.download = `push-diagnostics-${timestamp}.json`;
+      anchor.click();
+      URL.revokeObjectURL(url);
+    } catch (e) {
+      console.error("Failed to download push diagnostics log:", e);
+    }
+  });
+
+  clearButton.addEventListener("click", async () => {
+    try {
+      await option.clearPushDiagnosticsLog();
+    } catch (e) {
+      console.error("Failed to clear push diagnostics log:", e);
+    }
+    await updateStatus();
+  });
+
+  await updateStatus();
 }
 
 async function resetAllGuidance(): Promise<void> {
