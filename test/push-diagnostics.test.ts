@@ -172,6 +172,22 @@ describe("PushDiagnosticsImpl", () => {
       expect(events).toHaveLength(1);
       expect(events[0].type).toBe("conn_snapshot");
     });
+
+    test("clear queued behind a pending snapshot still resets the dedup", async () => {
+      const snapshot = { enabled: true, connected: true, connectionState: "CONNECTED" };
+
+      // The snapshot task is queued but not yet executed when clear runs;
+      // the dedup reset must apply after it, not before
+      diagnostics.recordConnectionSnapshot(snapshot);
+      await diagnostics.clearEvents();
+
+      diagnostics.recordConnectionSnapshot(snapshot);
+      await diagnostics.flush();
+
+      const events = await diagnostics.getEvents();
+      expect(events).toHaveLength(1);
+      expect(events[0].type).toBe("conn_snapshot");
+    });
   });
 
   describe("recordConnectionSnapshot", () => {
@@ -238,6 +254,31 @@ describe("PushDiagnosticsImpl", () => {
       const events = await diagnostics.getEvents();
       expect(events).toHaveLength(1);
       expect(events[0].type).toBe("conn_snapshot");
+    });
+
+    test("dedup does not advance when persisting a snapshot fails", async () => {
+      let failNextSet = true;
+      const flakyStorage: DiagnosticsStorage = {
+        get: (key) => storage.get(key),
+        set: (items) => {
+          if (failNextSet) {
+            failNextSet = false;
+            return Promise.reject(new Error("storage write failed"));
+          }
+          return storage.set(items);
+        },
+      };
+      diagnostics = new PushDiagnosticsImpl(flakyStorage);
+      const snapshot = { enabled: true, connected: true, connectionState: "CONNECTED" };
+
+      diagnostics.recordConnectionSnapshot(snapshot); // First write fails
+      await diagnostics.flush();
+      await expect(diagnostics.getEvents()).resolves.toHaveLength(0);
+
+      diagnostics.recordConnectionSnapshot(snapshot); // Retry must not be deduped
+      await diagnostics.flush();
+
+      await expect(diagnostics.getEvents()).resolves.toHaveLength(1);
     });
 
     test("suppresses heartbeat while disabled", async () => {

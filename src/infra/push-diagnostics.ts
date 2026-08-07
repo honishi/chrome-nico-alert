@@ -130,9 +130,11 @@ export class PushDiagnosticsImpl implements PushDiagnostics {
         if (unchanged && (withinHeartbeat || !snapshot.enabled)) {
           return;
         }
+        await this.appendUnchecked({ ...snapshot, ts, type: "conn_snapshot" });
+        // Advance the dedup state only after the event was actually
+        // persisted; a failed write must not suppress the next attempt
         this.lastSnapshotKey = key;
         this.lastSnapshotAt = now;
-        await this.appendUnchecked({ ...snapshot, ts, type: "conn_snapshot" });
       })
       .catch((e) => {
         console.warn("[PushDiagnostics] Failed to record snapshot:", e);
@@ -177,11 +179,16 @@ export class PushDiagnosticsImpl implements PushDiagnostics {
    * Remove all recorded events
    */
   async clearEvents(): Promise<void> {
-    // Reset snapshot dedup so the next snapshot after re-enabling is recorded
-    this.lastSnapshotKey = undefined;
-    this.lastSnapshotAt = 0;
     this.writeQueue = this.writeQueue
-      .then(() => this.storage.set({ [STORAGE_KEY]: [] }))
+      .then(async () => {
+        // Reset the snapshot dedup inside the serialized section: a
+        // snapshot task queued before this clear would otherwise advance
+        // the dedup again after a synchronous reset, suppressing the next
+        // snapshot while the log stays empty
+        this.lastSnapshotKey = undefined;
+        this.lastSnapshotAt = 0;
+        await this.storage.set({ [STORAGE_KEY]: [] });
+      })
       .catch((e) => {
         console.warn("[PushDiagnostics] Failed to clear events:", e);
       });
