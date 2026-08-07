@@ -99,6 +99,15 @@ export class PushDiagnosticsImpl implements PushDiagnostics {
   }
 
   recordConnectionSnapshot(snapshot: ConnectionSnapshot): void {
+    // Skip before touching the dedup state: updating it while disabled
+    // would suppress the first snapshots after diagnostics get enabled.
+    // (When the cached flag is not loaded yet, fall through; append still
+    // gates the write and the load is warmed up for subsequent calls.)
+    if (this.enabled === false) {
+      return;
+    }
+    void this.isEnabled();
+
     const key = JSON.stringify(snapshot);
     const now = Date.now();
     const unchanged = key === this.lastSnapshotKey;
@@ -117,6 +126,9 @@ export class PushDiagnosticsImpl implements PushDiagnostics {
     if (!programId) {
       return false;
     }
+    // Wait for queued writes so an event recorded moments ago is visible;
+    // otherwise a just-processed push could be reported as missing
+    await this.writeQueue;
     const events = await this.getEvents();
     const cutoff = Date.now() - withinMs;
     // Scan newest first: matches are most likely at the tail
@@ -148,6 +160,9 @@ export class PushDiagnosticsImpl implements PushDiagnostics {
    * Remove all recorded events
    */
   async clearEvents(): Promise<void> {
+    // Reset snapshot dedup so the next snapshot after re-enabling is recorded
+    this.lastSnapshotKey = undefined;
+    this.lastSnapshotAt = 0;
     this.writeQueue = this.writeQueue
       .then(() => this.storage.set({ [STORAGE_KEY]: [] }))
       .catch((e) => {

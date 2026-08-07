@@ -158,6 +158,20 @@ describe("PushDiagnosticsImpl", () => {
 
       await expect(diagnostics.getEvents()).resolves.toHaveLength(0);
     });
+
+    test("resets snapshot dedup so the next snapshot is recorded", async () => {
+      const snapshot = { enabled: true, connected: true, connectionState: "CONNECTED" };
+      diagnostics.recordConnectionSnapshot(snapshot);
+      await diagnostics.flush();
+
+      await diagnostics.clearEvents();
+      diagnostics.recordConnectionSnapshot(snapshot);
+      await diagnostics.flush();
+
+      const events = await diagnostics.getEvents();
+      expect(events).toHaveLength(1);
+      expect(events[0].type).toBe("conn_snapshot");
+    });
   });
 
   describe("recordConnectionSnapshot", () => {
@@ -220,6 +234,12 @@ describe("PushDiagnosticsImpl", () => {
       diagnostics.record("push_program", { programId: "lv123" });
       await diagnostics.flush();
 
+      await expect(diagnostics.hasRecentProgramPushEvent("lv123", 60 * 1000)).resolves.toBe(true);
+    });
+
+    test("sees events still sitting in the write queue", async () => {
+      diagnostics.record("push_program", { programId: "lv123" });
+      // No flush: the check itself must wait for pending writes
       await expect(diagnostics.hasRecentProgramPushEvent("lv123", 60 * 1000)).resolves.toBe(true);
     });
 
