@@ -7,6 +7,7 @@ import {
 } from "../domain/infra-interface/push-diagnostics";
 
 const STORAGE_KEY = "pushDiagnosticsLog";
+export const PUSH_DIAGNOSTICS_ENABLED_KEY = "pushDiagnosticsEnabled";
 // ~2.7 events/min observed at evening peak -> 6000 covers roughly 2-3 days
 const DEFAULT_MAX_EVENTS = 6000;
 const DEFAULT_RETENTION_MS = 7 * 24 * 60 * 60 * 1000; // 7 days
@@ -60,6 +61,12 @@ export class PushDiagnosticsImpl implements PushDiagnostics {
   private lastSnapshotKey?: string;
   private lastSnapshotAt = 0;
 
+  // Recording is opt-in (options page toggle). The flag is loaded lazily and
+  // then kept up to date via storage.onChanged, so toggling takes effect
+  // without a service worker restart.
+  private enabled?: boolean;
+  private enabledLoad?: Promise<boolean>;
+
   constructor(
     storage: DiagnosticsStorage = chromeStorageBackend,
     options?: PushDiagnosticsOptions,
@@ -68,6 +75,14 @@ export class PushDiagnosticsImpl implements PushDiagnostics {
     this.maxEvents = options?.maxEvents ?? DEFAULT_MAX_EVENTS;
     this.retentionMs = options?.retentionMs ?? DEFAULT_RETENTION_MS;
     this.snapshotHeartbeatMs = options?.snapshotHeartbeatMs ?? DEFAULT_SNAPSHOT_HEARTBEAT_MS;
+
+    if (typeof chrome !== "undefined" && chrome.storage?.onChanged) {
+      chrome.storage.onChanged.addListener((changes, areaName) => {
+        if (areaName === "local" && changes[PUSH_DIAGNOSTICS_ENABLED_KEY]) {
+          this.enabled = changes[PUSH_DIAGNOSTICS_ENABLED_KEY].newValue === true;
+        }
+      });
+    }
   }
 
   record(type: PushDiagnosticsEventType, detail?: PushDiagnosticsEventDetail): void {
@@ -130,6 +145,18 @@ export class PushDiagnosticsImpl implements PushDiagnostics {
   }
 
   /**
+   * Remove all recorded events
+   */
+  async clearEvents(): Promise<void> {
+    this.writeQueue = this.writeQueue
+      .then(() => this.storage.set({ [STORAGE_KEY]: [] }))
+      .catch((e) => {
+        console.warn("[PushDiagnostics] Failed to clear events:", e);
+      });
+    await this.writeQueue;
+  }
+
+  /**
    * Wait until all queued writes are flushed (for tests)
    */
   async flush(): Promise<void> {
@@ -137,10 +164,35 @@ export class PushDiagnosticsImpl implements PushDiagnostics {
   }
 
   private async append(event: PushDiagnosticsEvent): Promise<void> {
+    if (!(await this.isEnabled())) {
+      return;
+    }
     const events = await this.getEvents();
     events.push(event);
     const pruned = this.prune(events);
     await this.storage.set({ [STORAGE_KEY]: pruned });
+  }
+
+  private async isEnabled(): Promise<boolean> {
+    if (this.enabled !== undefined) {
+      return this.enabled;
+    }
+    if (!this.enabledLoad) {
+      this.enabledLoad = this.storage
+        .get(PUSH_DIAGNOSTICS_ENABLED_KEY)
+        .then((result) => {
+          // An onChanged update may have arrived while loading; keep it
+          if (this.enabled === undefined) {
+            this.enabled = result[PUSH_DIAGNOSTICS_ENABLED_KEY] === true;
+          }
+          return this.enabled;
+        })
+        .catch((e) => {
+          console.warn("[PushDiagnostics] Failed to load enabled flag:", e);
+          return this.enabled ?? false;
+        });
+    }
+    return this.enabledLoad;
   }
 
   private prune(events: PushDiagnosticsEvent[]): PushDiagnosticsEvent[] {

@@ -2,7 +2,11 @@
  * Test suite for PushDiagnosticsImpl (persistent push diagnostics log)
  */
 
-import { DiagnosticsStorage, PushDiagnosticsImpl } from "../src/infra/push-diagnostics";
+import {
+  DiagnosticsStorage,
+  PushDiagnosticsImpl,
+  PUSH_DIAGNOSTICS_ENABLED_KEY,
+} from "../src/infra/push-diagnostics";
 import { PushDiagnosticsEvent } from "../src/domain/infra-interface/push-diagnostics";
 
 const STORAGE_KEY = "pushDiagnosticsLog";
@@ -21,6 +25,10 @@ class InMemoryStorage implements DiagnosticsStorage {
   seed(events: PushDiagnosticsEvent[]): void {
     this.items[STORAGE_KEY] = events;
   }
+
+  setValue(key: string, value: unknown): void {
+    this.items[key] = value;
+  }
 }
 
 function isoAgo(ms: number): string {
@@ -33,6 +41,7 @@ describe("PushDiagnosticsImpl", () => {
 
   beforeEach(() => {
     storage = new InMemoryStorage();
+    storage.setValue(PUSH_DIAGNOSTICS_ENABLED_KEY, true);
     diagnostics = new PushDiagnosticsImpl(storage);
   });
 
@@ -86,6 +95,32 @@ describe("PushDiagnosticsImpl", () => {
       expect(events.map((e) => e.seq)).toEqual([1, 2]);
     });
 
+    test("does not record when the enabled flag is absent", async () => {
+      storage = new InMemoryStorage();
+      diagnostics = new PushDiagnosticsImpl(storage);
+
+      diagnostics.record("ws_open");
+      await diagnostics.flush();
+
+      await expect(diagnostics.getEvents()).resolves.toHaveLength(0);
+    });
+
+    test("does not record when diagnostics are disabled", async () => {
+      storage = new InMemoryStorage();
+      storage.setValue(PUSH_DIAGNOSTICS_ENABLED_KEY, false);
+      diagnostics = new PushDiagnosticsImpl(storage);
+
+      diagnostics.record("ws_open");
+      diagnostics.recordConnectionSnapshot({
+        enabled: true,
+        connected: true,
+        connectionState: "CONNECTED",
+      });
+      await diagnostics.flush();
+
+      await expect(diagnostics.getEvents()).resolves.toHaveLength(0);
+    });
+
     test("does not reject the queue when storage fails", async () => {
       const failingStorage: DiagnosticsStorage = {
         get: async () => {
@@ -99,6 +134,29 @@ describe("PushDiagnosticsImpl", () => {
 
       diagnostics.record("ws_open");
       await expect(diagnostics.flush()).resolves.toBeUndefined();
+    });
+  });
+
+  describe("clearEvents", () => {
+    test("removes all recorded events", async () => {
+      diagnostics.record("ws_open");
+      diagnostics.record("ws_close");
+      await diagnostics.flush();
+      await expect(diagnostics.getEvents()).resolves.toHaveLength(2);
+
+      await diagnostics.clearEvents();
+
+      await expect(diagnostics.getEvents()).resolves.toHaveLength(0);
+    });
+
+    test("clears even when recording is disabled", async () => {
+      storage.seed([{ ts: isoAgo(1000), type: "ws_open" }]);
+      storage.setValue(PUSH_DIAGNOSTICS_ENABLED_KEY, false);
+      diagnostics = new PushDiagnosticsImpl(storage);
+
+      await diagnostics.clearEvents();
+
+      await expect(diagnostics.getEvents()).resolves.toHaveLength(0);
     });
   });
 

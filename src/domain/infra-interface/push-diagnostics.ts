@@ -60,7 +60,10 @@ export interface ConnectionSnapshot {
 
 /**
  * Persistent diagnostic log for isolating push notification losses.
- * Recording must never affect the push pipeline behavior (fire-and-forget, non-throwing).
+ * Recording must never affect the push pipeline behavior (fire-and-forget,
+ * non-throwing). Recording is opt-in: events are only persisted while the
+ * user has enabled diagnostics in the options page; all record calls are
+ * silently ignored otherwise.
  */
 export interface PushDiagnostics {
   /**
@@ -84,4 +87,9 @@ export interface PushDiagnostics {
    * Get all recorded events (oldest first)
    */
   getEvents(): Promise<PushDiagnosticsEvent[]>;
+
+  /**
+   * Remove all recorded events
+   */
+  clearEvents(): Promise<void>;
 }
