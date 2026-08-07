@@ -71,9 +71,13 @@ export class AutoPushClient {
   private lastActivityAt = Date.now();
   private lastLivenessPingAt = 0;
   private pongTimer?: NodeJS.Timeout;
-  private readonly idlePingThresholdMs = 5 * 60 * 1000; // ping after 5 min without inbound traffic
+  private readonly idlePingThresholdMs = 2 * 60 * 1000; // ping after 2 min without inbound traffic
   private readonly pongTimeoutMs = 10 * 1000; // reconnect if no reply within 10 s
   private readonly minLivenessPingIntervalMs = 60 * 1000; // AutoPush forbids pings more often than 1/min
+
+  // Proactive connection cycling (desync mitigation)
+  private cycleReconnectTimer?: NodeJS.Timeout;
+  private readonly connectionMaxLifetimeMs = 5 * 60 * 1000; // replace the connection every 5 min
 
   // Test utilities
   private testAutoCloseTimer?: NodeJS.Timeout;
@@ -320,6 +324,10 @@ export class AutoPushClient {
     if (this.pongTimer) {
       clearTimeout(this.pongTimer);
       this.pongTimer = undefined;
+    }
+    if (this.cycleReconnectTimer) {
+      clearTimeout(this.cycleReconnectTimer);
+      this.cycleReconnectTimer = undefined;
     }
 
     if (this.ws) {
@@ -594,6 +602,9 @@ export class AutoPushClient {
     // Consider the connection stable only after successful HELLO
     this.reconnectAttempts = 0;
 
+    // The session is registered server-side; start its lifetime clock
+    this.startCycleReconnectTimer();
+
     // Test: auto-close WebSocket after configured delay
     if (this.testAutoCloseMs) {
       if (this.testAutoCloseTimer) {
@@ -813,10 +824,49 @@ export class AutoPushClient {
   }
 
   /**
-   * Drop a dead socket immediately (without waiting for its close event,
-   * which can take many minutes on a half-open connection) and reconnect
+   * Proactively replace the connection after connectionMaxLifetimeMs.
+   * Field data showed ~20% of AutoPush sessions silently stop delivering
+   * pushes (server-side routing desync) while still answering pings, so
+   * neither close events nor the liveness watchdog can detect them.
+   * Cycling the connection bounds any desync window to the cycle length,
+   * which is well within the observed ~8-10 min redelivery TTL, so pushes
+   * missed during a desync are recovered on the next connection. The
+   * reference implementation (nicoLiveCheckTool PushReceiverCurl) uses
+   * the same 5-minute cycling strategy.
+   */
+  private startCycleReconnectTimer(): void {
+    if (this.cycleReconnectTimer) {
+      clearTimeout(this.cycleReconnectTimer);
+    }
+    this.cycleReconnectTimer = setTimeout(() => {
+      this.cycleReconnectTimer = undefined;
+      if (!this.ws || this.ws.readyState !== WebSocket.OPEN) {
+        return; // A reconnection is already in progress elsewhere
+      }
+      console.log(
+        `[AutoPush] Cycling connection after ${this.connectionMaxLifetimeMs / 1000}s lifetime`,
+      );
+      pushDiagnostics.record("cycle_reconnect", {
+        lifetimeSeconds: this.connectionMaxLifetimeMs / 1000,
+      });
+      this.forceReconnect();
+    }, this.connectionMaxLifetimeMs);
+  }
+
+  /**
+   * Drop the current socket immediately (without waiting for its close
+   * event, which can take many minutes on a half-open connection) and
+   * reconnect
    */
   private forceReconnect(): void {
+    if (this.cycleReconnectTimer) {
+      clearTimeout(this.cycleReconnectTimer);
+      this.cycleReconnectTimer = undefined;
+    }
+    if (this.pongTimer) {
+      clearTimeout(this.pongTimer);
+      this.pongTimer = undefined;
+    }
     const staleWs = this.ws;
     if (staleWs) {
       // Detach handlers so a late close event on the dead socket cannot
