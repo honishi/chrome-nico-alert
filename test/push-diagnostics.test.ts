@@ -95,6 +95,22 @@ describe("PushDiagnosticsImpl", () => {
       expect(events.map((e) => e.seq)).toEqual([1, 2]);
     });
 
+    test("prunes expired events behind an unparseable leading timestamp", async () => {
+      storage.seed([
+        { ts: "not-a-timestamp", type: "ws_open", seq: 0 },
+        { ts: isoAgo(10 * 60 * 1000), type: "ws_close", seq: 1 },
+        { ts: isoAgo(1 * 60 * 1000), type: "ws_open", seq: 2 },
+      ]);
+      diagnostics = new PushDiagnosticsImpl(storage, { retentionMs: 5 * 60 * 1000 });
+
+      diagnostics.record("ws_open", { seq: 3 });
+      await diagnostics.flush();
+
+      // The invalid timestamp itself is kept, the expired event is removed
+      const events = await diagnostics.getEvents();
+      expect(events.map((e) => e.seq)).toEqual([0, 2, 3]);
+    });
+
     test("does not record when the enabled flag is absent", async () => {
       storage = new InMemoryStorage();
       diagnostics = new PushDiagnosticsImpl(storage);

@@ -238,9 +238,10 @@ export class PushDiagnosticsImpl implements PushDiagnostics {
     // Events are appended in time order, so when even the oldest one is
     // within retention (the common case: the size cap cycles the log in
     // ~2-3 days, well under the 7-day retention) the per-event parse can
-    // be skipped entirely
+    // be skipped entirely. An unparseable oldest timestamp falls through
+    // to the full filter so expired events behind it are still removed
     const oldest = events.length > 0 ? Date.parse(events[0].ts) : NaN;
-    if (Number.isNaN(oldest) || oldest >= cutoff) {
+    if (!Number.isNaN(oldest) && oldest >= cutoff) {
       return events.length > this.maxEvents ? events.slice(-this.maxEvents) : events;
     }
     return events
