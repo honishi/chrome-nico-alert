@@ -217,6 +217,29 @@ describe("PushDiagnosticsImpl", () => {
       expect(events).toHaveLength(2);
     });
 
+    test("snapshots seen while disabled do not suppress the first snapshot after enabling", async () => {
+      storage = new InMemoryStorage(); // Flag absent: diagnostics disabled
+      diagnostics = new PushDiagnosticsImpl(storage);
+      const snapshot = { enabled: true, connected: true, connectionState: "CONNECTED" };
+
+      // Cold start: snapshot observed while disabled must not be persisted
+      // and must not advance the dedup state
+      diagnostics.recordConnectionSnapshot(snapshot);
+      await diagnostics.flush();
+      await expect(diagnostics.getEvents()).resolves.toHaveLength(0);
+
+      // User enables diagnostics (storage write + onChanged notification)
+      storage.setValue(PUSH_DIAGNOSTICS_ENABLED_KEY, true);
+      diagnostics.applyEnabledFlag(true);
+
+      diagnostics.recordConnectionSnapshot(snapshot);
+      await diagnostics.flush();
+
+      const events = await diagnostics.getEvents();
+      expect(events).toHaveLength(1);
+      expect(events[0].type).toBe("conn_snapshot");
+    });
+
     test("suppresses heartbeat while disabled", async () => {
       diagnostics = new PushDiagnosticsImpl(storage, { snapshotHeartbeatMs: 0 });
       const snapshot = { enabled: false, connected: false, connectionState: "NOT_INITIALIZED" };

@@ -79,10 +79,18 @@ export class PushDiagnosticsImpl implements PushDiagnostics {
     if (typeof chrome !== "undefined" && chrome.storage?.onChanged) {
       chrome.storage.onChanged.addListener((changes, areaName) => {
         if (areaName === "local" && changes[PUSH_DIAGNOSTICS_ENABLED_KEY]) {
-          this.enabled = changes[PUSH_DIAGNOSTICS_ENABLED_KEY].newValue === true;
+          this.applyEnabledFlag(changes[PUSH_DIAGNOSTICS_ENABLED_KEY].newValue === true);
         }
       });
     }
+  }
+
+  /**
+   * Apply an updated enabled flag (called from storage.onChanged; exposed
+   * separately so tests can simulate the change without chrome APIs)
+   */
+  applyEnabledFlag(value: boolean): void {
+    this.enabled = value;
   }
 
   record(type: PushDiagnosticsEventType, detail?: PushDiagnosticsEventDetail): void {
@@ -99,27 +107,36 @@ export class PushDiagnosticsImpl implements PushDiagnostics {
   }
 
   recordConnectionSnapshot(snapshot: ConnectionSnapshot): void {
-    // Skip before touching the dedup state: updating it while disabled
-    // would suppress the first snapshots after diagnostics get enabled.
-    // (When the cached flag is not loaded yet, fall through; append still
-    // gates the write and the load is warmed up for subsequent calls.)
     if (this.enabled === false) {
-      return;
+      return; // Cheap shortcut; the queued task re-checks anyway
     }
-    void this.isEnabled();
-
-    const key = JSON.stringify(snapshot);
-    const now = Date.now();
-    const unchanged = key === this.lastSnapshotKey;
-    const withinHeartbeat = now - this.lastSnapshotAt < this.snapshotHeartbeatMs;
-    // Skip when unchanged, unless push is enabled and the heartbeat interval elapsed.
-    // While disabled, only state changes are recorded (no heartbeat noise).
-    if (unchanged && (withinHeartbeat || !snapshot.enabled)) {
-      return;
-    }
-    this.lastSnapshotKey = key;
-    this.lastSnapshotAt = now;
-    this.record("conn_snapshot", { ...snapshot });
+    const ts = new Date().toISOString();
+    this.writeQueue = this.writeQueue
+      .then(async () => {
+        // Both the enabled gate and the dedup run inside the queue so the
+        // dedup state only advances when an event is actually persisted;
+        // snapshots observed while disabled (including before the flag has
+        // loaded on a cold start) must not suppress the first snapshots
+        // recorded after enabling
+        if (!(await this.isEnabled())) {
+          return;
+        }
+        const key = JSON.stringify(snapshot);
+        const now = Date.now();
+        const unchanged = key === this.lastSnapshotKey;
+        const withinHeartbeat = now - this.lastSnapshotAt < this.snapshotHeartbeatMs;
+        // Skip when unchanged, unless push is enabled and the heartbeat interval elapsed.
+        // While disabled, only state changes are recorded (no heartbeat noise).
+        if (unchanged && (withinHeartbeat || !snapshot.enabled)) {
+          return;
+        }
+        this.lastSnapshotKey = key;
+        this.lastSnapshotAt = now;
+        await this.appendUnchecked({ ...snapshot, ts, type: "conn_snapshot" });
+      })
+      .catch((e) => {
+        console.warn("[PushDiagnostics] Failed to record snapshot:", e);
+      });
   }
 
   async hasRecentProgramPushEvent(programId: string, withinMs: number): Promise<boolean> {
@@ -182,6 +199,10 @@ export class PushDiagnosticsImpl implements PushDiagnostics {
     if (!(await this.isEnabled())) {
       return;
     }
+    await this.appendUnchecked(event);
+  }
+
+  private async appendUnchecked(event: PushDiagnosticsEvent): Promise<void> {
     const events = await this.getEvents();
     events.push(event);
     const pruned = this.prune(events);
