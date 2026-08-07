@@ -195,13 +195,23 @@ export class AutoPushClient {
     ) {
       console.log("WebSocket already connecting or connected");
 
-      // Wait for connection to complete
+      // Wait for connection to complete. Must settle in every case: the
+      // socket can also go CLOSING/CLOSED here, and an unsettled promise
+      // would leave the caller (and its reconnection chain) hanging forever
       if (this.ws.readyState === WebSocket.CONNECTING) {
-        await new Promise<void>((resolve) => {
+        const CONNECT_WAIT_TIMEOUT_MS = 15000;
+        await new Promise<void>((resolve, reject) => {
+          const startedAt = Date.now();
           const checkInterval = setInterval(() => {
             if (this.ws && this.ws.readyState === WebSocket.OPEN) {
               clearInterval(checkInterval);
               resolve();
+            } else if (!this.ws || this.ws.readyState !== WebSocket.CONNECTING) {
+              clearInterval(checkInterval);
+              reject(new Error("WebSocket closed while waiting for connection"));
+            } else if (Date.now() - startedAt > CONNECT_WAIT_TIMEOUT_MS) {
+              clearInterval(checkInterval);
+              reject(new Error("Timed out waiting for WebSocket connection"));
             }
           }, 100);
         });
@@ -351,22 +361,37 @@ export class AutoPushClient {
     return new Promise((resolve, reject) => {
       // Set up one-time handler for hello response
       const originalHandler = this.messageHandlers.get("hello");
-      this.messageHandlers.set("hello", (response) => {
-        // Restore original handler if exists
+      let timeoutTimer: NodeJS.Timeout | undefined;
+
+      // Remove our wrapper only if it is still the registered handler;
+      // a newer sendHello may have replaced it in the meantime
+      const restoreHandler = () => {
+        if (this.messageHandlers.get("hello") !== helloHandler) {
+          return;
+        }
         if (originalHandler) {
           this.messageHandlers.set("hello", originalHandler);
         } else {
           this.messageHandlers.delete("hello");
         }
+      };
+
+      const helloHandler = (response: unknown) => {
+        if (timeoutTimer) {
+          clearTimeout(timeoutTimer);
+          timeoutTimer = undefined;
+        }
+        restoreHandler();
         resolve(response as HelloResponse);
-      });
+      };
+      this.messageHandlers.set("hello", helloHandler);
 
       // Send hello message
       this.sendMessage(hello, "HELLO");
 
       // Timeout after 10 seconds
-      setTimeout(() => {
-        this.messageHandlers.delete("hello");
+      timeoutTimer = setTimeout(() => {
+        restoreHandler();
         reject(new Error("Hello response timeout"));
       }, 10000);
     });
@@ -871,11 +896,21 @@ export class AutoPushClient {
                 this.channelIds = savedChannelIds;
               }
             } catch (helloError) {
+              // Unauthenticated connections receive no pushes; drop the
+              // socket and retry instead of waiting for a server close
               console.error("[AutoPush] Failed to restore session:", helloError);
+              this.forceReconnect();
+              return;
             }
           }
         } catch (error) {
+          // Keep the reconnection chain alive. Failures thrown before a
+          // socket exists (e.g. the connect rate limit) produce no close
+          // event, so without rescheduling here the chain would end
+          // permanently. handleDisconnect clears any pending timer first,
+          // so a concurrent close event cannot double-schedule.
           console.error("[AutoPush] Reconnection failed:", error);
+          this.handleDisconnect();
         }
       }, delay);
     } else {
