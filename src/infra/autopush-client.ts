@@ -226,9 +226,23 @@ export class AutoPushClient {
     return new Promise((resolve, reject) => {
       try {
         console.log(`Connecting to AutoPush service: ${this.endpoint}`);
-        this.ws = new WebSocket(this.endpoint);
+        // Capture the socket so every handler can verify it still owns the
+        // shared state; a handler firing late on a replaced (stale) socket
+        // must not mutate the current connection or trigger reconnection
+        const socket = new WebSocket(this.endpoint);
+        this.ws = socket;
 
-        this.ws.onopen = () => {
+        socket.onopen = () => {
+          if (this.ws !== socket) {
+            // Superseded while connecting; abandon this socket
+            try {
+              socket.close();
+            } catch (e) {
+              console.error("[AutoPush] Failed to close superseded socket:", e);
+            }
+            reject(new Error("WebSocket superseded during connect"));
+            return;
+          }
           console.log("[AutoPush] ✅ WebSocket OPENED");
           console.log("[AutoPush] Connected to:", this.endpoint);
           pushDiagnostics.record("ws_open");
@@ -253,7 +267,10 @@ export class AutoPushClient {
           resolve();
         };
 
-        this.ws.onmessage = (event) => {
+        socket.onmessage = (event) => {
+          if (this.ws !== socket) {
+            return;
+          }
           // Any inbound traffic proves the connection is alive
           this.lastActivityAt = Date.now();
           if (this.pongTimer) {
@@ -274,14 +291,20 @@ export class AutoPushClient {
           }
         };
 
-        this.ws.onerror = (error) => {
+        socket.onerror = (error) => {
           console.error("[AutoPush] ❌ WebSocket ERROR:", error);
           pushDiagnostics.record("ws_error");
-          this.isConnected = false;
+          if (this.ws === socket) {
+            this.isConnected = false;
+          }
+          // Always settle this connect attempt's promise
           reject(error);
         };
 
-        this.ws.onclose = (event) => {
+        socket.onclose = (event) => {
+          if (this.ws !== socket) {
+            return;
+          }
           console.log("[AutoPush] ❌ WebSocket CLOSED");
           console.log("[AutoPush] Close details:", {
             code: event.code,
@@ -890,16 +913,30 @@ export class AutoPushClient {
    * Handle disconnection
    */
   private handleDisconnect(): void {
-    // Clear existing timers
-    if (this.reconnectTimer) {
-      clearTimeout(this.reconnectTimer);
-      this.reconnectTimer = undefined;
+    // Session-scoped timers belong to the connection that just ended; a
+    // stale pong timeout or cycle timer firing later must never be able to
+    // tear down the next connection
+    if (this.pongTimer) {
+      clearTimeout(this.pongTimer);
+      this.pongTimer = undefined;
+    }
+    if (this.cycleReconnectTimer) {
+      clearTimeout(this.cycleReconnectTimer);
+      this.cycleReconnectTimer = undefined;
     }
 
     // Don't reconnect for intentional disconnections
     if (this.intentionalDisconnect) {
       console.log("[AutoPush] Intentional disconnect, skipping reconnection");
       this.intentionalDisconnect = false;
+      return;
+    }
+
+    // Idempotent: a connect failure can reach here twice for the same
+    // socket (the onerror-driven reject path and the close event); the
+    // first caller wins and later ones must not add attempts or timers
+    if (this.reconnectTimer) {
+      console.log("[AutoPush] Reconnection already scheduled, skipping");
       return;
     }
 
@@ -930,7 +967,17 @@ export class AutoPushClient {
       }
 
       this.reconnectTimer = setTimeout(async () => {
+        // Mark this attempt as running so a failure can schedule the next one
+        this.reconnectTimer = undefined;
         try {
+          // If another path already restored an authenticated session,
+          // leave it alone: a second HELLO on the same connection is a
+          // protocol error and would get the socket closed
+          if (this.isConnectionOpen() && this.uaid) {
+            console.log("[AutoPush] Session already restored, skipping reconnect attempt");
+            return;
+          }
+
           await this.connect();
 
           // After successful reconnection, send HELLO with saved state

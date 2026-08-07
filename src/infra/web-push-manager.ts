@@ -790,6 +790,12 @@ export class WebPushManager implements PushManager {
     } catch (error) {
       console.error("[WebPushManager] Failed to complete handshake:", error);
 
+      // An unauthenticated connection receives no pushes. Drop it so a
+      // later start() cannot mistake the still-open socket for a working
+      // session (isConnectionOpen would report true forever)
+      this.autoPush.disconnect();
+      this.autoPush = undefined;
+
       // If UAID is expired, the AutoPushClient will have already disconnected
       // User needs to manually turn push notifications off and on again
       if (
