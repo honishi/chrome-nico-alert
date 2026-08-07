@@ -614,9 +614,11 @@ export class AutoPushClient {
     // Cleanup
     this.pendingChannelIds = undefined;
 
-    // Send initial PING after HELLO completion
+    // Send initial PING after HELLO completion (bound to this socket so a
+    // stale timer cannot ping a replacement connection)
+    const helloSocket = this.ws;
     setTimeout(() => {
-      if (this.isConnected) {
+      if (this.isConnected && this.ws === helloSocket) {
         console.log("[AutoPush] Sending initial PING to activate connection");
         this.sendPing();
       }
@@ -979,6 +981,9 @@ export class AutoPushClient {
           }
 
           await this.connect();
+          // The socket this attempt established; if it goes away, a newer
+          // attempt owns the session and this attempt must not touch it
+          const attemptSocket = this.ws;
 
           // After successful reconnection, send HELLO with saved state
           if (this.isConnected && (savedUaid || savedChannelIds.length > 0)) {
@@ -994,9 +999,15 @@ export class AutoPushClient {
               }
             } catch (helloError) {
               // Unauthenticated connections receive no pushes; drop the
-              // socket and retry instead of waiting for a server close
+              // socket and retry instead of waiting for a server close.
+              // Only if this attempt still owns the current socket: its
+              // HELLO timeout can fire long after the socket closed and a
+              // newer attempt authenticated a replacement, which must not
+              // be torn down (review finding)
               console.error("[AutoPush] Failed to restore session:", helloError);
-              this.forceReconnect();
+              if (this.ws === attemptSocket) {
+                this.forceReconnect();
+              }
               return;
             }
           }
@@ -1016,6 +1027,11 @@ export class AutoPushClient {
         reason: "max_attempts",
         attempt: this.reconnectAttempts,
       });
+      // No further reconnection will happen; stop the state check loop
+      if (this.stateCheckInterval) {
+        clearInterval(this.stateCheckInterval);
+        this.stateCheckInterval = undefined;
+      }
     }
   }
 }

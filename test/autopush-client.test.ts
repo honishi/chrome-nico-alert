@@ -210,6 +210,42 @@ describe("AutoPushClient", () => {
     client.disconnect();
   });
 
+  test("a stale HELLO timeout does not tear down a newer authenticated socket", async () => {
+    const client = new AutoPushClient();
+    const socketA = await establish(client);
+
+    // A drops; attempt R1 connects socket B and sends HELLO on it
+    socketA.serverClose();
+    await jest.advanceTimersByTimeAsync(1000);
+    const socketB = MockWebSocket.latest();
+    socketB.open();
+    await jest.advanceTimersByTimeAsync(0);
+    expect(socketB.helloCount()).toBe(1);
+
+    // B drops before its HELLO response; attempt R2 (2s backoff) connects
+    // socket C, whose HELLO succeeds
+    socketB.serverClose();
+    await jest.advanceTimersByTimeAsync(2000);
+    const socketC = MockWebSocket.latest();
+    expect(socketC).not.toBe(socketB);
+    socketC.open();
+    await jest.advanceTimersByTimeAsync(0);
+    socketC.serverMessage({ messageType: "hello", status: 200, uaid: "uaid-1" });
+    await jest.advanceTimersByTimeAsync(0);
+    expect(client.isConnectionOpen()).toBe(true);
+
+    // Socket B's 10s HELLO timeout now fires inside attempt R1; it must
+    // not touch the healthy session that attempt R2 established
+    await jest.advanceTimersByTimeAsync(10000);
+
+    expect(socketC.readyState).toBe(MockWebSocket.OPEN);
+    expect(client.isConnectionOpen()).toBe(true);
+    expect(socketC.helloCount()).toBe(1);
+    expect(MockWebSocket.instances).toHaveLength(3);
+
+    client.disconnect();
+  });
+
   test("replaces the connection 5 minutes after HELLO", async () => {
     const client = new AutoPushClient();
     const socketA = await establish(client);
