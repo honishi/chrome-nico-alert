@@ -1,0 +1,249 @@
+/**
+ * Test suite for the AutoPushClient connection / timer state machine,
+ * driven by a fake WebSocket and fake timers.
+ */
+
+import { AutoPushClient } from "../src/infra/autopush-client";
+
+class MockWebSocket {
+  static readonly CONNECTING = 0;
+  static readonly OPEN = 1;
+  static readonly CLOSING = 2;
+  static readonly CLOSED = 3;
+  static instances: MockWebSocket[] = [];
+
+  readyState = MockWebSocket.CONNECTING;
+  sent: string[] = [];
+  private pongedCount = 0;
+  onopen: (() => void) | null = null;
+  onmessage: ((event: { data: string }) => void) | null = null;
+  onerror: ((error: unknown) => void) | null = null;
+  onclose: ((event: { code: number; reason: string; wasClean: boolean }) => void) | null = null;
+
+  constructor(public url: string) {
+    MockWebSocket.instances.push(this);
+  }
+
+  static latest(): MockWebSocket {
+    return MockWebSocket.instances[MockWebSocket.instances.length - 1];
+  }
+
+  static reset(): void {
+    MockWebSocket.instances = [];
+  }
+
+  send(data: string): void {
+    this.sent.push(data);
+  }
+
+  close(): void {
+    // A locally initiated close; handlers are typically detached by the
+    // client before calling this, so no close event is delivered
+    this.readyState = MockWebSocket.CLOSED;
+  }
+
+  open(): void {
+    this.readyState = MockWebSocket.OPEN;
+    this.onopen?.();
+  }
+
+  serverMessage(message: unknown): void {
+    this.onmessage?.({ data: JSON.stringify(message) });
+  }
+
+  serverClose(code = 1006): void {
+    this.readyState = MockWebSocket.CLOSED;
+    this.onclose?.({ code, reason: "", wasClean: false });
+  }
+
+  fireError(): void {
+    this.onerror?.(new Error("socket error"));
+  }
+
+  helloCount(): number {
+    return this.sent.filter((message) => message.includes('"messageType":"hello"')).length;
+  }
+
+  pingCount(): number {
+    return this.sent.filter((message) => message === "{}").length;
+  }
+
+  respondPendingPings(): void {
+    while (this.pongedCount < this.pingCount()) {
+      this.pongedCount++;
+      this.serverMessage({});
+    }
+  }
+}
+
+type ClientInternals = { reconnectAttempts: number; handleDisconnect: () => void };
+
+function internals(client: AutoPushClient): ClientInternals {
+  return client as unknown as ClientInternals;
+}
+
+async function establish(client: AutoPushClient, uaid = "uaid-1"): Promise<MockWebSocket> {
+  const connectPromise = client.connect();
+  const socket = MockWebSocket.latest();
+  socket.open();
+  await connectPromise;
+  const helloPromise = client.sendHello(uaid, ["ch-1"]);
+  socket.serverMessage({ messageType: "hello", status: 200, uaid });
+  await helloPromise;
+  return socket;
+}
+
+/**
+ * Advance fake time while answering liveness pings, so the connection is
+ * treated as alive throughout. Steps of 15s keep pong replies within the
+ * 10s pong timeout (liveness checks run on a 30s grid).
+ */
+async function advanceAnsweringPings(ms: number, step = 15000): Promise<void> {
+  let remaining = ms;
+  while (remaining > 0) {
+    const chunk = Math.min(step, remaining);
+    await jest.advanceTimersByTimeAsync(chunk);
+    remaining -= chunk;
+    for (const socket of MockWebSocket.instances) {
+      if (socket.readyState === MockWebSocket.OPEN) {
+        socket.respondPendingPings();
+      }
+    }
+  }
+}
+
+describe("AutoPushClient", () => {
+  const originalWebSocket = (globalThis as { WebSocket?: unknown }).WebSocket;
+
+  beforeAll(() => {
+    (globalThis as { WebSocket?: unknown }).WebSocket = MockWebSocket;
+  });
+
+  afterAll(() => {
+    (globalThis as { WebSocket?: unknown }).WebSocket = originalWebSocket;
+  });
+
+  beforeEach(() => {
+    jest.useFakeTimers();
+    MockWebSocket.reset();
+  });
+
+  afterEach(() => {
+    jest.useRealTimers();
+  });
+
+  test("connect resolves on open and HELLO establishes the session", async () => {
+    const client = new AutoPushClient();
+    const socket = await establish(client);
+
+    expect(client.isConnectionOpen()).toBe(true);
+    expect(client.getUaid()).toBe("uaid-1");
+    expect(client.getChannelIds()).toEqual(["ch-1"]);
+    expect(socket.helloCount()).toBe(1);
+
+    client.disconnect();
+  });
+
+  test("sendHello rejects after 10 seconds without a response", async () => {
+    const client = new AutoPushClient();
+    const connectPromise = client.connect();
+    MockWebSocket.latest().open();
+    await connectPromise;
+
+    const helloPromise = client.sendHello("uaid-1", ["ch-1"]);
+    const assertion = expect(helloPromise).rejects.toThrow("Hello response timeout");
+    await jest.advanceTimersByTimeAsync(10000);
+    await assertion;
+
+    client.disconnect();
+  });
+
+  test("onerror plus onclose schedules exactly one reconnection attempt", async () => {
+    const client = new AutoPushClient();
+    const socket = await establish(client);
+
+    socket.fireError();
+    socket.serverClose();
+    // A duplicate disconnect signal for the same failure must be a no-op
+    internals(client).handleDisconnect();
+
+    expect(MockWebSocket.instances).toHaveLength(1);
+    await jest.advanceTimersByTimeAsync(1000);
+
+    expect(MockWebSocket.instances).toHaveLength(2);
+    expect(internals(client).reconnectAttempts).toBe(1);
+
+    client.disconnect();
+  });
+
+  test("a stale pong timeout cannot tear down the next connection", async () => {
+    const client = new AutoPushClient();
+    const socketA = await establish(client);
+
+    // Answer the initial post-HELLO ping, then idle past the 2-minute
+    // liveness threshold so a liveness ping goes out unanswered
+    await jest.advanceTimersByTimeAsync(1000);
+    socketA.respondPendingPings();
+    await jest.advanceTimersByTimeAsync(150000);
+    expect(socketA.pingCount()).toBeGreaterThanOrEqual(2);
+
+    // Connection drops while the 10s pong timer is still armed
+    socketA.serverClose();
+    await jest.advanceTimersByTimeAsync(1000);
+    const socketB = MockWebSocket.latest();
+    expect(socketB).not.toBe(socketA);
+    socketB.open();
+    await jest.advanceTimersByTimeAsync(0); // reconnect sends HELLO on socket B
+
+    // Cross the stale pong deadline while socket B is still waiting for
+    // its HELLO response (no inbound message has defused the timer yet)
+    await jest.advanceTimersByTimeAsync(9000);
+
+    expect(socketB.readyState).toBe(MockWebSocket.OPEN);
+    expect(MockWebSocket.instances).toHaveLength(2);
+
+    // The delayed handshake can now complete normally
+    socketB.serverMessage({ messageType: "hello", status: 200, uaid: "uaid-1" });
+    await jest.advanceTimersByTimeAsync(0);
+    expect(client.isConnectionOpen()).toBe(true);
+
+    client.disconnect();
+  });
+
+  test("replaces the connection 5 minutes after HELLO", async () => {
+    const client = new AutoPushClient();
+    const socketA = await establish(client);
+
+    await advanceAnsweringPings(5 * 60 * 1000 + 2000);
+
+    expect(MockWebSocket.instances).toHaveLength(2);
+    expect(MockWebSocket.latest()).not.toBe(socketA);
+    expect(socketA.readyState).toBe(MockWebSocket.CLOSED);
+
+    client.disconnect();
+  });
+
+  test("a stale reconnect attempt does not send a second HELLO", async () => {
+    const client = new AutoPushClient();
+    const socket = await establish(client);
+
+    // Stray disconnect signal while the session is healthy
+    internals(client).handleDisconnect();
+    await jest.advanceTimersByTimeAsync(2000);
+
+    expect(socket.helloCount()).toBe(1);
+    expect(MockWebSocket.instances).toHaveLength(1);
+
+    client.disconnect();
+  });
+
+  test("disconnect stops cycling and reconnection", async () => {
+    const client = new AutoPushClient();
+    await establish(client);
+
+    client.disconnect();
+    await advanceAnsweringPings(11 * 60 * 1000);
+
+    expect(MockWebSocket.instances).toHaveLength(1);
+  });
+});
