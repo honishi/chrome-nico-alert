@@ -331,8 +331,11 @@ async function renderPushDiagnostics() {
   const statusText = document.getElementById("push-diagnostics-status") as HTMLDivElement;
 
   const updateStatus = async () => {
-    const enabled = await option.getPushDiagnosticsEnabled();
-    const { count } = await option.getPushDiagnosticsLog();
+    const [enabled, events] = await Promise.all([
+      option.getPushDiagnosticsEnabled(),
+      option.getPushDiagnosticsEvents(),
+    ]);
+    const count = events.length;
     const stateLabel = enabled ? "記録中" : "停止中";
     statusText.textContent = `※ ${stateLabel} / 記録件数: ${count} 件`;
     downloadButton.disabled = count === 0;
@@ -347,11 +350,11 @@ async function renderPushDiagnostics() {
 
   downloadButton.addEventListener("click", async () => {
     try {
-      const { json, count } = await option.getPushDiagnosticsLog();
-      if (count === 0) {
+      const events = await option.getPushDiagnosticsEvents();
+      if (events.length === 0) {
         return;
       }
-      const blob = new Blob([json], { type: "application/json" });
+      const blob = new Blob([JSON.stringify(events, null, 2)], { type: "application/json" });
       const url = URL.createObjectURL(blob);
       const anchor = document.createElement("a");
       const timestamp = new Date().toISOString().replace(/[:.]/g, "-");

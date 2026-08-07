@@ -2,7 +2,7 @@ import { inject, injectable } from "tsyringe";
 import { InjectTokens } from "../../di/inject-tokens";
 import { NiconamaApi } from "../infra-interface/niconama-api";
 import { BrowserApi } from "../infra-interface/browser-api";
-import { PushDiagnostics } from "../infra-interface/push-diagnostics";
+import { PushDiagnostics, PushDiagnosticsEvent } from "../infra-interface/push-diagnostics";
 import { SoundType } from "../model/sound-type";
 
 export interface Option {
@@ -20,7 +20,7 @@ export interface Option {
   setReceivePushNotification(value: boolean): Promise<void>;
   getPushDiagnosticsEnabled(): Promise<boolean>;
   setPushDiagnosticsEnabled(value: boolean): Promise<void>;
-  getPushDiagnosticsLog(): Promise<{ json: string; count: number }>;
+  getPushDiagnosticsEvents(): Promise<PushDiagnosticsEvent[]>;
   clearPushDiagnosticsLog(): Promise<void>;
   getAutoOpenUserIds(): Promise<string[]>;
   getUserName(userId: string): Promise<string>;
@@ -99,9 +99,8 @@ export class OptionImpl implements Option {
     }
   }
 
-  async getPushDiagnosticsLog(): Promise<{ json: string; count: number }> {
-    const events = await this.pushDiagnostics.getEvents();
-    return { json: JSON.stringify(events, null, 2), count: events.length };
+  async getPushDiagnosticsEvents(): Promise<PushDiagnosticsEvent[]> {
+    return await this.pushDiagnostics.getEvents();
   }
 
   async clearPushDiagnosticsLog(): Promise<void> {

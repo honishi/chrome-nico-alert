@@ -120,7 +120,7 @@ export class BackgroundImpl implements Background {
     // Duplicate check comes before the stale filter: pushes redelivered after
     // a reconnect are usually already handled via polling and must be
     // classified as duplicates, not losses
-    if (this.processedProgramIds.includes(programId)) {
+    if (this.isProcessed(programId)) {
       console.log("Program already processed:", programId);
       this.pushDiagnostics.record("push_discard", {
         reason: "already_processed",
@@ -282,7 +282,7 @@ export class BackgroundImpl implements Background {
 
     let openedAnyPrograms = false;
     for (const program of following) {
-      if (this.isProcessed(program)) {
+      if (this.isProcessed(program.id)) {
         continue;
       }
       this.logProgram("Found following program:", program);
@@ -312,7 +312,7 @@ export class BackgroundImpl implements Background {
     }
 
     for (const program of recent) {
-      if (this.isProcessed(program)) {
+      if (this.isProcessed(program.id)) {
         continue;
       }
       this.logProgram("Found recent program:", program);
@@ -340,8 +340,12 @@ export class BackgroundImpl implements Background {
     this.processedProgramIds = this.processedProgramIds.slice(-10000);
   }
 
-  private isProcessed(program: Program): boolean {
-    return this.processedProgramIds.includes(program.id);
+  private isProcessed(programId: string): boolean {
+    return this.processedProgramIds.includes(programId);
+  }
+
+  private providerIdOf(program: Program): string | undefined {
+    return program.programProvider?.id ?? program.socialGroup.id;
   }
 
   /**
@@ -349,6 +353,11 @@ export class BackgroundImpl implements Background {
    */
   private async recordConnectionSnapshot(): Promise<void> {
     try {
+      // Skip the preparatory storage read entirely while diagnostics are
+      // off (the default); the logger would discard the event anyway
+      if (!(await this.pushDiagnostics.isEnabled())) {
+        return;
+      }
       const enabled = await this.browserApi.getReceivePushNotification();
       this.pushDiagnostics.recordConnectionSnapshot({
         enabled,
@@ -370,6 +379,11 @@ export class BackgroundImpl implements Background {
    */
   private async recordPushMissingIfNeeded(program: Program): Promise<void> {
     try {
+      // Skip the storage reads below entirely while diagnostics are off
+      // (the default); the final record call would be a no-op anyway
+      if (!(await this.pushDiagnostics.isEnabled())) {
+        return;
+      }
       const pushEnabled = await this.browserApi.getReceivePushNotification();
       if (!pushEnabled) {
         return;
@@ -396,7 +410,7 @@ export class BackgroundImpl implements Background {
       }
       this.pushDiagnostics.record("push_missing", {
         programId: program.id,
-        providerId: program.programProvider?.id ?? program.socialGroup.id,
+        providerId: this.providerIdOf(program),
         programAgeSeconds: Number.isNaN(beginAtMs) ? undefined : Math.round(programAgeMs / 1000),
         connected: this.pushManager.isConnected(),
         connectionState: this.pushManager.getConnectionState(),
@@ -429,7 +443,7 @@ export class BackgroundImpl implements Background {
   }
 
   private async shouldAutoOpenProgram(program: Program): Promise<boolean> {
-    const userIdOrChannelId = program.programProvider?.id ?? program.socialGroup.id;
+    const userIdOrChannelId = this.providerIdOf(program);
     if (userIdOrChannelId === undefined) {
       return false;
     }

@@ -51,12 +51,12 @@ export interface PushDiagnosticsEvent extends PushDiagnosticsEventDetail {
   type: PushDiagnosticsEventType;
 }
 
-export interface ConnectionSnapshot {
-  enabled: boolean;
-  connected: boolean;
-  connectionState: string;
-  uaid?: string;
-}
+import { PushStatus } from "../model/push-status";
+
+export type ConnectionSnapshot = Pick<
+  PushStatus,
+  "enabled" | "connected" | "connectionState" | "uaid"
+>;
 
 /**
  * Persistent diagnostic log for isolating push notification losses.
@@ -66,6 +66,13 @@ export interface ConnectionSnapshot {
  * silently ignored otherwise.
  */
 export interface PushDiagnostics {
+  /**
+   * Whether recording is currently enabled (cached after the first read).
+   * Callers doing preparatory work for a record call can gate on this to
+   * skip the work entirely while diagnostics are off.
+   */
+  isEnabled(): Promise<boolean>;
+
   /**
    * Append an event to the persistent log (fire-and-forget)
    */

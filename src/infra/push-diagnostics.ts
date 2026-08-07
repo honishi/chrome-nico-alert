@@ -99,46 +99,35 @@ export class PushDiagnosticsImpl implements PushDiagnostics {
       ts: new Date().toISOString(),
       type,
     };
-    this.writeQueue = this.writeQueue
-      .then(() => this.append(event))
-      .catch((e) => {
-        console.warn("[PushDiagnostics] Failed to record event:", type, e);
-      });
+    this.enqueue("record event", () => this.append(event));
   }
 
   recordConnectionSnapshot(snapshot: ConnectionSnapshot): void {
-    if (this.enabled === false) {
-      return; // Cheap shortcut; the queued task re-checks anyway
-    }
     const ts = new Date().toISOString();
-    this.writeQueue = this.writeQueue
-      .then(async () => {
-        // Both the enabled gate and the dedup run inside the queue so the
-        // dedup state only advances when an event is actually persisted;
-        // snapshots observed while disabled (including before the flag has
-        // loaded on a cold start) must not suppress the first snapshots
-        // recorded after enabling
-        if (!(await this.isEnabled())) {
-          return;
-        }
-        const key = JSON.stringify(snapshot);
-        const now = Date.now();
-        const unchanged = key === this.lastSnapshotKey;
-        const withinHeartbeat = now - this.lastSnapshotAt < this.snapshotHeartbeatMs;
-        // Skip when unchanged, unless push is enabled and the heartbeat interval elapsed.
-        // While disabled, only state changes are recorded (no heartbeat noise).
-        if (unchanged && (withinHeartbeat || !snapshot.enabled)) {
-          return;
-        }
-        await this.appendUnchecked({ ...snapshot, ts, type: "conn_snapshot" });
-        // Advance the dedup state only after the event was actually
-        // persisted; a failed write must not suppress the next attempt
-        this.lastSnapshotKey = key;
-        this.lastSnapshotAt = now;
-      })
-      .catch((e) => {
-        console.warn("[PushDiagnostics] Failed to record snapshot:", e);
-      });
+    this.enqueue("record snapshot", async () => {
+      // Both the enabled gate and the dedup run inside the queue so the
+      // dedup state only advances when an event is actually persisted;
+      // snapshots observed while disabled (including before the flag has
+      // loaded on a cold start) must not suppress the first snapshots
+      // recorded after enabling
+      if (!(await this.isEnabled())) {
+        return;
+      }
+      const key = JSON.stringify(snapshot);
+      const now = Date.now();
+      const unchanged = key === this.lastSnapshotKey;
+      const withinHeartbeat = now - this.lastSnapshotAt < this.snapshotHeartbeatMs;
+      // Skip when unchanged, unless push is enabled and the heartbeat interval elapsed.
+      // While disabled, only state changes are recorded (no heartbeat noise).
+      if (unchanged && (withinHeartbeat || !snapshot.enabled)) {
+        return;
+      }
+      await this.appendUnchecked({ ...snapshot, ts, type: "conn_snapshot" });
+      // Advance the dedup state only after the event was actually
+      // persisted; a failed write must not suppress the next attempt
+      this.lastSnapshotKey = key;
+      this.lastSnapshotAt = now;
+    });
   }
 
   async hasRecentProgramPushEvent(programId: string, withinMs: number): Promise<boolean> {
@@ -179,20 +168,15 @@ export class PushDiagnosticsImpl implements PushDiagnostics {
    * Remove all recorded events
    */
   async clearEvents(): Promise<void> {
-    this.writeQueue = this.writeQueue
-      .then(async () => {
-        // Reset the snapshot dedup inside the serialized section: a
-        // snapshot task queued before this clear would otherwise advance
-        // the dedup again after a synchronous reset, suppressing the next
-        // snapshot while the log stays empty
-        this.lastSnapshotKey = undefined;
-        this.lastSnapshotAt = 0;
-        await this.storage.set({ [STORAGE_KEY]: [] });
-      })
-      .catch((e) => {
-        console.warn("[PushDiagnostics] Failed to clear events:", e);
-      });
-    await this.writeQueue;
+    await this.enqueue("clear events", async () => {
+      // Reset the snapshot dedup inside the serialized section: a
+      // snapshot task queued before this clear would otherwise advance
+      // the dedup again after a synchronous reset, suppressing the next
+      // snapshot while the log stays empty
+      this.lastSnapshotKey = undefined;
+      this.lastSnapshotAt = 0;
+      await this.storage.set({ [STORAGE_KEY]: [] });
+    });
   }
 
   /**
@@ -200,6 +184,17 @@ export class PushDiagnosticsImpl implements PushDiagnostics {
    */
   async flush(): Promise<void> {
     await this.writeQueue;
+  }
+
+  /**
+   * Chain a task onto the serialized write queue. Each task carries its own
+   * catch so a failure never breaks the chain for later tasks.
+   */
+  private enqueue(label: string, task: () => Promise<void>): Promise<void> {
+    this.writeQueue = this.writeQueue.then(task).catch((e) => {
+      console.warn(`[PushDiagnostics] Failed to ${label}:`, e);
+    });
+    return this.writeQueue;
   }
 
   private async append(event: PushDiagnosticsEvent): Promise<void> {
@@ -216,7 +211,7 @@ export class PushDiagnosticsImpl implements PushDiagnostics {
     await this.storage.set({ [STORAGE_KEY]: pruned });
   }
 
-  private async isEnabled(): Promise<boolean> {
+  async isEnabled(): Promise<boolean> {
     if (this.enabled !== undefined) {
       return this.enabled;
     }
@@ -240,6 +235,14 @@ export class PushDiagnosticsImpl implements PushDiagnostics {
 
   private prune(events: PushDiagnosticsEvent[]): PushDiagnosticsEvent[] {
     const cutoff = Date.now() - this.retentionMs;
+    // Events are appended in time order, so when even the oldest one is
+    // within retention (the common case: the size cap cycles the log in
+    // ~2-3 days, well under the 7-day retention) the per-event parse can
+    // be skipped entirely
+    const oldest = events.length > 0 ? Date.parse(events[0].ts) : NaN;
+    if (Number.isNaN(oldest) || oldest >= cutoff) {
+      return events.length > this.maxEvents ? events.slice(-this.maxEvents) : events;
+    }
     return events
       .filter((event) => {
         const ts = Date.parse(event.ts);

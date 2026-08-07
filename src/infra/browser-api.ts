@@ -170,7 +170,9 @@ export class BrowserApiImpl implements BrowserApi {
 
   async getPushDiagnosticsEnabled(): Promise<boolean> {
     const result = await chrome.storage.local.get([PUSH_DIAGNOSTICS_ENABLED_KEY]);
-    return result[PUSH_DIAGNOSTICS_ENABLED_KEY] ?? false;
+    // Strict comparison to stay in sync with how PushDiagnosticsImpl
+    // decodes the same flag
+    return result[PUSH_DIAGNOSTICS_ENABLED_KEY] === true;
   }
 
   async setPushDiagnosticsEnabled(value: boolean): Promise<void> {

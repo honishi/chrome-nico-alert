@@ -1,3 +1,5 @@
+import { pushDiagnostics, shortVersion } from "./push-diagnostics";
+
 // Type definitions
 interface HelloResponse {
   messageType: string;
@@ -38,8 +40,6 @@ interface MessageData {
   data?: string;
   headers?: Record<string, unknown>;
 }
-
-import { pushDiagnostics, shortVersion } from "./push-diagnostics";
 
 /**
  * AutoPush (Mozilla Push Service) client
@@ -273,10 +273,8 @@ export class AutoPushClient {
           }
           // Any inbound traffic proves the connection is alive
           this.lastActivityAt = Date.now();
-          if (this.pongTimer) {
-            clearTimeout(this.pongTimer);
-            this.pongTimer = undefined;
-          }
+          clearTimeout(this.pongTimer);
+          this.pongTimer = undefined;
           try {
             const message = JSON.parse(event.data);
             console.log(
@@ -332,26 +330,13 @@ export class AutoPushClient {
    */
   disconnect(): void {
     // Clear existing timers
-    if (this.reconnectTimer) {
-      clearTimeout(this.reconnectTimer);
-      this.reconnectTimer = undefined;
-    }
-    if (this.stateCheckInterval) {
-      clearInterval(this.stateCheckInterval);
-      this.stateCheckInterval = undefined;
-    }
-    if (this.testAutoCloseTimer) {
-      clearTimeout(this.testAutoCloseTimer);
-      this.testAutoCloseTimer = undefined;
-    }
-    if (this.pongTimer) {
-      clearTimeout(this.pongTimer);
-      this.pongTimer = undefined;
-    }
-    if (this.cycleReconnectTimer) {
-      clearTimeout(this.cycleReconnectTimer);
-      this.cycleReconnectTimer = undefined;
-    }
+    clearTimeout(this.reconnectTimer);
+    this.reconnectTimer = undefined;
+    clearInterval(this.stateCheckInterval);
+    this.stateCheckInterval = undefined;
+    clearTimeout(this.testAutoCloseTimer);
+    this.testAutoCloseTimer = undefined;
+    this.clearSessionTimers();
 
     if (this.ws) {
       console.log("[AutoPush] Disconnecting WebSocket...");
@@ -408,10 +393,8 @@ export class AutoPushClient {
       };
 
       const helloHandler = (response: unknown) => {
-        if (timeoutTimer) {
-          clearTimeout(timeoutTimer);
-          timeoutTimer = undefined;
-        }
+        clearTimeout(timeoutTimer);
+        timeoutTimer = undefined;
         restoreHandler();
         resolve(response as HelloResponse);
       };
@@ -860,9 +843,7 @@ export class AutoPushClient {
    * the same 5-minute cycling strategy.
    */
   private startCycleReconnectTimer(): void {
-    if (this.cycleReconnectTimer) {
-      clearTimeout(this.cycleReconnectTimer);
-    }
+    clearTimeout(this.cycleReconnectTimer);
     this.cycleReconnectTimer = setTimeout(() => {
       this.cycleReconnectTimer = undefined;
       if (!this.ws || this.ws.readyState !== WebSocket.OPEN) {
@@ -879,19 +860,22 @@ export class AutoPushClient {
   }
 
   /**
+   * Clear the timers scoped to the current connection session
+   */
+  private clearSessionTimers(): void {
+    clearTimeout(this.pongTimer);
+    this.pongTimer = undefined;
+    clearTimeout(this.cycleReconnectTimer);
+    this.cycleReconnectTimer = undefined;
+  }
+
+  /**
    * Drop the current socket immediately (without waiting for its close
    * event, which can take many minutes on a half-open connection) and
-   * reconnect
+   * reconnect. Session timer cleanup happens in handleDisconnect, which
+   * runs synchronously below.
    */
   private forceReconnect(): void {
-    if (this.cycleReconnectTimer) {
-      clearTimeout(this.cycleReconnectTimer);
-      this.cycleReconnectTimer = undefined;
-    }
-    if (this.pongTimer) {
-      clearTimeout(this.pongTimer);
-      this.pongTimer = undefined;
-    }
     const staleWs = this.ws;
     if (staleWs) {
       // Detach handlers so a late close event on the dead socket cannot
@@ -918,14 +902,7 @@ export class AutoPushClient {
     // Session-scoped timers belong to the connection that just ended; a
     // stale pong timeout or cycle timer firing later must never be able to
     // tear down the next connection
-    if (this.pongTimer) {
-      clearTimeout(this.pongTimer);
-      this.pongTimer = undefined;
-    }
-    if (this.cycleReconnectTimer) {
-      clearTimeout(this.cycleReconnectTimer);
-      this.cycleReconnectTimer = undefined;
-    }
+    this.clearSessionTimers();
 
     // Don't reconnect for intentional disconnections
     if (this.intentionalDisconnect) {
@@ -1015,8 +992,9 @@ export class AutoPushClient {
           // Keep the reconnection chain alive. Failures thrown before a
           // socket exists (e.g. the connect rate limit) produce no close
           // event, so without rescheduling here the chain would end
-          // permanently. handleDisconnect clears any pending timer first,
-          // so a concurrent close event cannot double-schedule.
+          // permanently. Double-scheduling is prevented by handleDisconnect
+          // skipping while a reconnect is pending (this callback cleared
+          // its own timer handle on entry).
           console.error("[AutoPush] Reconnection failed:", error);
           this.handleDisconnect();
         }

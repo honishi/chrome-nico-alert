@@ -415,11 +415,12 @@ describe("Shared secret fallback", () => {
     const binary = new Uint8Array([...SALT, 0, 0, 16, 0, asPub.length, ...asPub, ...ciphertext]);
     return {
       payload: parseAutoPushPayload(base64UrlEncode(binary)),
-      keys: {
-        authSecret: AUTH_SECRET,
-        privateKey: await importPrivate(uaJwk),
-        publicKey: uaPub,
-      },
+      // Build the receiver keys through the production import path
+      keys: await importKeys({
+        authSecret: base64UrlEncode(AUTH_SECRET),
+        publicKey: base64UrlEncode(uaPub),
+        privateKey: uaJwk.d,
+      }),
     };
   }
 
