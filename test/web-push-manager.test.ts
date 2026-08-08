@@ -49,6 +49,7 @@ class FakeAutoPushClient {
 type ManagerInternals = {
   autoPush?: FakeAutoPushClient;
   subscriptionInfo?: { niconicoRegistered: boolean };
+  cryptoKeys?: unknown;
   ensureCanaryProbe(): Promise<void>;
   runExclusive<T>(task: () => Promise<T>): Promise<T>;
   registerToNiconico: (subscription: unknown) => Promise<boolean>;
@@ -56,6 +57,7 @@ type ManagerInternals = {
   getVapidPublicKey: () => Promise<Uint8Array>;
   connectAutoPush: (...args: unknown[]) => Promise<string>;
   executeViaContentScript: (operation: string, payload: unknown) => Promise<unknown>;
+  sendTabMessage: (tabId: number, message: unknown, timeoutMs: number) => Promise<unknown>;
 };
 
 function internals(manager: WebPushManager): ManagerInternals {
@@ -322,6 +324,78 @@ describe("WebPushManager canary probe setup", () => {
     expect(internals(manager).autoPush).toBeUndefined();
     expect(store.pushUaid).toBeUndefined();
     expect(store.pushChannelId).toBeUndefined();
+  });
+
+  test("a failed connect tears down the half-initialized client", async () => {
+    // Node 22 ships a real global WebSocket; replace it with one that
+    // fails immediately so the real connect() path rejects offline
+    const originalWebSocket = (globalThis as { WebSocket?: unknown }).WebSocket;
+    class FailingWebSocket {
+      constructor() {
+        throw new Error("socket unavailable");
+      }
+    }
+    (globalThis as { WebSocket?: unknown }).WebSocket = FailingWebSocket;
+    try {
+      const manager = new WebPushManager();
+
+      await expect(internals(manager).connectAutoPush()).rejects.toThrow("socket unavailable");
+
+      expect(internals(manager).autoPush).toBeUndefined();
+    } finally {
+      (globalThis as { WebSocket?: unknown }).WebSocket = originalWebSocket;
+    }
+  });
+
+  test("start retries Niconico registration on the saved endpoint without rebuilding", async () => {
+    const manager = new WebPushManager();
+    const client = new FakeAutoPushClient();
+    internals(manager).autoPush = client;
+    internals(manager).subscriptionInfo = subscriptionFixture();
+    internals(manager).cryptoKeys = {};
+    const register = jest.fn(async (subscription) => {
+      (subscription as { niconicoRegistered: boolean }).niconicoRegistered = true;
+      return true;
+    });
+    internals(manager).registerToNiconico = register;
+    const subscribe = jest.fn(async () => {});
+    internals(manager).subscribeAndConnect = subscribe;
+
+    await manager.start();
+
+    expect(register).toHaveBeenCalledTimes(1);
+    expect(subscribe).not.toHaveBeenCalled();
+    expect(store.pushSubscription).toBeDefined();
+  });
+
+  test("a failed start does not block a queued reset", async () => {
+    const manager = new WebPushManager();
+    internals(manager).subscribeAndConnect = async () => {
+      throw new Error("registration timed out");
+    };
+
+    const startPromise = manager.start();
+    const resetPromise = manager.reset();
+
+    await expect(startPromise).rejects.toThrow("registration timed out");
+    await resetPromise; // must complete instead of hanging behind start
+  });
+
+  test("a hanging content-script message is bounded by a timeout", async () => {
+    jest.useFakeTimers();
+    try {
+      (globalThis as { chrome?: Record<string, unknown> }).chrome!.tabs = {
+        sendMessage: () => new Promise(() => {}),
+      };
+      const manager = new WebPushManager();
+
+      const promise = internals(manager).sendTabMessage(1, { type: "PING" }, 10000);
+      const assertion = expect(promise).rejects.toThrow(/Timed out/);
+      await jest.advanceTimersByTimeAsync(10000);
+      await assertion;
+    } finally {
+      jest.useRealTimers();
+    }
   });
 
   test("lifecycle queue keeps serving after a failed operation", async () => {

@@ -276,6 +276,36 @@ describe("AutoPushClient", () => {
     expect(MockWebSocket.instances).toHaveLength(1);
   });
 
+  test("connect times out when the socket never opens", async () => {
+    const client = new AutoPushClient();
+    const connectPromise = client.connect();
+    const assertion = expect(connectPromise).rejects.toThrow("WebSocket connect timeout");
+
+    await jest.advanceTimersByTimeAsync(15000);
+    await assertion;
+    expect(MockWebSocket.latest().readyState).toBe(MockWebSocket.CLOSED);
+
+    // After disconnect no reconnection or stray timer may survive
+    client.disconnect();
+    await jest.advanceTimersByTimeAsync(60000);
+    expect(MockWebSocket.instances).toHaveLength(1);
+  });
+
+  test("a close while connecting settles the connect promise", async () => {
+    const client = new AutoPushClient();
+    const connectPromise = client.connect();
+    const assertion = expect(connectPromise).rejects.toThrow("WebSocket closed during connect");
+
+    MockWebSocket.latest().serverClose();
+    await assertion;
+
+    // The close routed through handleDisconnect and reconnection continues
+    await jest.advanceTimersByTimeAsync(1000);
+    expect(MockWebSocket.instances).toHaveLength(2);
+
+    client.disconnect();
+  });
+
   describe("canary probe", () => {
     const CANARY = "canary-1";
     const ENDPOINT = "https://updates.push.services.mozilla.com/wpush/v1/canary";

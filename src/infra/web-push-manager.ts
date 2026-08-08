@@ -100,6 +100,7 @@ export class WebPushManager implements PushManager {
       // 2. Check subscription status
       const isSubscribed = await this.isSubscribed();
 
+      const subscription = this.subscriptionInfo;
       if (isSubscribed) {
         // 3. If already subscribed, connect to AutoPush
         console.log("Already subscribed, connecting to AutoPush...");
@@ -111,8 +112,20 @@ export class WebPushManager implements PushManager {
         if (saved.pushUaid) {
           await this.connectAutoPush(saved.pushUaid, this.savedChannelIds(saved));
         }
+      } else if (subscription && this.cryptoKeys && this.autoPush?.isConnectionOpen()) {
+        // 4. The AutoPush side is intact but the sender-side registration
+        // is missing (an earlier attempt failed): retry with the SAME
+        // endpoint instead of rebuilding, so a registration that actually
+        // landed server-side (only the response was lost) cannot leave an
+        // orphaned endpoint receiving duplicate deliveries
+        console.log("Retrying Niconico registration for the saved endpoint...");
+        const registered = await this.registerToNiconico(subscription);
+        if (!registered) {
+          throw new Error("Niconico push endpoint registration failed");
+        }
+        await this.saveSubscription(subscription);
       } else {
-        // 4. If not subscribed, create new subscription
+        // 5. If not subscribed, create new subscription
         console.log("Not subscribed yet, subscribing...");
         await this.subscribeAndConnect();
       }
@@ -704,18 +717,58 @@ export class WebPushManager implements PushManager {
    */
   private waitForTabComplete(tabId: number, timeoutMs = 30000): Promise<void> {
     return new Promise((resolve, reject) => {
-      const timeoutTimer = setTimeout(() => {
-        chrome.tabs.onUpdated.removeListener(listener);
-        reject(new Error("Timed out waiting for tab to load"));
-      }, timeoutMs);
-      const listener = (updatedTabId: number, changeInfo: chrome.tabs.TabChangeInfo) => {
-        if (updatedTabId === tabId && changeInfo.status === "complete") {
+      let settled = false;
+      const finish = (complete: () => void) => {
+        if (!settled) {
+          settled = true;
           clearTimeout(timeoutTimer);
           chrome.tabs.onUpdated.removeListener(listener);
-          resolve();
+          complete();
+        }
+      };
+      const timeoutTimer = setTimeout(
+        () => finish(() => reject(new Error("Timed out waiting for tab to load"))),
+        timeoutMs,
+      );
+      const listener = (updatedTabId: number, changeInfo: chrome.tabs.TabChangeInfo) => {
+        if (updatedTabId === tabId && changeInfo.status === "complete") {
+          finish(resolve);
         }
       };
       chrome.tabs.onUpdated.addListener(listener);
+      // The tab may have finished loading before the listener attached;
+      // check the current status so a fast complete is not missed
+      chrome.tabs
+        .get(tabId)
+        .then((tab) => {
+          if (tab.status === "complete") {
+            finish(resolve);
+          }
+        })
+        .catch(() => undefined);
+    });
+  }
+
+  /**
+   * chrome.tabs.sendMessage bounded by a timeout: an unresponsive content
+   * script must not stall the serialized lifecycle queue
+   */
+  private sendTabMessage<T>(tabId: number, message: unknown, timeoutMs: number): Promise<T> {
+    return new Promise<T>((resolve, reject) => {
+      const timer = setTimeout(
+        () => reject(new Error("Timed out waiting for content script response")),
+        timeoutMs,
+      );
+      chrome.tabs.sendMessage(tabId, message).then(
+        (response) => {
+          clearTimeout(timer);
+          resolve(response as T);
+        },
+        (error) => {
+          clearTimeout(timer);
+          reject(error);
+        },
+      );
     });
   }
 
@@ -763,7 +816,7 @@ export class WebPushManager implements PushManager {
 
     // First check if Content Script responds
     try {
-      const pingResponse = await chrome.tabs.sendMessage(tabId, { type: "PING" });
+      const pingResponse = await this.sendTabMessage(tabId, { type: "PING" }, 10000);
       console.log("[DEBUG] PING response:", pingResponse);
       console.log("Content Script is already loaded");
       return true;
@@ -776,7 +829,7 @@ export class WebPushManager implements PushManager {
     await new Promise((resolve) => setTimeout(resolve, 2000));
 
     try {
-      const retryPing = await chrome.tabs.sendMessage(tabId, { type: "PING" });
+      const retryPing = await this.sendTabMessage(tabId, { type: "PING" }, 10000);
       console.log("[DEBUG] Retry PING response:", retryPing);
       console.log("Content Script loaded after waiting");
       return true;
@@ -801,7 +854,7 @@ export class WebPushManager implements PushManager {
 
     // Final check
     try {
-      const finalPing = await chrome.tabs.sendMessage(tabId, { type: "PING" });
+      const finalPing = await this.sendTabMessage(tabId, { type: "PING" }, 10000);
       console.log("[DEBUG] Final PING response:", finalPing);
       return true;
     } catch (finalError) {
@@ -861,7 +914,7 @@ export class WebPushManager implements PushManager {
         operation === "register" ? "REGISTER_PUSH_ENDPOINT" : "UNREGISTER_PUSH_ENDPOINT";
 
       const message = Object.assign({ type: messageType }, payload as Record<string, unknown>);
-      const response = await chrome.tabs.sendMessage(targetTab.id!, message);
+      const response = await this.sendTabMessage(targetTab.id!, message, 30000);
 
       console.log(`Content Script ${operation} response:`, response);
       return response as T;
@@ -1002,11 +1055,12 @@ export class WebPushManager implements PushManager {
     }
 
     // Create new client
-    this.autoPush = new AutoPushClient();
+    const client = new AutoPushClient();
+    this.autoPush = client;
 
     // Set notification handler first
     console.log("[WebPushManager] Setting up notification handler...");
-    this.autoPush.onMessage("notification", async (notification: unknown) => {
+    client.onMessage("notification", async (notification: unknown) => {
       console.log("[WebPushManager] 🔔 Notification handler triggered!");
       await this.handleNotification(
         notification as {
@@ -1019,23 +1073,26 @@ export class WebPushManager implements PushManager {
     });
     console.log("[WebPushManager] Notification handler set");
 
-    // Connect
-    // this.autoPush.enableTestAutoClose(1);
-    await this.autoPush.connect();
-
-    // Handshake
+    // Connect and handshake share one failure path: a client abandoned
+    // after a failed connect keeps reconnecting internally with EMPTY
+    // session state (no UAID, no main channel), and a later start()
+    // would mistake its open socket for a working session
     try {
-      const hello = await this.autoPush.sendHello(existingUaid, existingChannelIds);
+      // client.enableTestAutoClose(1);
+      await client.connect();
+
+      const hello = await client.sendHello(existingUaid, existingChannelIds);
       console.log("AutoPush handshake completed, UAID:", hello.uaid);
       return hello.uaid;
     } catch (error) {
-      console.error("[WebPushManager] Failed to complete handshake:", error);
+      console.error("[WebPushManager] Failed to establish AutoPush session:", error);
 
-      // An unauthenticated connection receives no pushes. Drop it so a
-      // later start() cannot mistake the still-open socket for a working
-      // session (isConnectionOpen would report true forever)
-      this.autoPush.disconnect();
-      this.autoPush = undefined;
+      // Tear the client down (disconnect also cancels its internal
+      // reconnect timers) so no half-initialized session survives
+      client.disconnect();
+      if (this.autoPush === client) {
+        this.autoPush = undefined;
+      }
 
       // If UAID is expired, the AutoPushClient will have already disconnected
       // User needs to manually turn push notifications off and on again
