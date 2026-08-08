@@ -15,7 +15,8 @@
   ],
   "host_permissions": [
     "https://*.nicovideo.jp/*",
-    "https://secure-dcdn.cdn.nimg.jp/*"
+    "https://secure-dcdn.cdn.nimg.jp/*",
+    "https://updates.push.services.mozilla.com/*"
   ],
   "content_scripts": [
     {

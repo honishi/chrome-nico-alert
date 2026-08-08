@@ -73,16 +73,22 @@ export class WebPushManager implements PushManager {
       if (isSubscribed) {
         // 3. If already subscribed, connect to AutoPush
         console.log("Already subscribed, connecting to AutoPush...");
-        const saved = await chrome.storage.local.get(["pushUaid", "pushChannelId"]);
+        const saved = await chrome.storage.local.get([
+          "pushUaid",
+          "pushChannelId",
+          "pushCanaryChannelId",
+        ]);
         if (saved.pushUaid) {
-          const channelIds = saved.pushChannelId ? [saved.pushChannelId] : [];
-          await this.connectAutoPush(saved.pushUaid, channelIds);
+          await this.connectAutoPush(saved.pushUaid, this.savedChannelIds(saved));
         }
       } else {
         // 4. If not subscribed, create new subscription
         console.log("Not subscribed yet, subscribing...");
         await this.subscribeAndConnect();
       }
+
+      // 5. Set up the canary self-push probe (desync detection)
+      await this.ensureCanaryProbe();
 
       console.log("PushManager started successfully");
     } catch (error) {
@@ -123,7 +129,19 @@ export class WebPushManager implements PushManager {
       await this.unregisterFromNiconico(this.subscriptionInfo.endpoint);
     }
 
-    // 2. Disconnect from AutoPush and unsubscribe
+    // 2. Unregister the canary probe channel
+    if (this.autoPush) {
+      try {
+        const savedCanary = await chrome.storage.local.get(["pushCanaryChannelId"]);
+        if (savedCanary.pushCanaryChannelId) {
+          await this.autoPush.unregisterChannel(savedCanary.pushCanaryChannelId);
+        }
+      } catch (error) {
+        console.error("Failed to unregister canary channel:", error);
+      }
+    }
+
+    // 3. Disconnect from AutoPush and unsubscribe
     if (this.autoPush && this.subscriptionInfo) {
       try {
         const channelIdMatch = this.subscriptionInfo.endpoint.match(/([a-f0-9-]{36})$/);
@@ -138,17 +156,19 @@ export class WebPushManager implements PushManager {
       this.autoPush = undefined;
     }
 
-    // 3. Clear data from memory
+    // 4. Clear data from memory
     this.subscriptionInfo = undefined;
     this.cryptoKeys = undefined;
     this.vapidKey = undefined;
 
-    // 4. Delete saved data
+    // 5. Delete saved data
     await chrome.storage.local.remove([
       "pushSubscription",
       "pushKeys",
       "pushUaid",
       "pushChannelId",
+      "pushCanaryChannelId",
+      "pushCanaryEndpoint",
     ]);
 
     console.log("PushManager reset completed");
@@ -217,6 +237,7 @@ export class WebPushManager implements PushManager {
       "pushKeys",
       "pushUaid",
       "pushChannelId",
+      "pushCanaryChannelId",
     ]);
 
     if (saved.pushSubscription) {
@@ -237,7 +258,7 @@ export class WebPushManager implements PushManager {
     if (this.subscriptionInfo && this.cryptoKeys && saved.pushUaid) {
       try {
         // Use saved channel ID
-        const channelIds = saved.pushChannelId ? [saved.pushChannelId] : [];
+        const channelIds = this.savedChannelIds(saved);
         console.log("[WebPushManager] Restoring AutoPush connection:");
         console.log("  Saved UAID:", saved.pushUaid);
         console.log("  Saved Channel ID:", saved.pushChannelId);
@@ -256,6 +277,73 @@ export class WebPushManager implements PushManager {
    */
   private async isSubscribed(): Promise<boolean> {
     return this.subscriptionInfo !== undefined && this.subscriptionInfo.niconicoRegistered;
+  }
+
+  /**
+   * Channel IDs for the HELLO handshake, in registration order.
+   * The main channel comes first (getChannelId reports index 0); the
+   * canary channel must be included so the list matches the server-side
+   * record for the UAID.
+   */
+  private savedChannelIds(saved: {
+    pushChannelId?: string;
+    pushCanaryChannelId?: string;
+  }): string[] {
+    const channelIds: string[] = [];
+    if (saved.pushChannelId) {
+      channelIds.push(saved.pushChannelId);
+    }
+    if (saved.pushCanaryChannelId) {
+      channelIds.push(saved.pushCanaryChannelId);
+    }
+    return channelIds;
+  }
+
+  /**
+   * Ensure a canary channel exists and hand it to the AutoPush client for
+   * the self-push probe (desync detection). The channel is registered
+   * WITHOUT a key so its endpoint accepts unauthenticated TTL:0 POSTs
+   * from the extension itself; the probe travels the same per-user
+   * delivery path as real pushes. The channel is persisted and reused
+   * across restarts.
+   */
+  private async ensureCanaryProbe(): Promise<void> {
+    if (!this.autoPush?.isConnectionOpen()) {
+      return;
+    }
+
+    try {
+      const saved = await chrome.storage.local.get(["pushCanaryChannelId", "pushCanaryEndpoint"]);
+      if (saved.pushCanaryChannelId && saved.pushCanaryEndpoint) {
+        this.autoPush.configureCanaryProbe(saved.pushCanaryChannelId, saved.pushCanaryEndpoint);
+        return;
+      }
+
+      const channelId = crypto.randomUUID();
+      const registration = await this.autoPush.registerChannel(channelId);
+      if (!registration.pushEndpoint) {
+        console.warn("[WebPushManager] Canary registration returned no endpoint, probe disabled");
+        return;
+      }
+
+      try {
+        await chrome.storage.local.set({
+          pushCanaryChannelId: channelId,
+          pushCanaryEndpoint: registration.pushEndpoint,
+        });
+      } catch (error) {
+        // An unsaved canary would make the next HELLO's channel list
+        // diverge from the server-side record; roll the registration back
+        await this.autoPush.unregisterChannel(channelId);
+        throw error;
+      }
+
+      this.autoPush.configureCanaryProbe(channelId, registration.pushEndpoint);
+      console.log("[WebPushManager] Canary probe channel registered:", channelId);
+    } catch (error) {
+      // The probe only improves desync detection; the session works without it
+      console.warn("[WebPushManager] Failed to set up canary probe:", error);
+    }
   }
 
   // ========== Private Methods: Subscription ==========
@@ -351,6 +439,10 @@ export class WebPushManager implements PushManager {
       console.log("[WebPushManager] Saving to storage:");
       console.log("  UAID:", uaid);
       console.log("  Channel ID:", channelId);
+      // A saved canary belongs to the previous UAID; probing its endpoint
+      // would route to a dead session, so let ensureCanaryProbe register a
+      // fresh one on this UAID
+      await chrome.storage.local.remove(["pushCanaryChannelId", "pushCanaryEndpoint"]);
       await chrome.storage.local.set({
         pushUaid: uaid,
         pushChannelId: channelId, // Also save channel ID
