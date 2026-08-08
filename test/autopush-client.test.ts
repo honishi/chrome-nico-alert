@@ -384,5 +384,112 @@ describe("AutoPushClient", () => {
       expect(fetchMock).not.toHaveBeenCalled();
       client.disconnect();
     });
+
+    test("a hanging probe POST still hits the deadline and reconnects", async () => {
+      fetchMock.mockImplementation(() => new Promise(() => {}));
+      const client = new AutoPushClient();
+      await establishWithCanary(client);
+
+      await jest.advanceTimersByTimeAsync(60000); // probe 1: POST never settles
+      await jest.advanceTimersByTimeAsync(10000); // deadline -> immediate retry
+      expect(fetchMock).toHaveBeenCalledTimes(2);
+      await jest.advanceTimersByTimeAsync(10000); // retry deadline -> desync confirmed
+      await jest.advanceTimersByTimeAsync(1000); // reconnect backoff
+
+      expect(MockWebSocket.instances).toHaveLength(2);
+      const socketB = MockWebSocket.latest();
+      socketB.open();
+      await jest.advanceTimersByTimeAsync(0);
+      socketB.serverMessage({ messageType: "hello", status: 200, uaid: "uaid-1" });
+      await jest.advanceTimersByTimeAsync(0);
+      expect(client.isConnectionOpen()).toBe(true);
+
+      // The wedged POSTs must not block probing on the replacement session
+      await jest.advanceTimersByTimeAsync(60000);
+      expect(fetchMock).toHaveBeenCalledTimes(3);
+
+      client.disconnect();
+    });
+
+    test("a probe in flight when the connection drops does not wedge later probing", async () => {
+      fetchMock.mockImplementation(() => new Promise(() => {}));
+      const client = new AutoPushClient();
+      const socketA = await establishWithCanary(client);
+
+      await jest.advanceTimersByTimeAsync(60000); // probe 1: POST in flight
+      expect(fetchMock).toHaveBeenCalledTimes(1);
+      socketA.serverClose(); // connection drops before the probe deadline
+      await jest.advanceTimersByTimeAsync(1000);
+      const socketB = MockWebSocket.latest();
+      expect(socketB).not.toBe(socketA);
+      socketB.open();
+      await jest.advanceTimersByTimeAsync(0);
+      socketB.serverMessage({ messageType: "hello", status: 200, uaid: "uaid-1" });
+      await jest.advanceTimersByTimeAsync(0);
+      expect(client.isConnectionOpen()).toBe(true);
+
+      // The stale pending probe was cleared with its session; the new
+      // session probes on schedule
+      await jest.advanceTimersByTimeAsync(60000);
+      expect(fetchMock).toHaveBeenCalledTimes(2);
+      expect(client.isConnectionOpen()).toBe(true);
+      expect(MockWebSocket.instances).toHaveLength(2);
+
+      client.disconnect();
+    });
+
+    test("an early canary answer before the POST resolves completes the probe", async () => {
+      let resolvePost: ((value: { status: number }) => void) | undefined;
+      fetchMock.mockImplementation(
+        () =>
+          new Promise((resolve) => {
+            resolvePost = resolve;
+          }),
+      );
+      const client = new AutoPushClient();
+      const socket = await establishWithCanary(client);
+
+      await jest.advanceTimersByTimeAsync(60000); // probe 1: POST in flight
+      // The notification can outrun the HTTP response
+      socket.serverMessage({ messageType: "notification", channelID: CANARY, version: 1 });
+      resolvePost?.({ status: 201 });
+      await jest.advanceTimersByTimeAsync(20000); // cross the old deadline
+
+      expect(MockWebSocket.instances).toHaveLength(1);
+      expect(client.isConnectionOpen()).toBe(true);
+
+      // The early answer fully settled probe 1; the next interval probes again
+      await jest.advanceTimersByTimeAsync(40000);
+      expect(fetchMock).toHaveBeenCalledTimes(2);
+
+      client.disconnect();
+    });
+
+    test("repeated probe misses within the cooldown do not reconnect again", async () => {
+      const client = new AutoPushClient();
+      await establishWithCanary(client);
+
+      // First full miss cycle: reconnect
+      await jest.advanceTimersByTimeAsync(60000);
+      await jest.advanceTimersByTimeAsync(10000);
+      await jest.advanceTimersByTimeAsync(10000);
+      await jest.advanceTimersByTimeAsync(1000);
+      expect(MockWebSocket.instances).toHaveLength(2);
+      const socketB = MockWebSocket.latest();
+      socketB.open();
+      await jest.advanceTimersByTimeAsync(0);
+      socketB.serverMessage({ messageType: "hello", status: 200, uaid: "uaid-1" });
+      await jest.advanceTimersByTimeAsync(0);
+
+      // Second full miss cycle lands within the 5-minute cooldown: no reconnect
+      await jest.advanceTimersByTimeAsync(60000);
+      await jest.advanceTimersByTimeAsync(10000);
+      await jest.advanceTimersByTimeAsync(10000);
+      await jest.advanceTimersByTimeAsync(2000);
+      expect(MockWebSocket.instances).toHaveLength(2);
+      expect(client.isConnectionOpen()).toBe(true);
+
+      client.disconnect();
+    });
   });
 });

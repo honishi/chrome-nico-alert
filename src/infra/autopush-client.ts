@@ -86,10 +86,12 @@ export class AutoPushClient {
   private canaryEndpoint?: string;
   private probeTicker?: NodeJS.Timeout;
   private probeTimeoutTimer?: NodeJS.Timeout;
-  private pendingProbe?: { sentAt: number; attempt: number };
+  private pendingProbe?: { sentAt: number; attempt: number; controller: AbortController };
+  private lastProbeMissReconnectAt = 0;
   private readonly canaryProbeIntervalMs = 60 * 1000;
   private readonly canaryProbeTimeoutMs = 10 * 1000;
   private readonly maxCanaryProbeAttempts = 2; // one immediate retry before declaring desync
+  private readonly probeMissReconnectCooldownMs = 5 * 60 * 1000; // failure budget for probe-triggered reconnects
 
   // Test utilities
   private testAutoCloseTimer?: NodeJS.Timeout;
@@ -379,6 +381,16 @@ export class AutoPushClient {
     if (this.isConnectionOpen() && this.uaid) {
       this.startCanaryProbeTimer();
     }
+  }
+
+  /**
+   * Drop the current socket and rebuild the session through the normal
+   * reconnection chain. Public for session resync: when canary channel
+   * bookkeeping fails partway, a fresh HELLO realigns the server-side
+   * channel record with the client's list.
+   */
+  restartSession(): void {
+    this.forceReconnect();
   }
 
   // ==================== Public Methods (Message Sending) ====================
@@ -902,43 +914,19 @@ export class AutoPushClient {
       return; // Previous probe still awaiting its notification
     }
 
-    // Capture the socket so a late timeout cannot hit a replacement session
+    // Capture the socket so late completions cannot hit a replacement session
     const probeSocket = this.ws;
     const sentAt = Date.now();
-    this.pendingProbe = { sentAt, attempt };
+    const controller = new AbortController();
+    this.pendingProbe = { sentAt, attempt, controller };
     console.log(`[AutoPush] Canary probe POST (attempt ${attempt})`);
 
-    let status: number;
-    try {
-      const response = await fetch(this.canaryEndpoint, {
-        method: "POST",
-        headers: { TTL: "0" },
-      });
-      status = response.status;
-    } catch (error) {
-      // A failed POST proves nothing about this socket's delivery path
-      console.warn("[AutoPush] Canary probe POST failed:", error);
-      pushDiagnostics.record("probe_error", { error: (error as Error).message, attempt });
-      if (this.pendingProbe?.sentAt === sentAt) {
-        this.pendingProbe = undefined;
-      }
-      return;
-    }
-
-    if (this.pendingProbe?.sentAt !== sentAt || this.ws !== probeSocket) {
-      return; // Already answered by an early notification, or the socket changed
-    }
-
-    if (status < 200 || status >= 300) {
-      console.warn("[AutoPush] Canary probe POST rejected, status:", status);
-      pushDiagnostics.record("probe_error", { status, attempt });
-      this.pendingProbe = undefined;
-      return;
-    }
-
-    // The POST was accepted; the notification must now arrive on this socket
+    // The deadline covers the whole POST-to-notification round trip and is
+    // armed BEFORE the fetch: a hanging HTTP request must not be able to
+    // wedge the probe forever, so the deadline also aborts it
     this.probeTimeoutTimer = setTimeout(() => {
       this.probeTimeoutTimer = undefined;
+      controller.abort();
       if (this.ws !== probeSocket || this.pendingProbe?.sentAt !== sentAt) {
         return;
       }
@@ -948,10 +936,56 @@ export class AutoPushClient {
         void this.runCanaryProbe(attempt + 1);
         return;
       }
+      if (Date.now() - this.lastProbeMissReconnectAt < this.probeMissReconnectCooldownMs) {
+        // Failure budget: repeated misses right after a probe-triggered
+        // reconnect must not become a reconnect storm; polling remains the
+        // safety net until the cooldown passes
+        console.error("[AutoPush] Canary probe missed again within cooldown, not reconnecting");
+        pushDiagnostics.record("probe_miss", { attempts: attempt, suppressed: true });
+        return;
+      }
+      this.lastProbeMissReconnectAt = Date.now();
       console.error("[AutoPush] Canary probe unanswered twice: session desync, reconnecting");
       pushDiagnostics.record("probe_miss", { attempts: attempt });
       this.forceReconnect();
     }, this.canaryProbeTimeoutMs);
+
+    let status: number;
+    try {
+      const response = await fetch(this.canaryEndpoint, {
+        method: "POST",
+        headers: { TTL: "0" },
+        signal: controller.signal,
+      });
+      status = response.status;
+    } catch (error) {
+      if (controller.signal.aborted) {
+        return; // The deadline or session cleanup owns this probe's outcome
+      }
+      // A failed POST proves nothing about this socket's delivery path
+      console.warn("[AutoPush] Canary probe POST failed:", error);
+      pushDiagnostics.record("probe_error", { error: (error as Error).message, attempt });
+      if (this.pendingProbe?.sentAt === sentAt) {
+        this.pendingProbe = undefined;
+        clearTimeout(this.probeTimeoutTimer);
+        this.probeTimeoutTimer = undefined;
+      }
+      return;
+    }
+
+    if (this.pendingProbe?.sentAt !== sentAt || this.ws !== probeSocket) {
+      return; // Already answered by an early notification, or superseded
+    }
+
+    if (status < 200 || status >= 300) {
+      // A rejected POST cannot produce a notification; cancel the deadline
+      console.warn("[AutoPush] Canary probe POST rejected, status:", status);
+      pushDiagnostics.record("probe_error", { status, attempt });
+      this.pendingProbe = undefined;
+      clearTimeout(this.probeTimeoutTimer);
+      this.probeTimeoutTimer = undefined;
+    }
+    // On 2xx the already-armed deadline now awaits the notification
   }
 
   /**
@@ -971,6 +1005,9 @@ export class AutoPushClient {
       const latencyMs = Date.now() - this.pendingProbe.sentAt;
       console.log(`[AutoPush] Canary probe answered in ${latencyMs}ms`);
       pushDiagnostics.record("probe_ok", { latencyMs, attempt: this.pendingProbe.attempt });
+      // Settle the POST if it is still in flight; the notification can
+      // outrun the HTTP response
+      this.pendingProbe.controller.abort();
       this.pendingProbe = undefined;
     }
     clearTimeout(this.probeTimeoutTimer);
@@ -987,6 +1024,8 @@ export class AutoPushClient {
     this.probeTicker = undefined;
     clearTimeout(this.probeTimeoutTimer);
     this.probeTimeoutTimer = undefined;
+    // Settle a probe POST still in flight so it cannot outlive its session
+    this.pendingProbe?.controller.abort();
     this.pendingProbe = undefined;
   }
 
