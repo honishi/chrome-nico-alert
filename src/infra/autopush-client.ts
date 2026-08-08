@@ -75,6 +75,22 @@ export class AutoPushClient {
   private readonly pongTimeoutMs = 10 * 1000; // reconnect if no reply within 10 s
   private readonly minLivenessPingIntervalMs = 60 * 1000; // AutoPush forbids pings more often than 1/min
 
+  // Canary self-push probe (desync detection).
+  // A key-less channel registered on this client's UAID yields an endpoint
+  // the extension can POST to itself; the push must come back as a
+  // notification on this socket within seconds because it travels the real
+  // per-user delivery path (routing record -> connection node -> socket).
+  // No reply to an accepted POST means the server lost this connection's
+  // routing entry (session desync) - invisible to close events and pings.
+  private canaryChannelId?: string;
+  private canaryEndpoint?: string;
+  private probeTicker?: NodeJS.Timeout;
+  private probeTimeoutTimer?: NodeJS.Timeout;
+  private pendingProbe?: { sentAt: number; attempt: number };
+  private readonly canaryProbeIntervalMs = 60 * 1000;
+  private readonly canaryProbeTimeoutMs = 10 * 1000;
+  private readonly maxCanaryProbeAttempts = 2; // one immediate retry before declaring desync
+
   // Test utilities
   private testAutoCloseTimer?: NodeJS.Timeout;
   private testAutoCloseMs?: number;
@@ -351,6 +367,20 @@ export class AutoPushClient {
     this.pendingOperations.clear();
   }
 
+  /**
+   * Configure the canary self-push probe. The channel must be registered
+   * key-less on this client's UAID so its endpoint accepts unauthenticated
+   * TTL:0 POSTs. Probing starts with the next successful HELLO, or
+   * immediately when the session is already authenticated.
+   */
+  configureCanaryProbe(channelId: string, endpoint: string): void {
+    this.canaryChannelId = channelId;
+    this.canaryEndpoint = endpoint;
+    if (this.isConnectionOpen() && this.uaid) {
+      this.startCanaryProbeTimer();
+    }
+  }
+
   // ==================== Public Methods (Message Sending) ====================
 
   /**
@@ -531,6 +561,16 @@ export class AutoPushClient {
         break;
     }
 
+    // Canary probe notifications are internal to this client and must not
+    // reach the push pipeline
+    if (
+      messageType === "notification" &&
+      this.canaryChannelId &&
+      message.channelID === this.canaryChannelId
+    ) {
+      return;
+    }
+
     // Execute custom handler if exists
     const handler = this.messageHandlers.get(messageType);
     if (handler) {
@@ -606,6 +646,9 @@ export class AutoPushClient {
     // Consider the connection stable only after successful HELLO
     this.reconnectAttempts = 0;
 
+    // Watch the fresh session for routing desync
+    this.startCanaryProbeTimer();
+
     // Test: auto-close WebSocket after configured delay
     if (this.testAutoCloseMs) {
       if (this.testAutoCloseTimer) {
@@ -678,6 +721,11 @@ export class AutoPushClient {
    * Process notification message
    */
   private handleNotification(message: NotificationMessage): void {
+    if (this.canaryChannelId && message.channelID === this.canaryChannelId) {
+      this.handleCanaryNotification(message);
+      return;
+    }
+
     pushDiagnostics.record("socket_received", {
       channelId: message.channelID,
       version: shortVersion(message.version),
@@ -825,11 +873,121 @@ export class AutoPushClient {
   }
 
   /**
+   * Start the periodic canary probe for the current session
+   * (no-op until configureCanaryProbe provides a channel)
+   */
+  private startCanaryProbeTimer(): void {
+    if (!this.canaryChannelId || !this.canaryEndpoint) {
+      return;
+    }
+    clearInterval(this.probeTicker);
+    this.probeTicker = setInterval(() => {
+      void this.runCanaryProbe();
+    }, this.canaryProbeIntervalMs);
+  }
+
+  /**
+   * Send one canary probe: POST a TTL:0 empty-body push to the canary
+   * endpoint and expect it back as a notification on this socket within
+   * canaryProbeTimeoutMs. One immediate retry guards against a transient
+   * hiccup; a second silence means the server-side routing entry is gone
+   * (session desync), so drop the socket and reconnect - the new HELLO
+   * rewrites the routing entry.
+   */
+  private async runCanaryProbe(attempt = 1): Promise<void> {
+    if (!this.canaryEndpoint || !this.ws || this.ws.readyState !== WebSocket.OPEN || !this.uaid) {
+      return;
+    }
+    if (attempt === 1 && this.pendingProbe) {
+      return; // Previous probe still awaiting its notification
+    }
+
+    // Capture the socket so a late timeout cannot hit a replacement session
+    const probeSocket = this.ws;
+    const sentAt = Date.now();
+    this.pendingProbe = { sentAt, attempt };
+    console.log(`[AutoPush] Canary probe POST (attempt ${attempt})`);
+
+    let status: number;
+    try {
+      const response = await fetch(this.canaryEndpoint, {
+        method: "POST",
+        headers: { TTL: "0" },
+      });
+      status = response.status;
+    } catch (error) {
+      // A failed POST proves nothing about this socket's delivery path
+      console.warn("[AutoPush] Canary probe POST failed:", error);
+      pushDiagnostics.record("probe_error", { error: (error as Error).message, attempt });
+      if (this.pendingProbe?.sentAt === sentAt) {
+        this.pendingProbe = undefined;
+      }
+      return;
+    }
+
+    if (this.pendingProbe?.sentAt !== sentAt || this.ws !== probeSocket) {
+      return; // Already answered by an early notification, or the socket changed
+    }
+
+    if (status < 200 || status >= 300) {
+      console.warn("[AutoPush] Canary probe POST rejected, status:", status);
+      pushDiagnostics.record("probe_error", { status, attempt });
+      this.pendingProbe = undefined;
+      return;
+    }
+
+    // The POST was accepted; the notification must now arrive on this socket
+    this.probeTimeoutTimer = setTimeout(() => {
+      this.probeTimeoutTimer = undefined;
+      if (this.ws !== probeSocket || this.pendingProbe?.sentAt !== sentAt) {
+        return;
+      }
+      this.pendingProbe = undefined;
+      if (attempt < this.maxCanaryProbeAttempts) {
+        console.warn("[AutoPush] Canary probe unanswered, retrying immediately");
+        void this.runCanaryProbe(attempt + 1);
+        return;
+      }
+      console.error("[AutoPush] Canary probe unanswered twice: session desync, reconnecting");
+      pushDiagnostics.record("probe_miss", { attempts: attempt });
+      this.forceReconnect();
+    }, this.canaryProbeTimeoutMs);
+  }
+
+  /**
+   * A canary notification proves the per-user delivery path is intact.
+   * ACK it like any push, resolve the pending probe, and keep it out of
+   * both the push pipeline and the per-message diagnostics.
+   */
+  private handleCanaryNotification(message: NotificationMessage): void {
+    if (this.isConnected) {
+      const ack = {
+        messageType: "ack",
+        updates: [{ channelID: message.channelID, version: message.version }],
+      };
+      this.sendMessage(ack, "ACK");
+    }
+    if (this.pendingProbe) {
+      const latencyMs = Date.now() - this.pendingProbe.sentAt;
+      console.log(`[AutoPush] Canary probe answered in ${latencyMs}ms`);
+      pushDiagnostics.record("probe_ok", { latencyMs, attempt: this.pendingProbe.attempt });
+      this.pendingProbe = undefined;
+    }
+    clearTimeout(this.probeTimeoutTimer);
+    this.probeTimeoutTimer = undefined;
+  }
+
+  /**
    * Clear the timers scoped to the current connection session
    */
   private clearSessionTimers(): void {
     clearTimeout(this.pongTimer);
     this.pongTimer = undefined;
+    clearInterval(this.probeTicker);
+    this.probeTicker = undefined;
+    clearTimeout(this.probeTimeoutTimer);
+    this.probeTimeoutTimer = undefined;
+    this.pendingProbe = undefined;
   }
 
   /**

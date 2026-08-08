@@ -114,18 +114,24 @@ async function advanceAnsweringPings(ms: number, step = 15000): Promise<void> {
 
 describe("AutoPushClient", () => {
   const originalWebSocket = (globalThis as { WebSocket?: unknown }).WebSocket;
+  const originalFetch = (globalThis as { fetch?: unknown }).fetch;
+  const fetchMock = jest.fn();
 
   beforeAll(() => {
     (globalThis as { WebSocket?: unknown }).WebSocket = MockWebSocket;
+    (globalThis as { fetch?: unknown }).fetch = fetchMock;
   });
 
   afterAll(() => {
     (globalThis as { WebSocket?: unknown }).WebSocket = originalWebSocket;
+    (globalThis as { fetch?: unknown }).fetch = originalFetch;
   });
 
   beforeEach(() => {
     jest.useFakeTimers();
     MockWebSocket.reset();
+    fetchMock.mockReset();
+    fetchMock.mockResolvedValue({ status: 201 });
   });
 
   afterEach(() => {
@@ -268,5 +274,115 @@ describe("AutoPushClient", () => {
     await advanceAnsweringPings(11 * 60 * 1000);
 
     expect(MockWebSocket.instances).toHaveLength(1);
+  });
+
+  describe("canary probe", () => {
+    const CANARY = "canary-1";
+    const ENDPOINT = "https://updates.push.services.mozilla.com/wpush/v1/canary";
+
+    async function establishWithCanary(client: AutoPushClient): Promise<MockWebSocket> {
+      const socket = await establish(client);
+      client.configureCanaryProbe(CANARY, ENDPOINT);
+      return socket;
+    }
+
+    test("an answered probe is acked and kept out of the notification pipeline", async () => {
+      const client = new AutoPushClient();
+      const socket = await establishWithCanary(client);
+      const notificationHandler = jest.fn();
+      client.onMessage("notification", notificationHandler);
+
+      await jest.advanceTimersByTimeAsync(60000);
+      expect(fetchMock).toHaveBeenCalledWith(
+        ENDPOINT,
+        expect.objectContaining({ method: "POST", headers: { TTL: "0" } }),
+      );
+
+      socket.serverMessage({ messageType: "notification", channelID: CANARY, version: 7 });
+      await jest.advanceTimersByTimeAsync(15000);
+
+      expect(notificationHandler).not.toHaveBeenCalled();
+      expect(
+        socket.sent.some(
+          (message) => message.includes('"messageType":"ack"') && message.includes(CANARY),
+        ),
+      ).toBe(true);
+      expect(MockWebSocket.instances).toHaveLength(1);
+      expect(client.isConnectionOpen()).toBe(true);
+
+      client.disconnect();
+    });
+
+    test("a silent probe retries once and then forces a reconnect", async () => {
+      const client = new AutoPushClient();
+      const socketA = await establishWithCanary(client);
+
+      await jest.advanceTimersByTimeAsync(60000); // probe 1 sent
+      await jest.advanceTimersByTimeAsync(10000); // deadline -> immediate retry
+      expect(fetchMock).toHaveBeenCalledTimes(2);
+      await jest.advanceTimersByTimeAsync(10000); // retry deadline -> desync confirmed
+      await jest.advanceTimersByTimeAsync(1000); // reconnect backoff
+
+      expect(MockWebSocket.instances).toHaveLength(2);
+      const socketB = MockWebSocket.latest();
+      expect(socketB).not.toBe(socketA);
+      expect(socketA.readyState).toBe(MockWebSocket.CLOSED);
+
+      // The replacement session authenticates normally
+      socketB.open();
+      await jest.advanceTimersByTimeAsync(0);
+      socketB.serverMessage({ messageType: "hello", status: 200, uaid: "uaid-1" });
+      await jest.advanceTimersByTimeAsync(0);
+      expect(client.isConnectionOpen()).toBe(true);
+
+      client.disconnect();
+    });
+
+    test("a rejected probe POST does not trigger reconnection", async () => {
+      fetchMock.mockResolvedValue({ status: 404 });
+      const client = new AutoPushClient();
+      await establishWithCanary(client);
+
+      await advanceAnsweringPings(3 * 60 * 1000);
+
+      expect(fetchMock).toHaveBeenCalled();
+      expect(MockWebSocket.instances).toHaveLength(1);
+
+      client.disconnect();
+    });
+
+    test("a stale probe deadline cannot tear down the next connection", async () => {
+      const client = new AutoPushClient();
+      const socketA = await establishWithCanary(client);
+
+      // Probe goes out on socket A, which then drops before the deadline
+      await jest.advanceTimersByTimeAsync(60000);
+      socketA.serverClose();
+      await jest.advanceTimersByTimeAsync(1000);
+      const socketB = MockWebSocket.latest();
+      expect(socketB).not.toBe(socketA);
+      socketB.open();
+      await jest.advanceTimersByTimeAsync(0);
+      socketB.serverMessage({ messageType: "hello", status: 200, uaid: "uaid-1" });
+      await jest.advanceTimersByTimeAsync(0);
+      expect(client.isConnectionOpen()).toBe(true);
+
+      // Cross the old probe deadline; the replacement session must survive
+      await jest.advanceTimersByTimeAsync(9000);
+      expect(client.isConnectionOpen()).toBe(true);
+      expect(MockWebSocket.instances).toHaveLength(2);
+
+      client.disconnect();
+    });
+
+    test("probing does not start without canary configuration", async () => {
+      const client = new AutoPushClient();
+      await establish(client);
+
+      await advanceAnsweringPings(3 * 60 * 1000);
+
+      expect(fetchMock).not.toHaveBeenCalled();
+      client.disconnect();
+    });
   });
 });

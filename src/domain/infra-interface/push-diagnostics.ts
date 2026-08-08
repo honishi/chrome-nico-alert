@@ -9,6 +9,9 @@
  * - reconnect_scheduled / reconnect_giveup: reconnection state
  * - liveness_ping / liveness_reconnect: idle liveness probe and forced
  *   reconnection of a half-open (zombie) connection
+ * - probe_ok / probe_miss / probe_error: canary self-push probe (desync
+ *   detection: a TTL:0 POST to the canary endpoint must come back as a
+ *   notification on the socket; probe_miss triggers a forced reconnect)
  * - conn_snapshot: periodic connection state snapshot (deduplicated)
  *
  * Push pipeline (correlated by channelId+version, then programId):
@@ -32,6 +35,9 @@ export type PushDiagnosticsEventType =
   | "reconnect_giveup"
   | "liveness_ping"
   | "liveness_reconnect"
+  | "probe_ok"
+  | "probe_miss"
+  | "probe_error"
   | "conn_snapshot"
   | "socket_received"
   | "ack_sent"
