@@ -246,7 +246,21 @@ export class AutoPushClient {
         const socket = new WebSocket(this.endpoint);
         this.ws = socket;
 
+        // A socket stuck in CONNECTING would leave this promise (and any
+        // lifecycle operation awaiting it) pending forever; bound it
+        const CONNECT_TIMEOUT_MS = 15000;
+        const connectTimer = setTimeout(() => {
+          console.error("[AutoPush] WebSocket connect timed out");
+          try {
+            socket.close();
+          } catch (e) {
+            console.error("[AutoPush] Failed to close timed-out socket:", e);
+          }
+          reject(new Error("WebSocket connect timeout"));
+        }, CONNECT_TIMEOUT_MS);
+
         socket.onopen = () => {
+          clearTimeout(connectTimer);
           if (this.ws !== socket) {
             // Superseded while connecting; abandon this socket
             try {
@@ -304,6 +318,7 @@ export class AutoPushClient {
         };
 
         socket.onerror = (error) => {
+          clearTimeout(connectTimer);
           console.error("[AutoPush] ❌ WebSocket ERROR:", error);
           pushDiagnostics.record("ws_error");
           if (this.ws === socket) {
@@ -314,6 +329,11 @@ export class AutoPushClient {
         };
 
         socket.onclose = (event) => {
+          clearTimeout(connectTimer);
+          // Settle the connect promise if it is still pending (no-op once
+          // resolved): a socket closed while CONNECTING would otherwise
+          // leave the awaiting caller hanging forever
+          reject(new Error("WebSocket closed during connect"));
           if (this.ws !== socket) {
             return;
           }
