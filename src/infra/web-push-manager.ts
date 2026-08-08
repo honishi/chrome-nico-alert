@@ -236,7 +236,10 @@ export class WebPushManager implements PushManager {
    * Check connection status
    */
   isConnected(): boolean {
-    return this.autoPush?.isConnectionOpen() ?? false;
+    if (!this.autoPush) {
+      return false;
+    }
+    return this.autoPush.isConnectionOpen() && !this.autoPush.isSubscriptionRepairRequired();
   }
 
   /**
@@ -244,6 +247,7 @@ export class WebPushManager implements PushManager {
    */
   getConnectionState(): string {
     if (!this.autoPush) return "NOT_INITIALIZED";
+    if (this.autoPush.isSubscriptionRepairRequired()) return "REPAIR_REQUIRED";
     if (this.autoPush.isConnectionOpen()) return "CONNECTED";
     return "DISCONNECTED";
   }
@@ -397,7 +401,11 @@ export class WebPushManager implements PushManager {
 
   private async setupCanaryProbe(client: AutoPushClient): Promise<void> {
     // May run queued behind a superseded session's setup; re-validate
-    if (this.autoPush !== client || !client.isConnectionOpen()) {
+    if (
+      this.autoPush !== client ||
+      !client.isConnectionOpen() ||
+      client.isSubscriptionRepairRequired()
+    ) {
       return;
     }
 

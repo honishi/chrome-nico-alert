@@ -9,6 +9,7 @@ import { WebPushManager } from "../src/infra/web-push-manager";
 
 class FakeAutoPushClient {
   open = true;
+  repairRequired = false;
   disconnected = false;
   registered: string[] = [];
   unregistered: string[] = [];
@@ -18,6 +19,10 @@ class FakeAutoPushClient {
 
   isConnectionOpen(): boolean {
     return this.open;
+  }
+
+  isSubscriptionRepairRequired(): boolean {
+    return this.repairRequired;
   }
 
   disconnect(): void {
@@ -309,6 +314,16 @@ describe("WebPushManager canary probe setup", () => {
     await manager.start();
 
     expect(subscribe).not.toHaveBeenCalled();
+  });
+
+  test("reports a reassigned UAID session as requiring repair instead of connected", () => {
+    const manager = new WebPushManager();
+    const client = new FakeAutoPushClient();
+    client.repairRequired = true;
+    internals(manager).autoPush = client;
+
+    expect(manager.isConnected()).toBe(false);
+    expect(manager.getConnectionState()).toBe("REPAIR_REQUIRED");
   });
 
   test("reset disconnects an incomplete session's client", async () => {
