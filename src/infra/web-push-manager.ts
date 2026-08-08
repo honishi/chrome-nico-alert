@@ -41,8 +41,13 @@ export class WebPushManager implements PushManager {
   // Status
   private lastReceivedProgram?: { program: PushProgram; receivedAt: Date };
 
-  // Single-flight guard for canary probe setup
-  private canarySetup?: Promise<void>;
+  // Per-session single-flight guard for canary probe setup
+  private canarySetup?: { client: AutoPushClient; promise: Promise<void> };
+
+  // Lifecycle serialization: start/stop/reset run exclusively so that a
+  // stop or reset can never interleave with an in-flight start (session
+  // restore, subscription, canary setup) and corrupt shared state
+  private lifecycle: Promise<unknown> = Promise.resolve();
 
   // ========== Public Properties ==========
   /**
@@ -58,9 +63,28 @@ export class WebPushManager implements PushManager {
    * - Subscribe if not already subscribed
    */
   async start(): Promise<void> {
+    return this.runExclusive(() => this.doStart());
+  }
+
+  /**
+   * Run a lifecycle operation after every previously queued one finished
+   */
+  private runExclusive<T>(task: () => Promise<T>): Promise<T> {
+    const run = this.lifecycle.then(task, task);
+    this.lifecycle = run.then(
+      () => undefined,
+      () => undefined,
+    );
+    return run;
+  }
+
+  private async doStart(): Promise<void> {
     // Early return if already connected
     if (this.autoPush?.isConnectionOpen()) {
       console.log("PushManager already started and connected");
+      // The probe setup is idempotent; re-ensure it so a previously
+      // failed setup attempt heals on the next start
+      await this.ensureCanaryProbe();
       return;
     }
 
@@ -106,6 +130,10 @@ export class WebPushManager implements PushManager {
    * - Keep subscription info (for resuming later)
    */
   async stop(): Promise<void> {
+    return this.runExclusive(() => this.doStop());
+  }
+
+  private async doStop(): Promise<void> {
     console.log("Stopping PushManager...");
 
     if (this.autoPush) {
@@ -124,6 +152,10 @@ export class WebPushManager implements PushManager {
    * - Delete all saved information
    */
   async reset(): Promise<void> {
+    return this.runExclusive(() => this.doReset());
+  }
+
+  private async doReset(): Promise<void> {
     console.log("Resetting PushManager...");
 
     // 1. Unregister from Niconico Push API first
@@ -312,20 +344,35 @@ export class WebPushManager implements PushManager {
    * setup so the canary can never be registered twice.
    */
   private ensureCanaryProbe(): Promise<void> {
-    if (!this.canarySetup) {
-      this.canarySetup = this.setupCanaryProbe().finally(() => {
-        this.canarySetup = undefined;
-      });
-    }
-    return this.canarySetup;
-  }
-
-  private async setupCanaryProbe(): Promise<void> {
     // Bind to the current client instance: stop()/reset()/re-subscription
     // replace this.autoPush, and a setup racing those must not persist or
     // configure a canary for a session it no longer belongs to
     const client = this.autoPush;
-    if (!client?.isConnectionOpen()) {
+    if (!client) {
+      return Promise.resolve();
+    }
+    if (this.canarySetup?.client === client) {
+      return this.canarySetup.promise; // Single-flight per session
+    }
+    // A previous session's setup may still be finishing; run after it so
+    // two setups can never interleave on the shared storage keys, and so
+    // a replacement session always gets its own setup instead of joining
+    // the superseded one
+    const prior = this.canarySetup?.promise ?? Promise.resolve();
+    const promise = prior.then(() => this.setupCanaryProbe(client));
+    const entry = { client, promise };
+    this.canarySetup = entry;
+    void promise.finally(() => {
+      if (this.canarySetup === entry) {
+        this.canarySetup = undefined;
+      }
+    });
+    return promise;
+  }
+
+  private async setupCanaryProbe(client: AutoPushClient): Promise<void> {
+    // May run queued behind a superseded session's setup; re-validate
+    if (this.autoPush !== client || !client.isConnectionOpen()) {
       return;
     }
 
@@ -379,7 +426,12 @@ export class WebPushManager implements PushManager {
       }
 
       if (this.autoPush !== client) {
-        return; // Persisted; the next setup configures the new session
+        // The session was replaced while persisting: the pair belongs to
+        // the old session and may have landed after reset() cleared
+        // storage, so undo both the write and the registration
+        await chrome.storage.local.remove(["pushCanaryChannelId", "pushCanaryEndpoint"]);
+        await client.unregisterChannel(channelId);
+        return;
       }
       client.configureCanaryProbe(channelId, registration.pushEndpoint);
       console.log("[WebPushManager] Canary probe channel registered:", channelId);

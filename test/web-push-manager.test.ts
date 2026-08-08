@@ -51,10 +51,14 @@ function internals(manager: WebPushManager): ManagerInternals {
 
 let store: Record<string, unknown>;
 let failNextSet: boolean;
+let gateSet: Promise<void> | undefined;
+let onSetStarted: (() => void) | undefined;
 
 beforeEach(() => {
   store = {};
   failNextSet = false;
+  gateSet = undefined;
+  onSetStarted = undefined;
   (globalThis as { chrome?: unknown }).chrome = {
     storage: {
       local: {
@@ -68,6 +72,12 @@ beforeEach(() => {
           return result;
         },
         set: async (items: Record<string, unknown>) => {
+          if ("pushCanaryChannelId" in items) {
+            onSetStarted?.();
+            if (gateSet) {
+              await gateSet;
+            }
+          }
           if (failNextSet) {
             failNextSet = false;
             throw new Error("quota exceeded");
@@ -177,5 +187,68 @@ describe("WebPushManager canary probe setup", () => {
     expect(client.restarts).toBe(1);
     expect(client.configured).toHaveLength(0);
     expect(store.pushCanaryChannelId).toBeUndefined();
+  });
+
+  test("a setup superseded mid-flight hands off to the new session's client", async () => {
+    const manager = new WebPushManager();
+    const clientA = new FakeAutoPushClient();
+    internals(manager).autoPush = clientA;
+    let releaseRegister!: () => void;
+    clientA.registerGate = new Promise((resolve) => {
+      releaseRegister = resolve;
+    });
+
+    const setupA = internals(manager).ensureCanaryProbe();
+    for (let i = 0; i < 50 && clientA.registered.length === 0; i++) {
+      await flush();
+    }
+    expect(clientA.registered).toHaveLength(1);
+
+    // The session is replaced while A's setup is still in flight; the new
+    // session's ensure call must yield its own setup, not join A's
+    const clientB = new FakeAutoPushClient();
+    internals(manager).autoPush = clientB;
+    const setupB = internals(manager).ensureCanaryProbe();
+    releaseRegister();
+    await Promise.all([setupA, setupB]);
+
+    expect(clientA.configured).toHaveLength(0);
+    expect(clientA.unregistered).toEqual(clientA.registered);
+    expect(clientB.registered).toHaveLength(1);
+    expect(clientB.configured).toHaveLength(1);
+    expect(store.pushCanaryChannelId).toBe(clientB.registered[0]);
+  });
+
+  test("a reset during the storage write does not resurrect the old pair", async () => {
+    const manager = new WebPushManager();
+    const clientA = new FakeAutoPushClient();
+    internals(manager).autoPush = clientA;
+    let releaseSet!: () => void;
+    gateSet = new Promise((resolve) => {
+      releaseSet = resolve;
+    });
+    let setStarted = false;
+    onSetStarted = () => {
+      setStarted = true;
+    };
+
+    const setup = internals(manager).ensureCanaryProbe();
+    for (let i = 0; i < 50 && !setStarted; i++) {
+      await flush();
+    }
+    expect(setStarted).toBe(true);
+
+    // reset() tears the session down and clears storage while the canary
+    // pair write is still in flight
+    internals(manager).autoPush = undefined;
+    delete store.pushCanaryChannelId;
+    delete store.pushCanaryEndpoint;
+    releaseSet();
+    await setup;
+
+    expect(store.pushCanaryChannelId).toBeUndefined();
+    expect(store.pushCanaryEndpoint).toBeUndefined();
+    expect(clientA.unregistered).toEqual(clientA.registered);
+    expect(clientA.configured).toHaveLength(0);
   });
 });
