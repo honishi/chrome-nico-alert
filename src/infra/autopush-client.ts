@@ -102,6 +102,10 @@ export class AutoPushClient {
   private channelIds: string[] = [];
   private pendingChannelIds?: string[];
   private lastHelloSentUaid?: string; // For diagnostics: detect server-side UAID rotation
+  // A new UAID in response to a HELLO for a saved UAID means every endpoint
+  // registered under the old UAID is no longer usable. Keep the socket open
+  // for diagnostics, but surface that user-initiated re-registration is needed.
+  private subscriptionRepairRequired = false;
 
   // Message handlers
   private messageHandlers: Map<string, (data: unknown) => void> = new Map();
@@ -126,6 +130,13 @@ export class AutoPushClient {
   }
 
   /**
+   * Whether AutoPush reassigned the saved UAID, invalidating its endpoints.
+   */
+  isSubscriptionRepairRequired(): boolean {
+    return this.subscriptionRepairRequired;
+  }
+
+  /**
    * Return WebSocket connection state
    */
   get connectionState(): string {
@@ -147,6 +158,7 @@ export class AutoPushClient {
    */
   getConnectionStatusLabel(): string {
     if (!this.ws) return "NO_SOCKET";
+    if (this.subscriptionRepairRequired) return "REPAIR_REQUIRED";
     if (this.ws.readyState === WebSocket.OPEN && this.uaid) return "AUTHENTICATED";
     if (this.ws.readyState === WebSocket.OPEN) return "CONNECTED";
     if (this.ws.readyState === WebSocket.CONNECTING) return "CONNECTING";
@@ -386,6 +398,7 @@ export class AutoPushClient {
     this.isConnected = false;
     this.uaid = undefined;
     this.channelIds = [];
+    this.subscriptionRepairRequired = false;
     this.pendingOperations.clear();
   }
 
@@ -398,7 +411,7 @@ export class AutoPushClient {
   configureCanaryProbe(channelId: string, endpoint: string): void {
     this.canaryChannelId = channelId;
     this.canaryEndpoint = endpoint;
-    if (this.isConnectionOpen() && this.uaid) {
+    if (this.isConnectionOpen() && this.uaid && !this.subscriptionRepairRequired) {
       this.startCanaryProbeTimer();
     }
   }
@@ -616,15 +629,16 @@ export class AutoPushClient {
    * Process Hello response
    */
   private handleHello(message: HelloResponse): void {
+    const uaidChanged = !!(
+      this.lastHelloSentUaid &&
+      message.uaid &&
+      this.lastHelloSentUaid !== message.uaid
+    );
     pushDiagnostics.record("hello_result", {
       status: message.status,
       uaid: message.uaid,
       sentUaid: this.lastHelloSentUaid,
-      uaidChanged: !!(
-        this.lastHelloSentUaid &&
-        message.uaid &&
-        this.lastHelloSentUaid !== message.uaid
-      ),
+      uaidChanged,
       channelCount: this.pendingChannelIds?.length ?? 0,
     });
 
@@ -657,8 +671,24 @@ export class AutoPushClient {
     // Process handshake response
     this.uaid = message.uaid;
 
+    if (uaidChanged) {
+      console.warn(
+        "[AutoPush] Server reassigned the UAID; saved push endpoints require user-initiated repair",
+      );
+      this.subscriptionRepairRequired = true;
+      // The saved channels belong to the old UAID. Reporting them as restored
+      // would make the popup claim a healthy subscription while no endpoint
+      // can deliver to this new session.
+      this.channelIds = [];
+      this.clearSessionTimers();
+    }
+
     // Restore channelIds sent in sendHello
-    if (this.pendingChannelIds && this.pendingChannelIds.length > 0) {
+    if (
+      !this.subscriptionRepairRequired &&
+      this.pendingChannelIds &&
+      this.pendingChannelIds.length > 0
+    ) {
       this.channelIds = [...this.pendingChannelIds];
       console.log("[AutoPush] Restored channel IDs from HELLO:", this.channelIds);
     }
@@ -679,7 +709,9 @@ export class AutoPushClient {
     this.reconnectAttempts = 0;
 
     // Watch the fresh session for routing desync
-    this.startCanaryProbeTimer();
+    if (!this.subscriptionRepairRequired) {
+      this.startCanaryProbeTimer();
+    }
 
     // Test: auto-close WebSocket after configured delay
     if (this.testAutoCloseMs) {
@@ -909,7 +941,7 @@ export class AutoPushClient {
    * (no-op until configureCanaryProbe provides a channel)
    */
   private startCanaryProbeTimer(): void {
-    if (!this.canaryChannelId || !this.canaryEndpoint) {
+    if (this.subscriptionRepairRequired || !this.canaryChannelId || !this.canaryEndpoint) {
       return;
     }
     clearInterval(this.probeTicker);
@@ -927,7 +959,13 @@ export class AutoPushClient {
    * rewrites the routing entry.
    */
   private async runCanaryProbe(attempt = 1): Promise<void> {
-    if (!this.canaryEndpoint || !this.ws || this.ws.readyState !== WebSocket.OPEN || !this.uaid) {
+    if (
+      this.subscriptionRepairRequired ||
+      !this.canaryEndpoint ||
+      !this.ws ||
+      this.ws.readyState !== WebSocket.OPEN ||
+      !this.uaid
+    ) {
       return;
     }
     if (attempt === 1 && this.pendingProbe) {

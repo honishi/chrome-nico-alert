@@ -97,6 +97,15 @@ export class WebPushManager implements PushManager {
       // 1. Restore saved information
       await this.restoreData();
 
+      // A reassigned UAID invalidates every saved endpoint. Do not retry the
+      // dead endpoint or create a replacement here: either action can open a
+      // Niconico account tab during background startup. Keep recovery
+      // user-initiated through the push OFF -> ON flow shown in the popup.
+      if (this.autoPush?.isSubscriptionRepairRequired()) {
+        console.warn("Push subscription requires user-initiated repair");
+        return;
+      }
+
       // 2. Check subscription status
       const isSubscribed = await this.isSubscribed();
 
@@ -236,7 +245,10 @@ export class WebPushManager implements PushManager {
    * Check connection status
    */
   isConnected(): boolean {
-    return this.autoPush?.isConnectionOpen() ?? false;
+    if (!this.autoPush) {
+      return false;
+    }
+    return this.autoPush.isConnectionOpen() && !this.autoPush.isSubscriptionRepairRequired();
   }
 
   /**
@@ -244,6 +256,7 @@ export class WebPushManager implements PushManager {
    */
   getConnectionState(): string {
     if (!this.autoPush) return "NOT_INITIALIZED";
+    if (this.autoPush.isSubscriptionRepairRequired()) return "REPAIR_REQUIRED";
     if (this.autoPush.isConnectionOpen()) return "CONNECTED";
     return "DISCONNECTED";
   }
@@ -397,7 +410,11 @@ export class WebPushManager implements PushManager {
 
   private async setupCanaryProbe(client: AutoPushClient): Promise<void> {
     // May run queued behind a superseded session's setup; re-validate
-    if (this.autoPush !== client || !client.isConnectionOpen()) {
+    if (
+      this.autoPush !== client ||
+      !client.isConnectionOpen() ||
+      client.isSubscriptionRepairRequired()
+    ) {
       return;
     }
 

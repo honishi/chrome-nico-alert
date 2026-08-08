@@ -150,6 +150,30 @@ describe("AutoPushClient", () => {
     client.disconnect();
   });
 
+  test("a reassigned UAID requires repair and does not restore stale channels", async () => {
+    const client = new AutoPushClient();
+    const connectPromise = client.connect();
+    const socket = MockWebSocket.latest();
+    socket.open();
+    await connectPromise;
+
+    const helloPromise = client.sendHello("old-uaid", ["main-channel", "canary-channel"]);
+    socket.serverMessage({ messageType: "hello", status: 200, uaid: "new-uaid" });
+    await helloPromise;
+
+    expect(client.isConnectionOpen()).toBe(true);
+    expect(client.isSubscriptionRepairRequired()).toBe(true);
+    expect(client.getConnectionStatusLabel()).toBe("REPAIR_REQUIRED");
+    expect(client.getUaid()).toBe("new-uaid");
+    expect(client.getChannelIds()).toEqual([]);
+
+    client.configureCanaryProbe("canary-channel", "https://updates.example.test/canary");
+    await jest.advanceTimersByTimeAsync(60000);
+    expect(fetchMock).not.toHaveBeenCalled();
+
+    client.disconnect();
+  });
+
   test("sendHello rejects after 10 seconds without a response", async () => {
     const client = new AutoPushClient();
     const connectPromise = client.connect();

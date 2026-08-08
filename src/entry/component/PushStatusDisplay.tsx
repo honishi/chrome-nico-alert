@@ -51,7 +51,10 @@ const PushStatusDisplay: React.FC = () => {
   let statusText = "プッシュ通知: 無効";
   let statusClass = "push-status-disabled";
 
-  if (status.enabled && status.connected) {
+  if (status.enabled && status.connectionState === "REPAIR_REQUIRED") {
+    statusText = "プッシュ通知: 再設定が必要";
+    statusClass = "push-status-error";
+  } else if (status.enabled && status.connected) {
     statusText = "プッシュ通知: 接続済み";
     statusClass = "push-status-connected";
   } else if (status.enabled && !status.connected) {
@@ -61,6 +64,9 @@ const PushStatusDisplay: React.FC = () => {
 
   // Build tooltip details
   const details: string[] = [];
+  if (status.connectionState === "REPAIR_REQUIRED") {
+    details.push("設定画面でプッシュ通知を一度OFFにしてから、再度ONにしてください");
+  }
   if (status.connectionState) {
     details.push(`Connection Status: ${status.connectionState}`);
   }
