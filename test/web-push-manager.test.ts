@@ -326,6 +326,25 @@ describe("WebPushManager canary probe setup", () => {
     expect(manager.getConnectionState()).toBe("REPAIR_REQUIRED");
   });
 
+  test("start leaves a repair-required subscription for user-initiated recovery", async () => {
+    const manager = new WebPushManager();
+    const client = new FakeAutoPushClient();
+    client.repairRequired = true;
+    internals(manager).autoPush = client;
+    internals(manager).subscriptionInfo = { niconicoRegistered: false };
+    internals(manager).cryptoKeys = {};
+    const register = jest.fn(async () => true);
+    const subscribe = jest.fn(async () => {});
+    internals(manager).registerToNiconico = register;
+    internals(manager).subscribeAndConnect = subscribe;
+
+    await manager.start();
+
+    expect(register).not.toHaveBeenCalled();
+    expect(subscribe).not.toHaveBeenCalled();
+    expect(manager.getConnectionState()).toBe("REPAIR_REQUIRED");
+  });
+
   test("reset disconnects an incomplete session's client", async () => {
     const manager = new WebPushManager();
     const client = new FakeAutoPushClient();

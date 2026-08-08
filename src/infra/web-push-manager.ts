@@ -97,6 +97,15 @@ export class WebPushManager implements PushManager {
       // 1. Restore saved information
       await this.restoreData();
 
+      // A reassigned UAID invalidates every saved endpoint. Do not retry the
+      // dead endpoint or create a replacement here: either action can open a
+      // Niconico account tab during background startup. Keep recovery
+      // user-initiated through the push OFF -> ON flow shown in the popup.
+      if (this.autoPush?.isSubscriptionRepairRequired()) {
+        console.warn("Push subscription requires user-initiated repair");
+        return;
+      }
+
       // 2. Check subscription status
       const isSubscribed = await this.isSubscribed();
 
