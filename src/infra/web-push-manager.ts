@@ -79,8 +79,11 @@ export class WebPushManager implements PushManager {
   }
 
   private async doStart(): Promise<void> {
-    // Early return if already connected
-    if (this.autoPush?.isConnectionOpen()) {
+    // Early return if already connected AND the sender side knows the
+    // endpoint; a session whose Niconico registration failed must fall
+    // through so the registration is retried instead of being masked by
+    // a healthy-looking socket
+    if (this.autoPush?.isConnectionOpen() && this.subscriptionInfo?.niconicoRegistered) {
       console.log("PushManager already started and connected");
       // The probe setup is idempotent; re-ensure it so a previously
       // failed setup attempt heals on the next start
@@ -176,15 +179,21 @@ export class WebPushManager implements PushManager {
       }
     }
 
-    // 3. Disconnect from AutoPush and unsubscribe
-    if (this.autoPush && this.subscriptionInfo) {
-      try {
-        const channelIdMatch = this.subscriptionInfo.endpoint.match(/([a-f0-9-]{36})$/);
-        if (channelIdMatch) {
-          await this.autoPush.unregisterChannel(channelIdMatch[1]);
+    // 3. Disconnect from AutoPush and unsubscribe. The disconnect must
+    // not depend on subscriptionInfo: a session that failed before the
+    // main channel registration has an open socket but no subscription,
+    // and leaving it up would let the next start() fast-path past the
+    // incomplete state
+    if (this.autoPush) {
+      if (this.subscriptionInfo) {
+        try {
+          const channelIdMatch = this.subscriptionInfo.endpoint.match(/([a-f0-9-]{36})$/);
+          if (channelIdMatch) {
+            await this.autoPush.unregisterChannel(channelIdMatch[1]);
+          }
+        } catch (error) {
+          console.error("Failed to unregister from AutoPush:", error);
         }
-      } catch (error) {
-        console.error("Failed to unregister from AutoPush:", error);
       }
 
       this.autoPush.disconnect();
@@ -362,11 +371,14 @@ export class WebPushManager implements PushManager {
     const promise = prior.then(() => this.setupCanaryProbe(client));
     const entry = { client, promise };
     this.canarySetup = entry;
-    void promise.finally(() => {
+    // then(cleanup, cleanup) instead of finally: a rejecting setup would
+    // make the finally-derived promise an unhandled rejection
+    const cleanup = () => {
       if (this.canarySetup === entry) {
         this.canarySetup = undefined;
       }
-    });
+    };
+    promise.then(cleanup, cleanup);
     return promise;
   }
 
@@ -522,12 +534,18 @@ export class WebPushManager implements PushManager {
         niconicoRegistered: false,
       };
 
-      // 6. Register to Niconico API
+      // 6. Register to Niconico API - without this the sender never
+      // pushes to the endpoint, so the subscription is only complete
+      // when it succeeds
+      let niconicoRegistered = false;
       if (this.subscriptionInfo) {
-        await this.registerToNiconico(this.subscriptionInfo);
+        niconicoRegistered = await this.registerToNiconico(this.subscriptionInfo);
       }
 
-      // 7. Save subscription info and channel ID
+      // 7. Save subscription info and channel ID. Saved even when the
+      // Niconico registration failed: niconicoRegistered=false makes the
+      // next start() retry instead of silently reusing a half-registered
+      // session
       if (this.subscriptionInfo) {
         await this.saveSubscription(this.subscriptionInfo);
       }
@@ -543,6 +561,10 @@ export class WebPushManager implements PushManager {
         pushChannelId: channelId, // Also save channel ID
       });
       console.log("[WebPushManager] Saved successfully");
+
+      if (!niconicoRegistered) {
+        throw new Error("Niconico push endpoint registration failed");
+      }
 
       console.log("Push subscription completed successfully");
     } catch (error) {
@@ -572,10 +594,11 @@ export class WebPushManager implements PushManager {
     console.log("Fetching VAPID key from Niconico...");
 
     try {
-      // 1. Fetch Service Worker file
+      // 1. Fetch Service Worker file (bounded: an unresolved fetch would
+      // block the serialized lifecycle queue forever)
       const swUrl = "https://account.nicovideo.jp/sw.js";
       console.log("Fetching service worker from:", swUrl);
-      const swResponse = await fetch(swUrl);
+      const swResponse = await fetch(swUrl, { signal: AbortSignal.timeout(15000) });
       const swContent = await swResponse.text();
       console.log("Service worker fetched, length:", swContent.length);
 
@@ -588,7 +611,7 @@ export class WebPushManager implements PushManager {
       console.log("Main script URL found:", mainScriptUrl);
 
       // 3. Fetch main script
-      const mainResponse = await fetch(mainScriptUrl);
+      const mainResponse = await fetch(mainScriptUrl, { signal: AbortSignal.timeout(15000) });
       const mainContent = await mainResponse.text();
       console.log("Main script fetched, length:", mainContent.length);
 
@@ -676,6 +699,27 @@ export class WebPushManager implements PushManager {
 
   // ========== Private Methods: Niconico Registration ==========
   /**
+   * Wait until a tab finishes loading, bounded by a timeout so a tab that
+   * never completes cannot block the serialized lifecycle queue forever
+   */
+  private waitForTabComplete(tabId: number, timeoutMs = 30000): Promise<void> {
+    return new Promise((resolve, reject) => {
+      const timeoutTimer = setTimeout(() => {
+        chrome.tabs.onUpdated.removeListener(listener);
+        reject(new Error("Timed out waiting for tab to load"));
+      }, timeoutMs);
+      const listener = (updatedTabId: number, changeInfo: chrome.tabs.TabChangeInfo) => {
+        if (updatedTabId === tabId && changeInfo.status === "complete") {
+          clearTimeout(timeoutTimer);
+          chrome.tabs.onUpdated.removeListener(listener);
+          resolve();
+        }
+      };
+      chrome.tabs.onUpdated.addListener(listener);
+    });
+  }
+
+  /**
    * Common helper: Create and prepare a tab for Content Script communication
    */
   private async createAndPrepareNiconicoTab(): Promise<chrome.tabs.Tab> {
@@ -689,27 +733,24 @@ export class WebPushManager implements PushManager {
 
     console.log("[DEBUG] New tab created, ID:", targetTab.id, "URL:", targetTab.url);
 
-    // Wait for page to load
-    await new Promise((resolve) => {
-      const listener = (
-        tabId: number,
-        changeInfo: chrome.tabs.TabChangeInfo,
-        tab: chrome.tabs.Tab,
-      ) => {
-        console.log("[DEBUG] Tab update:", tabId, changeInfo, tab.url);
-        if (tabId === targetTab!.id && changeInfo.status === "complete") {
-          chrome.tabs.onUpdated.removeListener(listener);
-          resolve(undefined);
-        }
-      };
-      chrome.tabs.onUpdated.addListener(listener);
-    });
-
-    console.log("Niconico tab created and loaded");
-
     if (!targetTab.id) {
       throw new Error("No valid tab ID");
     }
+
+    // Wait for page to load; close the tab before failing so a timeout
+    // does not leak a background tab
+    try {
+      await this.waitForTabComplete(targetTab.id);
+    } catch (error) {
+      try {
+        await chrome.tabs.remove(targetTab.id);
+      } catch (removeError) {
+        console.error("Failed to close unloaded tab:", removeError);
+      }
+      throw error;
+    }
+
+    console.log("Niconico tab created and loaded");
 
     return targetTab;
   }
@@ -747,17 +788,13 @@ export class WebPushManager implements PushManager {
     // Reload tab to load Content Script
     await chrome.tabs.reload(tabId);
 
-    // Wait for reload to complete
-    await new Promise((resolve) => {
-      const listener = (reloadTabId: number, changeInfo: chrome.tabs.TabChangeInfo) => {
-        console.log("[DEBUG] Tab reload status:", reloadTabId, changeInfo);
-        if (reloadTabId === tabId && changeInfo.status === "complete") {
-          chrome.tabs.onUpdated.removeListener(listener);
-          resolve(undefined);
-        }
-      };
-      chrome.tabs.onUpdated.addListener(listener);
-    });
+    // Wait for reload to complete (bounded; the caller closes the tab)
+    try {
+      await this.waitForTabComplete(tabId);
+    } catch (error) {
+      console.error("Timed out waiting for tab reload:", error);
+      return false;
+    }
 
     console.log("Tab reloaded, waiting 2 more seconds for Content Script...");
     await new Promise((resolve) => setTimeout(resolve, 2000));
@@ -840,8 +877,12 @@ export class WebPushManager implements PushManager {
   /**
    * Register subscription info to Niconico Push API (internal use)
    * Register to Niconico API via Content Script (avoiding CORS restrictions)
+   *
+   * Returns whether the sender side now knows the endpoint. Without this
+   * registration no push is ever sent, so callers must not treat the
+   * subscription as complete when this fails.
    */
-  private async registerToNiconico(subscription: PushSubscriptionInfo): Promise<void> {
+  private async registerToNiconico(subscription: PushSubscriptionInfo): Promise<boolean> {
     console.log("Registering to Niconico Push API via Content Script...");
 
     try {
@@ -875,18 +916,31 @@ export class WebPushManager implements PushManager {
         console.log("  Time:", new Date().toISOString());
         subscription.niconicoRegistered = true;
         subscription.updatedAt = new Date();
-      } else {
-        console.error("❌ Niconico registration failed:", response.status, response.error);
-        subscription.niconicoRegistered = false;
-
-        // Special handling for 403 error
-        if (response.status === 403) {
-          console.warn("Still getting 403 error even via Content Script");
-        }
+        pushDiagnostics.record("nico_register_result", { success: true });
+        return true;
       }
+
+      console.error("❌ Niconico registration failed:", response.status, response.error);
+      subscription.niconicoRegistered = false;
+      pushDiagnostics.record("nico_register_result", {
+        success: false,
+        status: response.status,
+        error: response.error,
+      });
+
+      // Special handling for 403 error
+      if (response.status === 403) {
+        console.warn("Still getting 403 error even via Content Script");
+      }
+      return false;
     } catch (error) {
       console.error("Failed to register to Niconico via Content Script:", error);
       subscription.niconicoRegistered = false;
+      pushDiagnostics.record("nico_register_result", {
+        success: false,
+        error: (error as Error).message,
+      });
+      return false;
     }
   }
 

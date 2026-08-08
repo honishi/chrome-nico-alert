@@ -6,6 +6,9 @@
  * - ws_open / ws_close / ws_error: WebSocket lifecycle
  * - hello_result: HELLO handshake response (uaidChanged flags server-side UAID rotation)
  * - register_result: channel registration response
+ * - nico_register_result: Niconico Push API endpoint registration result
+ *   (sender side; a failure here means no push is ever sent even though
+ *   the AutoPush socket looks healthy)
  * - reconnect_scheduled / reconnect_giveup: reconnection state
  * - liveness_ping / liveness_reconnect: idle liveness probe and forced
  *   reconnection of a half-open (zombie) connection
@@ -31,6 +34,7 @@ export type PushDiagnosticsEventType =
   | "ws_error"
   | "hello_result"
   | "register_result"
+  | "nico_register_result"
   | "reconnect_scheduled"
   | "reconnect_giveup"
   | "liveness_ping"
