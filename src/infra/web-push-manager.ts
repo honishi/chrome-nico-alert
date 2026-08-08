@@ -41,6 +41,9 @@ export class WebPushManager implements PushManager {
   // Status
   private lastReceivedProgram?: { program: PushProgram; receivedAt: Date };
 
+  // Single-flight guard for canary probe setup
+  private canarySetup?: Promise<void>;
+
   // ========== Public Properties ==========
   /**
    * Callback when a broadcast is detected via push notification
@@ -305,24 +308,59 @@ export class WebPushManager implements PushManager {
    * WITHOUT a key so its endpoint accepts unauthenticated TTL:0 POSTs
    * from the extension itself; the probe travels the same per-user
    * delivery path as real pushes. The channel is persisted and reused
-   * across restarts.
+   * across restarts. Single-flight: concurrent start() calls share one
+   * setup so the canary can never be registered twice.
    */
-  private async ensureCanaryProbe(): Promise<void> {
-    if (!this.autoPush?.isConnectionOpen()) {
+  private ensureCanaryProbe(): Promise<void> {
+    if (!this.canarySetup) {
+      this.canarySetup = this.setupCanaryProbe().finally(() => {
+        this.canarySetup = undefined;
+      });
+    }
+    return this.canarySetup;
+  }
+
+  private async setupCanaryProbe(): Promise<void> {
+    // Bind to the current client instance: stop()/reset()/re-subscription
+    // replace this.autoPush, and a setup racing those must not persist or
+    // configure a canary for a session it no longer belongs to
+    const client = this.autoPush;
+    if (!client?.isConnectionOpen()) {
       return;
     }
 
     try {
       const saved = await chrome.storage.local.get(["pushCanaryChannelId", "pushCanaryEndpoint"]);
       if (saved.pushCanaryChannelId && saved.pushCanaryEndpoint) {
-        this.autoPush.configureCanaryProbe(saved.pushCanaryChannelId, saved.pushCanaryEndpoint);
+        if (this.autoPush !== client) {
+          return;
+        }
+        client.configureCanaryProbe(saved.pushCanaryChannelId, saved.pushCanaryEndpoint);
         return;
       }
 
+      // A partial pair (setup interrupted between register and save) would
+      // let the HELLO channel list diverge from the server-side record;
+      // clean it up before registering anew
+      if (saved.pushCanaryChannelId || saved.pushCanaryEndpoint) {
+        console.warn("[WebPushManager] Reconciling partial canary state");
+        if (saved.pushCanaryChannelId) {
+          await client.unregisterChannel(saved.pushCanaryChannelId);
+        }
+        await chrome.storage.local.remove(["pushCanaryChannelId", "pushCanaryEndpoint"]);
+      }
+
       const channelId = crypto.randomUUID();
-      const registration = await this.autoPush.registerChannel(channelId);
+      const registration = await client.registerChannel(channelId);
       if (!registration.pushEndpoint) {
         console.warn("[WebPushManager] Canary registration returned no endpoint, probe disabled");
+        return;
+      }
+
+      if (this.autoPush !== client) {
+        // The session was stopped or replaced while registering; the new
+        // owner will run its own setup
+        await client.unregisterChannel(channelId);
         return;
       }
 
@@ -332,13 +370,18 @@ export class WebPushManager implements PushManager {
           pushCanaryEndpoint: registration.pushEndpoint,
         });
       } catch (error) {
-        // An unsaved canary would make the next HELLO's channel list
-        // diverge from the server-side record; roll the registration back
-        await this.autoPush.unregisterChannel(channelId);
+        // The unregister send is fire-and-forget, so the server-side set
+        // cannot be assumed restored; rebuild the session so the next
+        // HELLO realigns the channel record (and surfaces any rotation)
+        await client.unregisterChannel(channelId);
+        client.restartSession();
         throw error;
       }
 
-      this.autoPush.configureCanaryProbe(channelId, registration.pushEndpoint);
+      if (this.autoPush !== client) {
+        return; // Persisted; the next setup configures the new session
+      }
+      client.configureCanaryProbe(channelId, registration.pushEndpoint);
       console.log("[WebPushManager] Canary probe channel registered:", channelId);
     } catch (error) {
       // The probe only improves desync detection; the session works without it
