@@ -9,8 +9,6 @@
  * - reconnect_scheduled / reconnect_giveup: reconnection state
  * - liveness_ping / liveness_reconnect: idle liveness probe and forced
  *   reconnection of a half-open (zombie) connection
- * - cycle_reconnect: proactive connection replacement after the maximum
- *   connection lifetime (desync mitigation)
  * - conn_snapshot: periodic connection state snapshot (deduplicated)
  *
  * Push pipeline (correlated by channelId+version, then programId):
@@ -34,7 +32,6 @@ export type PushDiagnosticsEventType =
   | "reconnect_giveup"
   | "liveness_ping"
   | "liveness_reconnect"
-  | "cycle_reconnect"
   | "conn_snapshot"
   | "socket_received"
   | "ack_sent"

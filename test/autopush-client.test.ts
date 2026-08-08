@@ -246,19 +246,6 @@ describe("AutoPushClient", () => {
     client.disconnect();
   });
 
-  test("replaces the connection 5 minutes after HELLO", async () => {
-    const client = new AutoPushClient();
-    const socketA = await establish(client);
-
-    await advanceAnsweringPings(5 * 60 * 1000 + 2000);
-
-    expect(MockWebSocket.instances).toHaveLength(2);
-    expect(MockWebSocket.latest()).not.toBe(socketA);
-    expect(socketA.readyState).toBe(MockWebSocket.CLOSED);
-
-    client.disconnect();
-  });
-
   test("a stale reconnect attempt does not send a second HELLO", async () => {
     const client = new AutoPushClient();
     const socket = await establish(client);
@@ -273,7 +260,7 @@ describe("AutoPushClient", () => {
     client.disconnect();
   });
 
-  test("disconnect stops cycling and reconnection", async () => {
+  test("disconnect stops reconnection", async () => {
     const client = new AutoPushClient();
     await establish(client);
 
