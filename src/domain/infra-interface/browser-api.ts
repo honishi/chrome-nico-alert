@@ -22,6 +22,8 @@ export interface BrowserApi {
   playSound(sound: SoundType): Promise<void>;
   getReceivePushNotification(): Promise<boolean>;
   setReceivePushNotification(value: boolean): Promise<void>;
+  getPushDiagnosticsEnabled(): Promise<boolean>;
+  setPushDiagnosticsEnabled(value: boolean): Promise<void>;
   showNotification(
     title: string,
     message: string,

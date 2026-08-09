@@ -3,6 +3,7 @@ import { PushManager } from "../domain/infra-interface/push-manager";
 import { PushSubscriptionInfo } from "../domain/model/push-subscription";
 import { PushProgram } from "../domain/model/push-program";
 import { AutoPushClient } from "./autopush-client";
+import { pushDiagnostics, shortVersion } from "./push-diagnostics";
 import {
   generateKeyPair,
   generateAuthSecret,
@@ -10,7 +11,7 @@ import {
   importKeys,
   base64UrlEncode,
   base64Encode,
-  decryptNotification,
+  decryptNotificationWithInfo,
   parseAutoPushPayload,
 } from "./web-push-crypto";
 
@@ -40,6 +41,14 @@ export class WebPushManager implements PushManager {
   // Status
   private lastReceivedProgram?: { program: PushProgram; receivedAt: Date };
 
+  // Per-session single-flight guard for canary probe setup
+  private canarySetup?: { client: AutoPushClient; promise: Promise<void> };
+
+  // Lifecycle serialization: start/stop/reset run exclusively so that a
+  // stop or reset can never interleave with an in-flight start (session
+  // restore, subscription, canary setup) and corrupt shared state
+  private lifecycle: Promise<unknown> = Promise.resolve();
+
   // ========== Public Properties ==========
   /**
    * Callback when a broadcast is detected via push notification
@@ -54,9 +63,31 @@ export class WebPushManager implements PushManager {
    * - Subscribe if not already subscribed
    */
   async start(): Promise<void> {
-    // Early return if already connected
-    if (this.autoPush?.isConnectionOpen()) {
+    return this.runExclusive(() => this.doStart());
+  }
+
+  /**
+   * Run a lifecycle operation after every previously queued one finished
+   */
+  private runExclusive<T>(task: () => Promise<T>): Promise<T> {
+    const run = this.lifecycle.then(task, task);
+    this.lifecycle = run.then(
+      () => undefined,
+      () => undefined,
+    );
+    return run;
+  }
+
+  private async doStart(): Promise<void> {
+    // Early return if already connected AND the sender side knows the
+    // endpoint; a session whose Niconico registration failed must fall
+    // through so the registration is retried instead of being masked by
+    // a healthy-looking socket
+    if (this.autoPush?.isConnectionOpen() && this.subscriptionInfo?.niconicoRegistered) {
       console.log("PushManager already started and connected");
+      // The probe setup is idempotent; re-ensure it so a previously
+      // failed setup attempt heals on the next start
+      await this.ensureCanaryProbe();
       return;
     }
 
@@ -66,22 +97,50 @@ export class WebPushManager implements PushManager {
       // 1. Restore saved information
       await this.restoreData();
 
+      // A reassigned UAID invalidates every saved endpoint. Do not retry the
+      // dead endpoint or create a replacement here: either action can open a
+      // Niconico account tab during background startup. Keep recovery
+      // user-initiated through the push OFF -> ON flow shown in the popup.
+      if (this.autoPush?.isSubscriptionRepairRequired()) {
+        console.warn("Push subscription requires user-initiated repair");
+        return;
+      }
+
       // 2. Check subscription status
       const isSubscribed = await this.isSubscribed();
 
+      const subscription = this.subscriptionInfo;
       if (isSubscribed) {
         // 3. If already subscribed, connect to AutoPush
         console.log("Already subscribed, connecting to AutoPush...");
-        const saved = await chrome.storage.local.get(["pushUaid", "pushChannelId"]);
+        const saved = await chrome.storage.local.get([
+          "pushUaid",
+          "pushChannelId",
+          "pushCanaryChannelId",
+        ]);
         if (saved.pushUaid) {
-          const channelIds = saved.pushChannelId ? [saved.pushChannelId] : [];
-          await this.connectAutoPush(saved.pushUaid, channelIds);
+          await this.connectAutoPush(saved.pushUaid, this.savedChannelIds(saved));
         }
+      } else if (subscription && this.cryptoKeys && this.autoPush?.isConnectionOpen()) {
+        // 4. The AutoPush side is intact but the sender-side registration
+        // is missing (an earlier attempt failed): retry with the SAME
+        // endpoint instead of rebuilding, so a registration that actually
+        // landed server-side (only the response was lost) cannot leave an
+        // orphaned endpoint receiving duplicate deliveries
+        console.log("Retrying Niconico registration for the saved endpoint...");
+        const registered = await this.registerToNiconico(subscription);
+        if (!registered) {
+          throw new Error("Niconico push endpoint registration failed");
+        }
+        await this.saveSubscription(subscription);
       } else {
-        // 4. If not subscribed, create new subscription
+        // 5. If not subscribed, create new subscription
         console.log("Not subscribed yet, subscribing...");
         await this.subscribeAndConnect();
       }
+
+      // 5. Set up the canary self-push probe (desync detection)
+      await this.ensureCanaryProbe();
 
       console.log("PushManager started successfully");
     } catch (error) {
@@ -96,6 +155,10 @@ export class WebPushManager implements PushManager {
    * - Keep subscription info (for resuming later)
    */
   async stop(): Promise<void> {
+    return this.runExclusive(() => this.doStop());
+  }
+
+  private async doStop(): Promise<void> {
     console.log("Stopping PushManager...");
 
     if (this.autoPush) {
@@ -114,6 +177,10 @@ export class WebPushManager implements PushManager {
    * - Delete all saved information
    */
   async reset(): Promise<void> {
+    return this.runExclusive(() => this.doReset());
+  }
+
+  private async doReset(): Promise<void> {
     console.log("Resetting PushManager...");
 
     // 1. Unregister from Niconico Push API first
@@ -122,32 +189,52 @@ export class WebPushManager implements PushManager {
       await this.unregisterFromNiconico(this.subscriptionInfo.endpoint);
     }
 
-    // 2. Disconnect from AutoPush and unsubscribe
-    if (this.autoPush && this.subscriptionInfo) {
+    // 2. Unregister the canary probe channel
+    if (this.autoPush) {
       try {
-        const channelIdMatch = this.subscriptionInfo.endpoint.match(/([a-f0-9-]{36})$/);
-        if (channelIdMatch) {
-          await this.autoPush.unregisterChannel(channelIdMatch[1]);
+        const savedCanary = await chrome.storage.local.get(["pushCanaryChannelId"]);
+        if (savedCanary.pushCanaryChannelId) {
+          await this.autoPush.unregisterChannel(savedCanary.pushCanaryChannelId);
         }
       } catch (error) {
-        console.error("Failed to unregister from AutoPush:", error);
+        console.error("Failed to unregister canary channel:", error);
+      }
+    }
+
+    // 3. Disconnect from AutoPush and unsubscribe. The disconnect must
+    // not depend on subscriptionInfo: a session that failed before the
+    // main channel registration has an open socket but no subscription,
+    // and leaving it up would let the next start() fast-path past the
+    // incomplete state
+    if (this.autoPush) {
+      if (this.subscriptionInfo) {
+        try {
+          const channelIdMatch = this.subscriptionInfo.endpoint.match(/([a-f0-9-]{36})$/);
+          if (channelIdMatch) {
+            await this.autoPush.unregisterChannel(channelIdMatch[1]);
+          }
+        } catch (error) {
+          console.error("Failed to unregister from AutoPush:", error);
+        }
       }
 
       this.autoPush.disconnect();
       this.autoPush = undefined;
     }
 
-    // 3. Clear data from memory
+    // 4. Clear data from memory
     this.subscriptionInfo = undefined;
     this.cryptoKeys = undefined;
     this.vapidKey = undefined;
 
-    // 4. Delete saved data
+    // 5. Delete saved data
     await chrome.storage.local.remove([
       "pushSubscription",
       "pushKeys",
       "pushUaid",
       "pushChannelId",
+      "pushCanaryChannelId",
+      "pushCanaryEndpoint",
     ]);
 
     console.log("PushManager reset completed");
@@ -158,7 +245,10 @@ export class WebPushManager implements PushManager {
    * Check connection status
    */
   isConnected(): boolean {
-    return this.autoPush?.isConnectionOpen() ?? false;
+    if (!this.autoPush) {
+      return false;
+    }
+    return this.autoPush.isConnectionOpen() && !this.autoPush.isSubscriptionRepairRequired();
   }
 
   /**
@@ -166,6 +256,7 @@ export class WebPushManager implements PushManager {
    */
   getConnectionState(): string {
     if (!this.autoPush) return "NOT_INITIALIZED";
+    if (this.autoPush.isSubscriptionRepairRequired()) return "REPAIR_REQUIRED";
     if (this.autoPush.isConnectionOpen()) return "CONNECTED";
     return "DISCONNECTED";
   }
@@ -216,6 +307,7 @@ export class WebPushManager implements PushManager {
       "pushKeys",
       "pushUaid",
       "pushChannelId",
+      "pushCanaryChannelId",
     ]);
 
     if (saved.pushSubscription) {
@@ -236,7 +328,7 @@ export class WebPushManager implements PushManager {
     if (this.subscriptionInfo && this.cryptoKeys && saved.pushUaid) {
       try {
         // Use saved channel ID
-        const channelIds = saved.pushChannelId ? [saved.pushChannelId] : [];
+        const channelIds = this.savedChannelIds(saved);
         console.log("[WebPushManager] Restoring AutoPush connection:");
         console.log("  Saved UAID:", saved.pushUaid);
         console.log("  Saved Channel ID:", saved.pushChannelId);
@@ -255,6 +347,140 @@ export class WebPushManager implements PushManager {
    */
   private async isSubscribed(): Promise<boolean> {
     return this.subscriptionInfo !== undefined && this.subscriptionInfo.niconicoRegistered;
+  }
+
+  /**
+   * Channel IDs for the HELLO handshake, in registration order.
+   * The main channel comes first (getChannelId reports index 0); the
+   * canary channel must be included so the list matches the server-side
+   * record for the UAID.
+   */
+  private savedChannelIds(saved: {
+    pushChannelId?: string;
+    pushCanaryChannelId?: string;
+  }): string[] {
+    const channelIds: string[] = [];
+    if (saved.pushChannelId) {
+      channelIds.push(saved.pushChannelId);
+    }
+    if (saved.pushCanaryChannelId) {
+      channelIds.push(saved.pushCanaryChannelId);
+    }
+    return channelIds;
+  }
+
+  /**
+   * Ensure a canary channel exists and hand it to the AutoPush client for
+   * the self-push probe (desync detection). The channel is registered
+   * WITHOUT a key so its endpoint accepts unauthenticated TTL:0 POSTs
+   * from the extension itself; the probe travels the same per-user
+   * delivery path as real pushes. The channel is persisted and reused
+   * across restarts. Single-flight: concurrent start() calls share one
+   * setup so the canary can never be registered twice.
+   */
+  private ensureCanaryProbe(): Promise<void> {
+    // Bind to the current client instance: stop()/reset()/re-subscription
+    // replace this.autoPush, and a setup racing those must not persist or
+    // configure a canary for a session it no longer belongs to
+    const client = this.autoPush;
+    if (!client) {
+      return Promise.resolve();
+    }
+    if (this.canarySetup?.client === client) {
+      return this.canarySetup.promise; // Single-flight per session
+    }
+    // A previous session's setup may still be finishing; run after it so
+    // two setups can never interleave on the shared storage keys, and so
+    // a replacement session always gets its own setup instead of joining
+    // the superseded one
+    const prior = this.canarySetup?.promise ?? Promise.resolve();
+    const promise = prior.then(() => this.setupCanaryProbe(client));
+    const entry = { client, promise };
+    this.canarySetup = entry;
+    // then(cleanup, cleanup) instead of finally: a rejecting setup would
+    // make the finally-derived promise an unhandled rejection
+    const cleanup = () => {
+      if (this.canarySetup === entry) {
+        this.canarySetup = undefined;
+      }
+    };
+    promise.then(cleanup, cleanup);
+    return promise;
+  }
+
+  private async setupCanaryProbe(client: AutoPushClient): Promise<void> {
+    // May run queued behind a superseded session's setup; re-validate
+    if (
+      this.autoPush !== client ||
+      !client.isConnectionOpen() ||
+      client.isSubscriptionRepairRequired()
+    ) {
+      return;
+    }
+
+    try {
+      const saved = await chrome.storage.local.get(["pushCanaryChannelId", "pushCanaryEndpoint"]);
+      if (saved.pushCanaryChannelId && saved.pushCanaryEndpoint) {
+        if (this.autoPush !== client) {
+          return;
+        }
+        client.configureCanaryProbe(saved.pushCanaryChannelId, saved.pushCanaryEndpoint);
+        return;
+      }
+
+      // A partial pair (setup interrupted between register and save) would
+      // let the HELLO channel list diverge from the server-side record;
+      // clean it up before registering anew
+      if (saved.pushCanaryChannelId || saved.pushCanaryEndpoint) {
+        console.warn("[WebPushManager] Reconciling partial canary state");
+        if (saved.pushCanaryChannelId) {
+          await client.unregisterChannel(saved.pushCanaryChannelId);
+        }
+        await chrome.storage.local.remove(["pushCanaryChannelId", "pushCanaryEndpoint"]);
+      }
+
+      const channelId = crypto.randomUUID();
+      const registration = await client.registerChannel(channelId);
+      if (!registration.pushEndpoint) {
+        console.warn("[WebPushManager] Canary registration returned no endpoint, probe disabled");
+        return;
+      }
+
+      if (this.autoPush !== client) {
+        // The session was stopped or replaced while registering; the new
+        // owner will run its own setup
+        await client.unregisterChannel(channelId);
+        return;
+      }
+
+      try {
+        await chrome.storage.local.set({
+          pushCanaryChannelId: channelId,
+          pushCanaryEndpoint: registration.pushEndpoint,
+        });
+      } catch (error) {
+        // The unregister send is fire-and-forget, so the server-side set
+        // cannot be assumed restored; rebuild the session so the next
+        // HELLO realigns the channel record (and surfaces any rotation)
+        await client.unregisterChannel(channelId);
+        client.restartSession();
+        throw error;
+      }
+
+      if (this.autoPush !== client) {
+        // The session was replaced while persisting: the pair belongs to
+        // the old session and may have landed after reset() cleared
+        // storage, so undo both the write and the registration
+        await chrome.storage.local.remove(["pushCanaryChannelId", "pushCanaryEndpoint"]);
+        await client.unregisterChannel(channelId);
+        return;
+      }
+      client.configureCanaryProbe(channelId, registration.pushEndpoint);
+      console.log("[WebPushManager] Canary probe channel registered:", channelId);
+    } catch (error) {
+      // The probe only improves desync detection; the session works without it
+      console.warn("[WebPushManager] Failed to set up canary probe:", error);
+    }
   }
 
   // ========== Private Methods: Subscription ==========
@@ -338,23 +564,37 @@ export class WebPushManager implements PushManager {
         niconicoRegistered: false,
       };
 
-      // 6. Register to Niconico API
+      // 6. Register to Niconico API - without this the sender never
+      // pushes to the endpoint, so the subscription is only complete
+      // when it succeeds
+      let niconicoRegistered = false;
       if (this.subscriptionInfo) {
-        await this.registerToNiconico(this.subscriptionInfo);
+        niconicoRegistered = await this.registerToNiconico(this.subscriptionInfo);
       }
 
-      // 7. Save subscription info and channel ID
+      // 7. Save subscription info and channel ID. Saved even when the
+      // Niconico registration failed: niconicoRegistered=false makes the
+      // next start() retry instead of silently reusing a half-registered
+      // session
       if (this.subscriptionInfo) {
         await this.saveSubscription(this.subscriptionInfo);
       }
       console.log("[WebPushManager] Saving to storage:");
       console.log("  UAID:", uaid);
       console.log("  Channel ID:", channelId);
+      // A saved canary belongs to the previous UAID; probing its endpoint
+      // would route to a dead session, so let ensureCanaryProbe register a
+      // fresh one on this UAID
+      await chrome.storage.local.remove(["pushCanaryChannelId", "pushCanaryEndpoint"]);
       await chrome.storage.local.set({
         pushUaid: uaid,
         pushChannelId: channelId, // Also save channel ID
       });
       console.log("[WebPushManager] Saved successfully");
+
+      if (!niconicoRegistered) {
+        throw new Error("Niconico push endpoint registration failed");
+      }
 
       console.log("Push subscription completed successfully");
     } catch (error) {
@@ -384,10 +624,11 @@ export class WebPushManager implements PushManager {
     console.log("Fetching VAPID key from Niconico...");
 
     try {
-      // 1. Fetch Service Worker file
+      // 1. Fetch Service Worker file (bounded: an unresolved fetch would
+      // block the serialized lifecycle queue forever)
       const swUrl = "https://account.nicovideo.jp/sw.js";
       console.log("Fetching service worker from:", swUrl);
-      const swResponse = await fetch(swUrl);
+      const swResponse = await fetch(swUrl, { signal: AbortSignal.timeout(15000) });
       const swContent = await swResponse.text();
       console.log("Service worker fetched, length:", swContent.length);
 
@@ -400,7 +641,7 @@ export class WebPushManager implements PushManager {
       console.log("Main script URL found:", mainScriptUrl);
 
       // 3. Fetch main script
-      const mainResponse = await fetch(mainScriptUrl);
+      const mainResponse = await fetch(mainScriptUrl, { signal: AbortSignal.timeout(15000) });
       const mainContent = await mainResponse.text();
       console.log("Main script fetched, length:", mainContent.length);
 
@@ -488,6 +729,67 @@ export class WebPushManager implements PushManager {
 
   // ========== Private Methods: Niconico Registration ==========
   /**
+   * Wait until a tab finishes loading, bounded by a timeout so a tab that
+   * never completes cannot block the serialized lifecycle queue forever
+   */
+  private waitForTabComplete(tabId: number, timeoutMs = 30000): Promise<void> {
+    return new Promise((resolve, reject) => {
+      let settled = false;
+      const finish = (complete: () => void) => {
+        if (!settled) {
+          settled = true;
+          clearTimeout(timeoutTimer);
+          chrome.tabs.onUpdated.removeListener(listener);
+          complete();
+        }
+      };
+      const timeoutTimer = setTimeout(
+        () => finish(() => reject(new Error("Timed out waiting for tab to load"))),
+        timeoutMs,
+      );
+      const listener = (updatedTabId: number, changeInfo: chrome.tabs.TabChangeInfo) => {
+        if (updatedTabId === tabId && changeInfo.status === "complete") {
+          finish(resolve);
+        }
+      };
+      chrome.tabs.onUpdated.addListener(listener);
+      // The tab may have finished loading before the listener attached;
+      // check the current status so a fast complete is not missed
+      chrome.tabs
+        .get(tabId)
+        .then((tab) => {
+          if (tab.status === "complete") {
+            finish(resolve);
+          }
+        })
+        .catch(() => undefined);
+    });
+  }
+
+  /**
+   * chrome.tabs.sendMessage bounded by a timeout: an unresponsive content
+   * script must not stall the serialized lifecycle queue
+   */
+  private sendTabMessage<T>(tabId: number, message: unknown, timeoutMs: number): Promise<T> {
+    return new Promise<T>((resolve, reject) => {
+      const timer = setTimeout(
+        () => reject(new Error("Timed out waiting for content script response")),
+        timeoutMs,
+      );
+      chrome.tabs.sendMessage(tabId, message).then(
+        (response) => {
+          clearTimeout(timer);
+          resolve(response as T);
+        },
+        (error) => {
+          clearTimeout(timer);
+          reject(error);
+        },
+      );
+    });
+  }
+
+  /**
    * Common helper: Create and prepare a tab for Content Script communication
    */
   private async createAndPrepareNiconicoTab(): Promise<chrome.tabs.Tab> {
@@ -501,27 +803,24 @@ export class WebPushManager implements PushManager {
 
     console.log("[DEBUG] New tab created, ID:", targetTab.id, "URL:", targetTab.url);
 
-    // Wait for page to load
-    await new Promise((resolve) => {
-      const listener = (
-        tabId: number,
-        changeInfo: chrome.tabs.TabChangeInfo,
-        tab: chrome.tabs.Tab,
-      ) => {
-        console.log("[DEBUG] Tab update:", tabId, changeInfo, tab.url);
-        if (tabId === targetTab!.id && changeInfo.status === "complete") {
-          chrome.tabs.onUpdated.removeListener(listener);
-          resolve(undefined);
-        }
-      };
-      chrome.tabs.onUpdated.addListener(listener);
-    });
-
-    console.log("Niconico tab created and loaded");
-
     if (!targetTab.id) {
       throw new Error("No valid tab ID");
     }
+
+    // Wait for page to load; close the tab before failing so a timeout
+    // does not leak a background tab
+    try {
+      await this.waitForTabComplete(targetTab.id);
+    } catch (error) {
+      try {
+        await chrome.tabs.remove(targetTab.id);
+      } catch (removeError) {
+        console.error("Failed to close unloaded tab:", removeError);
+      }
+      throw error;
+    }
+
+    console.log("Niconico tab created and loaded");
 
     return targetTab;
   }
@@ -534,7 +833,7 @@ export class WebPushManager implements PushManager {
 
     // First check if Content Script responds
     try {
-      const pingResponse = await chrome.tabs.sendMessage(tabId, { type: "PING" });
+      const pingResponse = await this.sendTabMessage(tabId, { type: "PING" }, 10000);
       console.log("[DEBUG] PING response:", pingResponse);
       console.log("Content Script is already loaded");
       return true;
@@ -547,7 +846,7 @@ export class WebPushManager implements PushManager {
     await new Promise((resolve) => setTimeout(resolve, 2000));
 
     try {
-      const retryPing = await chrome.tabs.sendMessage(tabId, { type: "PING" });
+      const retryPing = await this.sendTabMessage(tabId, { type: "PING" }, 10000);
       console.log("[DEBUG] Retry PING response:", retryPing);
       console.log("Content Script loaded after waiting");
       return true;
@@ -559,24 +858,20 @@ export class WebPushManager implements PushManager {
     // Reload tab to load Content Script
     await chrome.tabs.reload(tabId);
 
-    // Wait for reload to complete
-    await new Promise((resolve) => {
-      const listener = (reloadTabId: number, changeInfo: chrome.tabs.TabChangeInfo) => {
-        console.log("[DEBUG] Tab reload status:", reloadTabId, changeInfo);
-        if (reloadTabId === tabId && changeInfo.status === "complete") {
-          chrome.tabs.onUpdated.removeListener(listener);
-          resolve(undefined);
-        }
-      };
-      chrome.tabs.onUpdated.addListener(listener);
-    });
+    // Wait for reload to complete (bounded; the caller closes the tab)
+    try {
+      await this.waitForTabComplete(tabId);
+    } catch (error) {
+      console.error("Timed out waiting for tab reload:", error);
+      return false;
+    }
 
     console.log("Tab reloaded, waiting 2 more seconds for Content Script...");
     await new Promise((resolve) => setTimeout(resolve, 2000));
 
     // Final check
     try {
-      const finalPing = await chrome.tabs.sendMessage(tabId, { type: "PING" });
+      const finalPing = await this.sendTabMessage(tabId, { type: "PING" }, 10000);
       console.log("[DEBUG] Final PING response:", finalPing);
       return true;
     } catch (finalError) {
@@ -636,7 +931,7 @@ export class WebPushManager implements PushManager {
         operation === "register" ? "REGISTER_PUSH_ENDPOINT" : "UNREGISTER_PUSH_ENDPOINT";
 
       const message = Object.assign({ type: messageType }, payload as Record<string, unknown>);
-      const response = await chrome.tabs.sendMessage(targetTab.id!, message);
+      const response = await this.sendTabMessage(targetTab.id!, message, 30000);
 
       console.log(`Content Script ${operation} response:`, response);
       return response as T;
@@ -652,8 +947,12 @@ export class WebPushManager implements PushManager {
   /**
    * Register subscription info to Niconico Push API (internal use)
    * Register to Niconico API via Content Script (avoiding CORS restrictions)
+   *
+   * Returns whether the sender side now knows the endpoint. Without this
+   * registration no push is ever sent, so callers must not treat the
+   * subscription as complete when this fails.
    */
-  private async registerToNiconico(subscription: PushSubscriptionInfo): Promise<void> {
+  private async registerToNiconico(subscription: PushSubscriptionInfo): Promise<boolean> {
     console.log("Registering to Niconico Push API via Content Script...");
 
     try {
@@ -687,18 +986,31 @@ export class WebPushManager implements PushManager {
         console.log("  Time:", new Date().toISOString());
         subscription.niconicoRegistered = true;
         subscription.updatedAt = new Date();
-      } else {
-        console.error("❌ Niconico registration failed:", response.status, response.error);
-        subscription.niconicoRegistered = false;
-
-        // Special handling for 403 error
-        if (response.status === 403) {
-          console.warn("Still getting 403 error even via Content Script");
-        }
+        pushDiagnostics.record("nico_register_result", { success: true });
+        return true;
       }
+
+      console.error("❌ Niconico registration failed:", response.status, response.error);
+      subscription.niconicoRegistered = false;
+      pushDiagnostics.record("nico_register_result", {
+        success: false,
+        status: response.status,
+        error: response.error,
+      });
+
+      // Special handling for 403 error
+      if (response.status === 403) {
+        console.warn("Still getting 403 error even via Content Script");
+      }
+      return false;
     } catch (error) {
       console.error("Failed to register to Niconico via Content Script:", error);
       subscription.niconicoRegistered = false;
+      pushDiagnostics.record("nico_register_result", {
+        success: false,
+        error: (error as Error).message,
+      });
+      return false;
     }
   }
 
@@ -760,11 +1072,12 @@ export class WebPushManager implements PushManager {
     }
 
     // Create new client
-    this.autoPush = new AutoPushClient();
+    const client = new AutoPushClient();
+    this.autoPush = client;
 
     // Set notification handler first
     console.log("[WebPushManager] Setting up notification handler...");
-    this.autoPush.onMessage("notification", async (notification: unknown) => {
+    client.onMessage("notification", async (notification: unknown) => {
       console.log("[WebPushManager] 🔔 Notification handler triggered!");
       await this.handleNotification(
         notification as {
@@ -777,17 +1090,26 @@ export class WebPushManager implements PushManager {
     });
     console.log("[WebPushManager] Notification handler set");
 
-    // Connect
-    // this.autoPush.enableTestAutoClose(1);
-    await this.autoPush.connect();
-
-    // Handshake
+    // Connect and handshake share one failure path: a client abandoned
+    // after a failed connect keeps reconnecting internally with EMPTY
+    // session state (no UAID, no main channel), and a later start()
+    // would mistake its open socket for a working session
     try {
-      const hello = await this.autoPush.sendHello(existingUaid, existingChannelIds);
+      // client.enableTestAutoClose(1);
+      await client.connect();
+
+      const hello = await client.sendHello(existingUaid, existingChannelIds);
       console.log("AutoPush handshake completed, UAID:", hello.uaid);
       return hello.uaid;
     } catch (error) {
-      console.error("[WebPushManager] Failed to complete handshake:", error);
+      console.error("[WebPushManager] Failed to establish AutoPush session:", error);
+
+      // Tear the client down (disconnect also cancels its internal
+      // reconnect timers) so no half-initialized session survives
+      client.disconnect();
+      if (this.autoPush === client) {
+        this.autoPush = undefined;
+      }
 
       // If UAID is expired, the AutoPushClient will have already disconnected
       // User needs to manually turn push notifications off and on again
@@ -823,9 +1145,16 @@ export class WebPushManager implements PushManager {
     console.log("  Headers:", notification.headers);
     console.log("  Timestamp:", new Date().toISOString());
 
+    // Track the pipeline stage so failures can be classified in diagnostics
+    let stage = "parse";
     try {
       if (!this.cryptoKeys) {
         console.error("[WebPushManager] ❌ Crypto keys not available!");
+        pushDiagnostics.record("pipeline_error", {
+          stage: "keys",
+          channelId: notification.channelID,
+          version: shortVersion(notification.version),
+        });
         return;
       }
 
@@ -840,22 +1169,42 @@ export class WebPushManager implements PushManager {
         console.log("  Public key length:", payload.publicKey.length);
         console.log("  Ciphertext length:", payload.ciphertext.length);
 
-        const decrypted = await decryptNotification(payload, this.cryptoKeys);
+        stage = "decrypt";
+        const decryption = await decryptNotificationWithInfo(payload, this.cryptoKeys);
+        const decrypted = decryption.plaintext;
         console.log("[WebPushManager] Decrypted text:", decrypted);
+        pushDiagnostics.record("decrypt_ok", {
+          channelId: notification.channelID,
+          version: shortVersion(notification.version),
+          sharedSecretFallback: decryption.usedSharedSecretFallback,
+        });
 
+        stage = "json";
         const data = JSON.parse(decrypted);
         console.log("[WebPushManager] 🎉 Decrypted notification data:", data);
 
         // Notify existing processing system
+        stage = "process";
         await this.processNotificationData(data);
       } else {
         console.log("[WebPushManager] ⚠️ No data in notification");
+        pushDiagnostics.record("push_discard", {
+          reason: "no_data",
+          channelId: notification.channelID,
+          version: shortVersion(notification.version),
+        });
       }
     } catch (error) {
       console.error("[WebPushManager] ❌ Failed to process notification:", error);
       console.error("[WebPushManager] Error details:", {
         message: (error as Error).message,
         stack: (error as Error).stack,
+      });
+      pushDiagnostics.record("pipeline_error", {
+        stage,
+        channelId: notification.channelID,
+        version: shortVersion(notification.version),
+        error: (error as Error).message,
       });
     }
   }

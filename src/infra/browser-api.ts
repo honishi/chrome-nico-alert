@@ -2,6 +2,7 @@ import { SoundType } from "../domain/model/sound-type";
 import { CustomSoundData } from "../domain/model/custom-sound";
 import { BrowserApi } from "../domain/infra-interface/browser-api";
 import { ChromeMessage, ChromeMessageType } from "./chrome_message/message";
+import { PUSH_DIAGNOSTICS_ENABLED_KEY } from "./push-diagnostics";
 
 const SHOW_COMING_KEY = "showComing";
 const SHOW_RANKING_KEY = "showRanking";
@@ -165,6 +166,17 @@ export class BrowserApiImpl implements BrowserApi {
 
   async setReceivePushNotification(value: boolean): Promise<void> {
     await chrome.storage.local.set({ [RECEIVE_PUSH_NOTIFICATION_KEY]: value });
+  }
+
+  async getPushDiagnosticsEnabled(): Promise<boolean> {
+    const result = await chrome.storage.local.get([PUSH_DIAGNOSTICS_ENABLED_KEY]);
+    // Strict comparison to stay in sync with how PushDiagnosticsImpl
+    // decodes the same flag
+    return result[PUSH_DIAGNOSTICS_ENABLED_KEY] === true;
+  }
+
+  async setPushDiagnosticsEnabled(value: boolean): Promise<void> {
+    await chrome.storage.local.set({ [PUSH_DIAGNOSTICS_ENABLED_KEY]: value });
   }
 
   private async createOffscreen(): Promise<void> {

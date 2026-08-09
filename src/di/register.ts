@@ -7,12 +7,15 @@ import { PopupImpl } from "../domain/usecase/popup";
 import { InjectTokens } from "./inject-tokens";
 import { OptionImpl } from "../domain/usecase/option";
 import { WebPushManager } from "../infra/web-push-manager";
+import { pushDiagnostics } from "../infra/push-diagnostics";
 
 export function configureDefaultContainer() {
   // Singleton: Services that maintain state and should avoid multiple instances
   container.registerSingleton(InjectTokens.Background, BackgroundImpl);
   container.registerSingleton(InjectTokens.BrowserApi, BrowserApiImpl);
   container.registerSingleton(InjectTokens.PushManager, WebPushManager);
+  // Share the same instance that infra-layer classes import directly
+  container.registerInstance(InjectTokens.PushDiagnostics, pushDiagnostics);
 
   // Transient: Services that need individual instances per screen
   container.register(InjectTokens.Content, { useClass: ContentImpl });

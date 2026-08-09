@@ -204,12 +204,17 @@ async function makePushApiRequest(
   console.log("[Content Script] Request headers:", headers);
   console.log("[Content Script] Request body:", JSON.stringify(requestBody, null, 2));
 
+  // Bounded: the background service worker awaits this request through
+  // its serialized lifecycle queue, so it must never hang forever. A
+  // timeout rejects with AbortError, which the callers report back as
+  // success:false
   return await fetch(PUSH_API_ENDPOINT, {
     method,
     credentials: "include",
     mode: "cors",
     headers,
     body: JSON.stringify(requestBody),
+    signal: AbortSignal.timeout(30000),
   });
 }
 

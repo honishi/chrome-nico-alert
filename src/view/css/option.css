@@ -144,6 +144,12 @@
   gap: 8px;
 }
 
+.button-row {
+  display: flex;
+  flex-direction: row;
+  gap: 8px;
+}
+
 .button-note {
   font-size: 11px;
   margin-left: 8px;

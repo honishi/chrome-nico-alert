@@ -5,6 +5,7 @@ import { InjectTokens } from "../../di/inject-tokens";
 import { SoundType } from "../model/sound-type";
 import { BrowserApi } from "../infra-interface/browser-api";
 import { NiconamaApi } from "../infra-interface/niconama-api";
+import { PushDiagnostics } from "../infra-interface/push-diagnostics";
 import { PushManager } from "../infra-interface/push-manager";
 import { defaultBadgeBackgroundColor } from "./colors";
 
@@ -30,11 +31,14 @@ export class BackgroundImpl implements Background {
     @inject(InjectTokens.NiconamaApi) private niconamaApi: NiconamaApi,
     @inject(InjectTokens.BrowserApi) private browserApi: BrowserApi,
     @inject(InjectTokens.PushManager) private pushManager: PushManager,
+    @inject(InjectTokens.PushDiagnostics) private pushDiagnostics: PushDiagnostics,
   ) {
     this.initialize().then(() => console.log("Background initialized"));
   }
 
   async initialize(): Promise<void> {
+    // Marks service worker (re)starts in the diagnostics timeline
+    this.pushDiagnostics.record("sw_start");
     await this.resetSuspended();
     await this.initializePushManager();
   }
@@ -100,8 +104,35 @@ export class BackgroundImpl implements Background {
    * Process broadcast detected by push notification
    */
   async processPushProgram(pushProgram: PushProgram): Promise<void> {
-    // Filter out old notifications (skip notifications older than 3 minutes)
-    const MAX_NOTIFICATION_AGE_MINUTES = 3;
+    // Extract programId from PushProgram
+    const programId = this.extractProgramId(pushProgram.onClick);
+
+    if (!programId) {
+      // Silently skip non-live notifications such as video upload notifications
+      console.log("Skipping non-live notification:", pushProgram.onClick);
+      this.pushDiagnostics.record("push_discard", {
+        reason: "non_live",
+        onClick: pushProgram.onClick,
+      });
+      return;
+    }
+
+    // Duplicate check comes before the stale filter: pushes redelivered after
+    // a reconnect are usually already handled via polling and must be
+    // classified as duplicates, not losses
+    if (this.isProcessed(programId)) {
+      console.log("Program already processed:", programId);
+      this.pushDiagnostics.record("push_discard", {
+        reason: "already_processed",
+        programId,
+      });
+      return;
+    }
+
+    // Filter out old notifications. The 10-minute window matches the observed
+    // AutoPush redelivery TTL (~8-10 min), so notifications stored server-side
+    // during a connection gap arrive late instead of being lost
+    const MAX_NOTIFICATION_AGE_MINUTES = 10;
     if (pushProgram.createdAt) {
       const notificationTime = new Date(pushProgram.createdAt);
       const now = new Date();
@@ -113,32 +144,37 @@ export class BackgroundImpl implements Background {
             pushProgram.onClick
           }`,
         );
+        this.pushDiagnostics.record("push_discard", {
+          reason: "stale",
+          programId,
+          ageMinutes: Math.round(ageMinutes * 10) / 10,
+        });
         return;
       }
     }
 
-    // Extract programId from PushProgram
-    const programId = this.extractProgramId(pushProgram.onClick);
-    if (!programId) {
-      // Silently skip non-live notifications such as video upload notifications
-      console.log("Skipping non-live notification:", pushProgram.onClick);
-      return;
-    }
-
     // Get Program information via resolveProgram API
-    const program = await this.niconamaApi.resolveProgram(programId);
+    let program: Program | undefined;
+    try {
+      program = await this.niconamaApi.resolveProgram(programId);
+    } catch (error) {
+      this.pushDiagnostics.record("push_discard", {
+        reason: "resolve_error",
+        programId,
+        error: (error as Error).message,
+      });
+      throw error;
+    }
     if (!program) {
       console.log(`Program not found (may have been deleted): ${programId}`);
+      this.pushDiagnostics.record("push_discard", {
+        reason: "resolve_failed",
+        programId,
+      });
       return;
     }
 
     console.log("Processing push program:", program.id, program.title);
-
-    // Check if already processed
-    if (this.isProcessed(program)) {
-      console.log("Program already processed:", program.id);
-      return;
-    }
 
     // Add to processed list
     this.processedProgramIds.push(program.id);
@@ -156,6 +192,11 @@ export class BackgroundImpl implements Background {
     // Don't open tab if suspended
     if (isSuspended) {
       console.log("Suspended, not opening tab:", program.id);
+      this.pushDiagnostics.record("push_program", {
+        programId,
+        notified: showNotification,
+        suspended: true,
+      });
       return;
     }
 
@@ -167,6 +208,12 @@ export class BackgroundImpl implements Background {
     } else if (showNotification) {
       await this.playSoundThrottled(SoundType.NEW_LIVE_SUB);
     }
+    this.pushDiagnostics.record("push_program", {
+      programId,
+      notified: showNotification,
+      suspended: false,
+      autoOpened: shouldAutoOpen,
+    });
   }
 
   async run(): Promise<void> {
@@ -209,6 +256,9 @@ export class BackgroundImpl implements Background {
   private async requestPrograms(): Promise<void> {
     console.log("Background requestPrograms: start", new Date());
 
+    // Piggyback on the 30s polling cycle; deduplicated inside the logger
+    void this.recordConnectionSnapshot();
+
     const [following, recent] = await Promise.all([
       this.niconamaApi.getFollowingPrograms(),
       this.niconamaApi.getRecentPrograms(),
@@ -232,11 +282,14 @@ export class BackgroundImpl implements Background {
 
     let openedAnyPrograms = false;
     for (const program of following) {
-      if (this.isProcessed(program)) {
+      if (this.isProcessed(program.id)) {
         continue;
       }
       this.logProgram("Found following program:", program);
       this.processedProgramIds.push(program.id);
+      // A new following program found by polling means the push path did not
+      // process it; record it as a candidate miss (fire-and-forget)
+      void this.recordPushMissingIfNeeded(program);
       if (openedAnyPrograms) {
         console.log(`wait: ${DELAY_AFTER_OPEN} ms`);
         await this.delay(DELAY_AFTER_OPEN);
@@ -259,7 +312,7 @@ export class BackgroundImpl implements Background {
     }
 
     for (const program of recent) {
-      if (this.isProcessed(program)) {
+      if (this.isProcessed(program.id)) {
         continue;
       }
       this.logProgram("Found recent program:", program);
@@ -287,8 +340,84 @@ export class BackgroundImpl implements Background {
     this.processedProgramIds = this.processedProgramIds.slice(-10000);
   }
 
-  private isProcessed(program: Program): boolean {
-    return this.processedProgramIds.includes(program.id);
+  private isProcessed(programId: string): boolean {
+    return this.processedProgramIds.includes(programId);
+  }
+
+  private providerIdOf(program: Program): string | undefined {
+    return program.programProvider?.id ?? program.socialGroup.id;
+  }
+
+  /**
+   * Record the current push connection state (deduplicated inside the logger)
+   */
+  private async recordConnectionSnapshot(): Promise<void> {
+    try {
+      // Skip the preparatory storage read entirely while diagnostics are
+      // off (the default); the logger would discard the event anyway
+      if (!(await this.pushDiagnostics.isEnabled())) {
+        return;
+      }
+      const enabled = await this.browserApi.getReceivePushNotification();
+      this.pushDiagnostics.recordConnectionSnapshot({
+        enabled,
+        connected: this.pushManager.isConnected(),
+        connectionState: this.pushManager.getConnectionState(),
+        uaid: this.pushManager.getUaid(),
+      });
+    } catch (e) {
+      console.warn("Failed to record connection snapshot:", e);
+    }
+  }
+
+  /**
+   * Cross-check a polling-detected following program against the push event log.
+   * If push notifications are enabled and no push event referenced this program,
+   * record it as a missed push together with the current connection state.
+   * Note: a push arriving slightly later is recorded as
+   * push_discard(already_processed), which reclassifies the miss as "late".
+   */
+  private async recordPushMissingIfNeeded(program: Program): Promise<void> {
+    try {
+      // Skip the storage reads below entirely while diagnostics are off
+      // (the default); the final record call would be a no-op anyway
+      if (!(await this.pushDiagnostics.isEnabled())) {
+        return;
+      }
+      const pushEnabled = await this.browserApi.getReceivePushNotification();
+      if (!pushEnabled) {
+        return;
+      }
+
+      // Programs that began long ago and only now surfaced in the following
+      // list (list churn, service worker restarts) are not push misses: their
+      // push, if any, was sent before our observation window. A genuine miss
+      // is detected by polling within moments of the broadcast start.
+      const MAX_PROGRAM_AGE_MS = 10 * 60 * 1000;
+      const beginAtMs = new Date(program.beginAt).getTime();
+      const programAgeMs = Date.now() - beginAtMs;
+      if (!Number.isNaN(beginAtMs) && programAgeMs > MAX_PROGRAM_AGE_MS) {
+        return;
+      }
+
+      const PUSH_EVENT_LOOKBACK_MS = 10 * 60 * 1000;
+      const hasPushEvent = await this.pushDiagnostics.hasRecentProgramPushEvent(
+        program.id,
+        PUSH_EVENT_LOOKBACK_MS,
+      );
+      if (hasPushEvent) {
+        return;
+      }
+      this.pushDiagnostics.record("push_missing", {
+        programId: program.id,
+        providerId: this.providerIdOf(program),
+        programAgeSeconds: Number.isNaN(beginAtMs) ? undefined : Math.round(programAgeMs / 1000),
+        connected: this.pushManager.isConnected(),
+        connectionState: this.pushManager.getConnectionState(),
+      });
+    } catch (e) {
+      console.warn("Failed to record push_missing:", e);
+    }
   }
 
   private logProgram(message: string, program: Program): void {
@@ -314,7 +443,7 @@ export class BackgroundImpl implements Background {
   }
 
   private async shouldAutoOpenProgram(program: Program): Promise<boolean> {
-    const userIdOrChannelId = program.programProvider?.id ?? program.socialGroup.id;
+    const userIdOrChannelId = this.providerIdOf(program);
     if (userIdOrChannelId === undefined) {
       return false;
     }
