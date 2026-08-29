@@ -54,15 +54,9 @@
   margin-left: 8px;
 }
 
-/* watch-off/on. */
+/* watch-off/on: placed above the broadcaster/channel description. */
 .watch-page-auto-open-off-button,
 .watch-page-auto-open-on-button {
   position: static;
-  margin-left: 8px;
-}
-
-/* wrapper div injected into the watch page button row. */
-div[data-tag="auto-open"] {
-  display: flex;
-  align-items: center;
+  margin: 0 0 12px;
 }

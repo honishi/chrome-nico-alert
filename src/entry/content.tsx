@@ -202,26 +202,25 @@ async function fixWatchPage() {
 }
 
 async function injectWatchPageButton(userIdOrChannelId: string): Promise<boolean> {
-  const summarySection = document.getElementsByClassName("user-summary-section")[0];
-  if (summarySection === undefined) {
+  // The side panel section holding the broadcaster/channel description. It is
+  // an empty div until React hydration fills it, so wait for its content
+  const broadcasterSection = document.getElementsByClassName(
+    "ga-ns-program-broadcaster-information-section",
+  )[0];
+  if (broadcasterSection === undefined || broadcasterSection.childElementCount === 0) {
     return false;
   }
-  // "action-menu" for user programs, "social-group-menu" for channel programs
-  const buttonContainer =
-    summarySection.getElementsByClassName("action-menu")[0] ??
-    summarySection.getElementsByClassName("social-group-menu")[0];
-  if (buttonContainer === undefined) {
-    return false;
-  }
-  const isExisting = buttonContainer.querySelector(`div[data-tag="${autoOpenButtonTag}"]`) !== null;
+  const isExisting =
+    broadcasterSection.querySelector(`div[data-tag="${autoOpenButtonTag}"]`) !== null;
   if (isExisting) {
     return true;
   }
-  // Append the marker div synchronously so concurrent observer callbacks
-  // never inject twice
+  // Insert the marker div synchronously so concurrent observer callbacks
+  // never inject twice. Place it above the broadcaster/channel description
   const div = document.createElement("div");
   div.dataset.tag = autoOpenButtonTag;
-  buttonContainer.appendChild(div);
+  const profile = broadcasterSection.getElementsByClassName("profile")[0] ?? null;
+  broadcasterSection.insertBefore(div, profile ?? broadcasterSection.firstChild);
 
   const content = container.resolve<Content>(InjectTokens.Content);
   const isOn = await content.isAutoOpenUser(userIdOrChannelId);
