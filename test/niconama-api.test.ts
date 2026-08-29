@@ -4,6 +4,7 @@ import { container } from "tsyringe";
 import { InjectTokens } from "../src/di/inject-tokens";
 import { NiconamaApi } from "../src/domain/infra-interface/niconama-api";
 import * as fs from "fs";
+import { decode } from "html-entities";
 
 beforeAll(() => {
   container.register(InjectTokens.NiconamaApi, { useClass: NiconamaApiImpl });
@@ -108,6 +109,45 @@ describe("resolveProgram", () => {
     const html = "<html><body>No embedded data here</body></html>";
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const program = (nicoapi as any).extractProgramFromHtml(html);
+    expect(program).toBeUndefined();
+  });
+});
+
+describe("extractProgramFromEmbeddedData", () => {
+  // Extract the data-props JSON the same way the content script reads it from
+  // the live DOM (the browser decodes the attribute value, decode() emulates that)
+  const extractDataProps = (html: string): string => {
+    const match = html.match(/<script[^>]*id="embedded-data"[^>]*data-props="([^"]+)"[^>]*>/);
+    expect(match).not.toBeNull();
+    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+    return decode(match![1]);
+  };
+
+  test("Parse embedded data of watch-user.html", () => {
+    const nicoapi = container.resolve<NiconamaApi>(InjectTokens.NiconamaApi);
+    const html = fs.readFileSync("test/html/watch-user.html", "utf8");
+    const program = nicoapi.extractProgramFromEmbeddedData(extractDataProps(html));
+
+    expect(program).toBeDefined();
+    expect(program?.id).toBe("lv348714322");
+    expect(program?.programProvider?.id).toBe("26671874");
+    expect(program?.socialGroup.id).toBe("co0");
+  });
+
+  test("Parse embedded data of watch-channel.html", () => {
+    const nicoapi = container.resolve<NiconamaApi>(InjectTokens.NiconamaApi);
+    const html = fs.readFileSync("test/html/watch-channel.html", "utf8");
+    const program = nicoapi.extractProgramFromEmbeddedData(extractDataProps(html));
+
+    expect(program).toBeDefined();
+    expect(program?.id).toBe("lv348687624");
+    expect(program?.programProvider).toBeUndefined();
+    expect(program?.socialGroup.id).toBe("ch2525");
+  });
+
+  test("Return undefined for invalid JSON", () => {
+    const nicoapi = container.resolve<NiconamaApi>(InjectTokens.NiconamaApi);
+    const program = nicoapi.extractProgramFromEmbeddedData("not a json");
     expect(program).toBeUndefined();
   });
 });

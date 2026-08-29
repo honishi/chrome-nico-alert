@@ -3,6 +3,7 @@ import React, { useEffect, useState } from "react";
 export enum AutoOpenButtonType {
   FollowPage = "follow-page",
   UserPage = "user-page",
+  WatchPage = "watch-page",
 }
 
 export const autoOpenButtonTag = "auto-open";
@@ -43,6 +44,8 @@ function updateButtonStyle(
         return `follow-page-auto-open-${onOffString}-button`;
       case AutoOpenButtonType.UserPage:
         return `user-page-auto-open-${onOffString}-button`;
+      case AutoOpenButtonType.WatchPage:
+        return `watch-page-auto-open-${onOffString}-button`;
     }
   })();
   button.innerHTML = isOn ? "自動入場設定中" : "自動入場する";

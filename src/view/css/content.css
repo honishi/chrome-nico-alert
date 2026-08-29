@@ -1,8 +1,10 @@
-/* base style: follow-on/off, user-on/off. */
+/* base style: follow-on/off, user-on/off, watch-on/off. */
 .follow-page-auto-open-off-button,
 .user-page-auto-open-off-button,
+.watch-page-auto-open-off-button,
 .follow-page-auto-open-on-button,
-.user-page-auto-open-on-button {
+.user-page-auto-open-on-button,
+.watch-page-auto-open-on-button {
   position: absolute;
   top: 16px;
   right: 140px;
@@ -20,24 +22,27 @@
   white-space: nowrap;
 }
 
-/* hover: follow-off, user-off. */
+/* hover: follow-off, user-off, watch-off. */
 .follow-page-auto-open-off-button:hover,
-.user-page-auto-open-off-button:hover {
+.user-page-auto-open-off-button:hover,
+.watch-page-auto-open-off-button:hover {
   background-color: #0080ff;
   color: #fff;
 }
 
-/* follow-on, user-on. */
+/* follow-on, user-on, watch-on. */
 .follow-page-auto-open-on-button,
-.user-page-auto-open-on-button {
+.user-page-auto-open-on-button,
+.watch-page-auto-open-on-button {
   border: none;
   background-color: #e9e9e9;
   color: #666;
 }
 
-/* hover: follow-on, user-on. */
+/* hover: follow-on, user-on, watch-on. */
 .follow-page-auto-open-on-button:hover,
-.user-page-auto-open-on-button:hover {
+.user-page-auto-open-on-button:hover,
+.watch-page-auto-open-on-button:hover {
   background-color: #929292;
   color: #fff;
 }
@@ -47,4 +52,17 @@
 .user-page-auto-open-on-button {
   position: static;
   margin-left: 8px;
+}
+
+/* watch-off/on. */
+.watch-page-auto-open-off-button,
+.watch-page-auto-open-on-button {
+  position: static;
+  margin-left: 8px;
+}
+
+/* wrapper div injected into the watch page button row. */
+div[data-tag="auto-open"] {
+  display: flex;
+  align-items: center;
 }

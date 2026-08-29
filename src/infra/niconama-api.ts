@@ -156,10 +156,12 @@ export class NiconamaApiImpl implements NiconamaApi {
     }
 
     // Decode HTML entities in the JSON string
-    const propsJson = decode(match[1]);
+    return this.extractProgramFromEmbeddedData(decode(match[1]));
+  }
 
+  extractProgramFromEmbeddedData(json: string): Program | undefined {
     try {
-      const props = JSON.parse(propsJson);
+      const props = JSON.parse(json);
       return this.convertEmbeddedDataToProgram(props);
     } catch (error) {
       console.error("Failed to parse embedded data:", error);
