@@ -13,6 +13,7 @@ import React from "react";
 const MY_FOLLOW_PAGE_URL = "https://www.nicovideo.jp/my/follow";
 const USER_PAGE_URL = "https://www.nicovideo.jp/user";
 const CHANNEL_PAGE_URL = "https://ch.nicovideo.jp/";
+const WATCH_PAGE_URL = "https://live.nicovideo.jp/watch/";
 
 let fixingFollowPage = false;
 
@@ -28,11 +29,16 @@ function isChannelPage(): boolean {
   return window.location.href.startsWith(CHANNEL_PAGE_URL);
 }
 
+function isWatchPage(): boolean {
+  return window.location.href.startsWith(WATCH_PAGE_URL);
+}
+
 async function listenLoadEvent() {
   console.log("listenLoadEvent");
   await fixFollowPage();
   await fixUserPage();
   await fixChannelPage();
+  await fixWatchPage();
 }
 
 async function fixFollowPage() {
@@ -158,6 +164,75 @@ async function fixChannelPage() {
       onClick={() => onToggleAutoOpen(channelId)}
     />,
   );
+}
+
+async function fixWatchPage() {
+  if (!isWatchPage()) {
+    return;
+  }
+  const content = container.resolve<Content>(InjectTokens.Content);
+
+  const dataProps = document.getElementById("embedded-data")?.getAttribute("data-props");
+  if (dataProps === null || dataProps === undefined) {
+    console.log("embedded-data is not found");
+    return;
+  }
+  const program = content.extractProgramFromEmbeddedData(dataProps);
+  if (program === undefined) {
+    console.log("failed to extract program from embedded-data");
+    return;
+  }
+  // Same rule as the auto-open matching in background: user id for user
+  // programs, channel/community id otherwise
+  const userIdOrChannelId = program.programProvider?.id ?? program.socialGroup.id;
+
+  if (await injectWatchPageButton(userIdOrChannelId)) {
+    return;
+  }
+  // The broadcaster section is rendered after React hydration, so wait for it
+  const observer = new MutationObserver(async () => {
+    if (await injectWatchPageButton(userIdOrChannelId)) {
+      observer.disconnect();
+    }
+  });
+  observer.observe(document.body, {
+    childList: true,
+    subtree: true,
+  });
+}
+
+async function injectWatchPageButton(userIdOrChannelId: string): Promise<boolean> {
+  // The side panel section holding the broadcaster/channel description. It is
+  // an empty div until React hydration fills it, so wait for its content
+  const broadcasterSection = document.getElementsByClassName(
+    "ga-ns-program-broadcaster-information-section",
+  )[0];
+  if (broadcasterSection === undefined || broadcasterSection.childElementCount === 0) {
+    return false;
+  }
+  const isExisting =
+    broadcasterSection.querySelector(`div[data-tag="${autoOpenButtonTag}"]`) !== null;
+  if (isExisting) {
+    return true;
+  }
+  // Insert the marker div synchronously so concurrent observer callbacks
+  // never inject twice. Place it above the broadcaster/channel description
+  const div = document.createElement("div");
+  div.dataset.tag = autoOpenButtonTag;
+  const profile = broadcasterSection.getElementsByClassName("profile")[0] ?? null;
+  broadcasterSection.insertBefore(div, profile ?? broadcasterSection.firstChild);
+
+  const content = container.resolve<Content>(InjectTokens.Content);
+  const isOn = await content.isAutoOpenUser(userIdOrChannelId);
+  createRoot(div).render(
+    <AutoOpenToggleButton
+      userId={userIdOrChannelId}
+      buttonType={AutoOpenButtonType.WatchPage}
+      isOn={isOn}
+      onClick={() => onToggleAutoOpen(userIdOrChannelId)}
+    />,
+  );
+  return true;
 }
 
 /**

@@ -2,12 +2,14 @@ import { inject, injectable } from "tsyringe";
 import { InjectTokens } from "../../di/inject-tokens";
 import { BrowserApi } from "../infra-interface/browser-api";
 import { NiconamaApi } from "../infra-interface/niconama-api";
+import { Program } from "../model/program";
 
 export interface Content {
   isAutoOpenUser(userId: string): Promise<boolean>;
   setAutoOpenUser(userId: string, enabled: boolean): Promise<void>;
   extractUserIdFromUrl(url: string): string;
   resolveChannelIdFromUrl(url: string): Promise<string | undefined>;
+  extractProgramFromEmbeddedData(json: string): Program | undefined;
 }
 
 @injectable()
@@ -33,5 +35,9 @@ export class ContentImpl implements Content {
 
   async resolveChannelIdFromUrl(url: string): Promise<string | undefined> {
     return await this.niconamaApi.resolveChannelId(url);
+  }
+
+  extractProgramFromEmbeddedData(json: string): Program | undefined {
+    return this.niconamaApi.extractProgramFromEmbeddedData(json);
   }
 }
