@@ -60,3 +60,8 @@
   position: static;
   margin: 0 0 12px;
 }
+
+/* watch-off: no fill, let the page background show through. */
+.watch-page-auto-open-off-button {
+  background-color: transparent;
+}
