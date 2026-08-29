@@ -189,13 +189,19 @@ async function fixWatchPage() {
   if (await injectWatchPageButton(userIdOrChannelId)) {
     return;
   }
-  // The broadcaster section is rendered after React hydration, so wait for it
+  // The broadcaster section is rendered after React hydration, so wait for
+  // it. The empty section div itself is part of the server-rendered HTML, so
+  // observing just that keeps the observer away from the page's frequent DOM
+  // updates (comments etc.); fall back to body in case the section is missing
+  const observeTarget =
+    document.getElementsByClassName("ga-ns-program-broadcaster-information-section")[0] ??
+    document.body;
   const observer = new MutationObserver(async () => {
     if (await injectWatchPageButton(userIdOrChannelId)) {
       observer.disconnect();
     }
   });
-  observer.observe(document.body, {
+  observer.observe(observeTarget, {
     childList: true,
     subtree: true,
   });
