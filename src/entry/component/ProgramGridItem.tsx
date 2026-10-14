@@ -27,6 +27,7 @@ export default function ProgramGridItem(props: {
     const fallbackSrc = props.program.programProvider?.icon;
     const image = event.currentTarget;
     if (fallbackSrc && image.getAttribute("src") !== fallbackSrc) {
+      image.style.objectFit = "cover";
       image.src = fallbackSrc;
     }
   }
