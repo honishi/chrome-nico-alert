@@ -97,7 +97,7 @@ const PushStatusDisplay: React.FC = () => {
     const diffMs = now.getTime() - lastReceived.getTime();
     const diffMinutes = Math.floor(diffMs / 60000);
 
-    let timeText = "";
+    let timeText: string;
     if (diffMinutes < 60) {
       timeText = `${diffMinutes}m ago`;
     } else {

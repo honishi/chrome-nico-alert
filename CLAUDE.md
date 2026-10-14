@@ -65,18 +65,18 @@ npm test
 - `.github/workflows/` - GitHub Actions CI/CD configuration (push.yaml)
 
 ### Technology Stack
-- **TypeScript 5.1+** - ES2022 target with strict type checking enabled (strict: true)
+- **TypeScript 5.9** - ES2022 target with strict type checking enabled (strict: true)
   - `experimentalDecorators` and `emitDecoratorMetadata` enabled for TSyringe
   - Module: ES2022 with Node module resolution
 - **React 18** - UI for popup and options pages
 - **TSyringe** - Dependency injection container with reflect-metadata
-- **Jest 29** - Test framework (using ts-jest with Node environment)
+- **Jest 30** - Test framework (using ts-jest with Node environment)
 - **Webpack 5** - Bundler (separate dev and prod configs)
   - Development: watch mode with webpack.dev.js
   - Production: optimized build with webpack.prod.js and TerserWebpackPlugin
   - CopyWebpackPlugin for static assets
-- **Chrome Extension Manifest V3** - Service Worker-based background script (version 3.3.0)
-- **Node.js 22.20.0** - Runtime version (managed via `.node-version`)
+- **Chrome Extension Manifest V3** - Service Worker-based background script
+- **Node.js 24.21.0** - Runtime version (managed via `.node-version`)
 - **Additional Tools**:
   - **html-entities** - HTML entity encoding/decoding
   - **rimraf** - Cross-platform file deletion for build cleanup
@@ -146,7 +146,7 @@ Injected into the following URL patterns:
   - Automated testing on push to main branch (runs `npm test`)
   - Production build generation (runs `npm run build-prod`)
   - Release creation with dist.zip artifact on version tags (format: `*.*.*`)
-  - Node.js version managed via `.node-version` file (currently 22.20.0)
+  - Node.js version managed via `.node-version` file (currently 24.21.0)
   - Two-job pipeline: test → build (build only runs after tests pass)
 
 ## Git Commit Guidelines

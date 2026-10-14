@@ -7,7 +7,6 @@ import { webcrypto } from "crypto";
 
 // Properly type the global crypto
 declare global {
-  // eslint-disable-next-line no-var
   var crypto: Crypto;
 }
 

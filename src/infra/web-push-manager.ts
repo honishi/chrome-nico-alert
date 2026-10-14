@@ -15,6 +15,15 @@ import {
   parseAutoPushPayload,
 } from "./web-push-crypto";
 
+interface PushStorageData {
+  pushSubscription?: PushSubscriptionInfo;
+  pushKeys?: ReturnType<typeof exportKeys>;
+  pushUaid?: string;
+  pushChannelId?: string;
+  pushCanaryChannelId?: string;
+  pushCanaryEndpoint?: string;
+}
+
 /**
  * Implementation class for managing Web Push notifications
  */
@@ -113,7 +122,7 @@ export class WebPushManager implements PushManager {
       if (isSubscribed) {
         // 3. If already subscribed, connect to AutoPush
         console.log("Already subscribed, connecting to AutoPush...");
-        const saved = await chrome.storage.local.get([
+        const saved = await chrome.storage.local.get<PushStorageData>([
           "pushUaid",
           "pushChannelId",
           "pushCanaryChannelId",
@@ -192,7 +201,9 @@ export class WebPushManager implements PushManager {
     // 2. Unregister the canary probe channel
     if (this.autoPush) {
       try {
-        const savedCanary = await chrome.storage.local.get(["pushCanaryChannelId"]);
+        const savedCanary = await chrome.storage.local.get<PushStorageData>([
+          "pushCanaryChannelId",
+        ]);
         if (savedCanary.pushCanaryChannelId) {
           await this.autoPush.unregisterChannel(savedCanary.pushCanaryChannelId);
         }
@@ -302,7 +313,7 @@ export class WebPushManager implements PushManager {
    */
   private async restoreData(): Promise<void> {
     // Restore saved subscription information from Chrome Storage API
-    const saved = await chrome.storage.local.get([
+    const saved = await chrome.storage.local.get<PushStorageData>([
       "pushSubscription",
       "pushKeys",
       "pushUaid",
@@ -419,7 +430,10 @@ export class WebPushManager implements PushManager {
     }
 
     try {
-      const saved = await chrome.storage.local.get(["pushCanaryChannelId", "pushCanaryEndpoint"]);
+      const saved = await chrome.storage.local.get<PushStorageData>([
+        "pushCanaryChannelId",
+        "pushCanaryEndpoint",
+      ]);
       if (saved.pushCanaryChannelId && saved.pushCanaryEndpoint) {
         if (this.autoPush !== client) {
           return;
@@ -747,7 +761,7 @@ export class WebPushManager implements PushManager {
         () => finish(() => reject(new Error("Timed out waiting for tab to load"))),
         timeoutMs,
       );
-      const listener = (updatedTabId: number, changeInfo: chrome.tabs.TabChangeInfo) => {
+      const listener = (updatedTabId: number, changeInfo: chrome.tabs.OnUpdatedInfo) => {
         if (updatedTabId === tabId && changeInfo.status === "complete") {
           finish(resolve);
         }

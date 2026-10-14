@@ -13,13 +13,15 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
-        uses: actions/checkout@v3
+        uses: actions/checkout@v7
       - name: Setup Node.js
-        uses: actions/setup-node@v3
+        uses: actions/setup-node@v7
         with:
-          node-version-file: '.node-version'
+          node-version-file: ".node-version"
       - name: Install packages
         run: npm ci
+      - name: Lint
+        run: npm run lint
       - name: Run tests
         run: npm test
 
@@ -36,11 +38,11 @@ jobs:
           echo "DIST_ZIP_FILE=${dist_zip_file}" >> "$GITHUB_ENV"
           echo "dist_zip_file=${dist_zip_file}" >> "$GITHUB_OUTPUT"
       - name: Checkout
-        uses: actions/checkout@v3
+        uses: actions/checkout@v7
       - name: Setup Node.js
-        uses: actions/setup-node@v3
+        uses: actions/setup-node@v7
         with:
-          node-version-file: '.node-version'
+          node-version-file: ".node-version"
       - name: Install packages
         run: npm ci
       - name: Build for Production
@@ -49,7 +51,7 @@ jobs:
           zip -r "$DIST_ZIP_FILE" dist
           ls -la
       - name: Release Build
-        uses: softprops/action-gh-release@v1
+        uses: softprops/action-gh-release@v3
         if: startsWith(github.ref, 'refs/tags/')
         with:
           files: ${{ steps.set_env.outputs.dist_zip_file }}
