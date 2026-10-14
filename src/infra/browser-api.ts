@@ -17,6 +17,20 @@ const RECEIVE_PUSH_NOTIFICATION_KEY = "receivePushNotification";
 
 const OFFSCREEN_HTML = "html/offscreen.html";
 
+interface BrowserSettings {
+  [SHOW_COMING_KEY]?: boolean;
+  [SHOW_RANKING_KEY]?: boolean;
+  [PUSH_GUIDANCE_DISMISSED_KEY]?: boolean;
+  [SHOW_NOTIFICATION_KEY]?: boolean;
+  [SOUND_VOLUME_KEY]?: number;
+  [CUSTOM_SOUND_MAIN_KEY]?: string;
+  [CUSTOM_SOUND_SUB_KEY]?: string;
+  [SUSPEND_FROM_DATE_KEY]?: string;
+  [AUTO_OPEN_USERS_KEY]?: { userId: string }[];
+  [RECEIVE_PUSH_NOTIFICATION_KEY]?: boolean;
+  [PUSH_DIAGNOSTICS_ENABLED_KEY]?: boolean;
+}
+
 export class BrowserApiImpl implements BrowserApi {
   async startSendingKeepAliveFromOffscreen(): Promise<void> {
     await this.createOffscreen();
@@ -31,7 +45,7 @@ export class BrowserApiImpl implements BrowserApi {
   }
 
   async getShowComing(): Promise<boolean> {
-    const result = await chrome.storage.local.get([SHOW_COMING_KEY]);
+    const result = await chrome.storage.local.get<BrowserSettings>([SHOW_COMING_KEY]);
     return result[SHOW_COMING_KEY] ?? false;
   }
 
@@ -40,7 +54,7 @@ export class BrowserApiImpl implements BrowserApi {
   }
 
   async getShowRanking(): Promise<boolean> {
-    const result = await chrome.storage.local.get([SHOW_RANKING_KEY]);
+    const result = await chrome.storage.local.get<BrowserSettings>([SHOW_RANKING_KEY]);
     return result[SHOW_RANKING_KEY] ?? true;
   }
 
@@ -49,7 +63,7 @@ export class BrowserApiImpl implements BrowserApi {
   }
 
   async getPushGuidanceDismissed(): Promise<boolean> {
-    const result = await chrome.storage.local.get([PUSH_GUIDANCE_DISMISSED_KEY]);
+    const result = await chrome.storage.local.get<BrowserSettings>([PUSH_GUIDANCE_DISMISSED_KEY]);
     return result[PUSH_GUIDANCE_DISMISSED_KEY] ?? false;
   }
 
@@ -58,7 +72,7 @@ export class BrowserApiImpl implements BrowserApi {
   }
 
   async getShowNotification(): Promise<boolean> {
-    const result = await chrome.storage.local.get([SHOW_NOTIFICATION_KEY]);
+    const result = await chrome.storage.local.get<BrowserSettings>([SHOW_NOTIFICATION_KEY]);
     return result[SHOW_NOTIFICATION_KEY] ?? true;
   }
 
@@ -67,7 +81,7 @@ export class BrowserApiImpl implements BrowserApi {
   }
 
   async getSoundVolume(): Promise<number> {
-    const result = await chrome.storage.local.get([SOUND_VOLUME_KEY]);
+    const result = await chrome.storage.local.get<BrowserSettings>([SOUND_VOLUME_KEY]);
     return result[SOUND_VOLUME_KEY] ?? 1.0;
   }
 
@@ -77,7 +91,7 @@ export class BrowserApiImpl implements BrowserApi {
 
   async getCustomSoundFile(type: SoundType): Promise<CustomSoundData | null> {
     const key = type === SoundType.NEW_LIVE_MAIN ? CUSTOM_SOUND_MAIN_KEY : CUSTOM_SOUND_SUB_KEY;
-    const result = await chrome.storage.local.get([key]);
+    const result = await chrome.storage.local.get<BrowserSettings>([key]);
     if (!result[key]) {
       return null;
     }
@@ -101,6 +115,7 @@ export class BrowserApiImpl implements BrowserApi {
       if (e instanceof Error && e.message.includes("QUOTA_BYTES")) {
         throw new Error(
           "ストレージの容量制限を超えています。より小さいファイルを選択してください。",
+          { cause: e },
         );
       }
       throw e;
@@ -160,7 +175,7 @@ export class BrowserApiImpl implements BrowserApi {
   }
 
   async getReceivePushNotification(): Promise<boolean> {
-    const result = await chrome.storage.local.get([RECEIVE_PUSH_NOTIFICATION_KEY]);
+    const result = await chrome.storage.local.get<BrowserSettings>([RECEIVE_PUSH_NOTIFICATION_KEY]);
     return result[RECEIVE_PUSH_NOTIFICATION_KEY] ?? false;
   }
 
@@ -169,7 +184,7 @@ export class BrowserApiImpl implements BrowserApi {
   }
 
   async getPushDiagnosticsEnabled(): Promise<boolean> {
-    const result = await chrome.storage.local.get([PUSH_DIAGNOSTICS_ENABLED_KEY]);
+    const result = await chrome.storage.local.get<BrowserSettings>([PUSH_DIAGNOSTICS_ENABLED_KEY]);
     // Strict comparison to stay in sync with how PushDiagnosticsImpl
     // decodes the same flag
     return result[PUSH_DIAGNOSTICS_ENABLED_KEY] === true;
@@ -220,14 +235,14 @@ export class BrowserApiImpl implements BrowserApi {
   }
 
   async getAutoOpenUserIds(): Promise<string[]> {
-    const result = await chrome.storage.local.get([AUTO_OPEN_USERS_KEY]);
-    const autoOpenUsers = (result[AUTO_OPEN_USERS_KEY] as { [key: string]: string }[]) ?? [];
+    const result = await chrome.storage.local.get<BrowserSettings>([AUTO_OPEN_USERS_KEY]);
+    const autoOpenUsers = result[AUTO_OPEN_USERS_KEY] ?? [];
     return autoOpenUsers.map((user) => user.userId);
   }
 
   async setAutoOpenUser(userId: string, enabled: boolean): Promise<void> {
-    const result = await chrome.storage.local.get([AUTO_OPEN_USERS_KEY]);
-    const autoOpenUsers = (result[AUTO_OPEN_USERS_KEY] as { [key: string]: string }[]) ?? [];
+    const result = await chrome.storage.local.get<BrowserSettings>([AUTO_OPEN_USERS_KEY]);
+    const autoOpenUsers = result[AUTO_OPEN_USERS_KEY] ?? [];
     const autoOpenUserIds = autoOpenUsers.map((user) => user.userId);
     const targetEnabled = enabled;
     const currentEnabled = autoOpenUserIds.includes(userId);
@@ -259,7 +274,7 @@ export class BrowserApiImpl implements BrowserApi {
   }
 
   async getSuspendFromDate(): Promise<Date | undefined> {
-    const result = await chrome.storage.local.get([SUSPEND_FROM_DATE_KEY]);
+    const result = await chrome.storage.local.get<BrowserSettings>([SUSPEND_FROM_DATE_KEY]);
     const date = result[SUSPEND_FROM_DATE_KEY];
     if (date === undefined) {
       return undefined;

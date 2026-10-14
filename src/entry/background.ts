@@ -62,7 +62,7 @@ function configureStorageListener(background: Background) {
     if (areaName === "local") {
       // Monitor push notification setting changes
       if (changes.receivePushNotification) {
-        const newValue = changes.receivePushNotification.newValue;
+        const newValue = changes.receivePushNotification.newValue as boolean;
         const oldValue = changes.receivePushNotification.oldValue;
         console.log(
           `[Background] Push notification setting changed from ${oldValue} to ${newValue}`,

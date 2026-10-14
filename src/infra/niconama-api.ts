@@ -147,7 +147,6 @@ export class NiconamaApiImpl implements NiconamaApi {
     return this.extractProgramFromHtml(html);
   }
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   private extractProgramFromHtml(html: string): Program | undefined {
     // Find the embedded-data script tag and extract data-props attribute
     const match = html.match(/<script[^>]*id="embedded-data"[^>]*data-props="([^"]+)"[^>]*>/);

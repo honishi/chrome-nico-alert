@@ -119,7 +119,6 @@ describe("extractProgramFromEmbeddedData", () => {
   const extractDataProps = (html: string): string => {
     const match = html.match(/<script[^>]*id="embedded-data"[^>]*data-props="([^"]+)"[^>]*>/);
     expect(match).not.toBeNull();
-    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
     return decode(match![1]);
   };
 
