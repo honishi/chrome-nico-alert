@@ -1,9 +1,6 @@
-// eslint-disable-next-line @typescript-eslint/no-var-requires
 const path = require("path");
-// eslint-disable-next-line @typescript-eslint/no-var-requires
 const CopyPlugin = require("copy-webpack-plugin");
 
-// eslint-disable-next-line no-undef
 const rootDir = path.join(__dirname, "..");
 const srcDir = path.join(rootDir, "src");
 const entryDir = path.join(srcDir, "entry");

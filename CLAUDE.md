@@ -75,7 +75,7 @@ npm test
   - Development: watch mode with webpack.dev.js
   - Production: optimized build with webpack.prod.js and TerserWebpackPlugin
   - CopyWebpackPlugin for static assets
-- **Chrome Extension Manifest V3** - Service Worker-based background script (version 3.3.0)
+- **Chrome Extension Manifest V3** - Service Worker-based background script
 - **Node.js 24.21.0** - Runtime version (managed via `.node-version`)
 - **Additional Tools**:
   - **html-entities** - HTML entity encoding/decoding
