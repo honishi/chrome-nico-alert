@@ -26,10 +26,15 @@ export default function ProgramGridItem(props: {
   function onProgramImageError(event: React.SyntheticEvent<HTMLImageElement>): void {
     const fallbackSrc = props.program.programProvider?.icon;
     const image = event.currentTarget;
+    image.style.objectFit = "";
     if (fallbackSrc && image.getAttribute("src") !== fallbackSrc) {
-      image.style.objectFit = "cover";
       image.src = fallbackSrc;
     }
+  }
+  function onProgramImageLoad(event: React.SyntheticEvent<HTMLImageElement>): void {
+    const image = event.currentTarget;
+    const isFallback = image.getAttribute("src") !== programImageSrc;
+    image.style.objectFit = isFallback ? "cover" : "";
   }
   const title = [props.program.isFollowerOnly ? "【限】" : "", props.program.title].join(" ");
   const userImageSrc =
@@ -44,7 +49,12 @@ export default function ProgramGridItem(props: {
     <div className="grid-item">
       {rankElement}
       <a href={props.program.watchPageUrl} onClick={onClick}>
-        <img src={programImageSrc} onError={onProgramImageError} alt="" />
+        <img
+          src={programImageSrc}
+          onError={onProgramImageError}
+          onLoad={onProgramImageLoad}
+          alt=""
+        />
         <span className="elapsed-time">
           <i className="fa-solid fa-clock"></i> {props.elapsedTime}
         </span>
