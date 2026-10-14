@@ -218,15 +218,39 @@ export class BrowserApiImpl implements BrowserApi {
     iconUrl: string,
     onCreated: (notificationId: string) => void,
   ): void {
-    chrome.notifications.create(
-      {
-        type: "basic",
-        iconUrl: iconUrl,
-        title: title,
-        message: message,
-      },
-      onCreated,
-    );
+    const fallbackIconUrl = chrome.runtime.getURL("icons/icon128.png");
+    function createNotification(notificationIconUrl: string): void {
+      chrome.notifications.create(
+        {
+          type: "basic",
+          iconUrl: notificationIconUrl,
+          title: title,
+          message: message,
+        },
+        (notificationId) => {
+          // lastError is only available within this callback.
+          const error = chrome.runtime.lastError;
+          if (error) {
+            if (notificationIconUrl !== fallbackIconUrl) {
+              console.warn(
+                "Failed to create notification, retrying with local icon:",
+                error.message,
+              );
+              createNotification(fallbackIconUrl);
+            } else {
+              console.error("Failed to create notification with local icon:", error.message);
+            }
+            return;
+          }
+          if (!notificationId) {
+            console.error("Notification creation returned no notification ID");
+            return;
+          }
+          onCreated(notificationId);
+        },
+      );
+    }
+    createNotification(iconUrl || fallbackIconUrl);
   }
 
   async isAutoOpenUser(userId: string): Promise<boolean> {
